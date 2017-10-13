@@ -20,10 +20,12 @@ module EVM-DATA
 
     syntax Int ::= "pow256" [function]
                  | "pow255" [function]
+                 | "pow160" [function]
                  | "pow16"  [function]
  // ----------------------------------
     rule pow256 => 2 ^Int 256
     rule pow255 => 2 ^Int 255
+    rule pow160 => 2 ^Int 160
     rule pow16  => 2 ^Int 16
 
 
@@ -51,8 +53,8 @@ module EVM-DATA
 
     syntax Int ::= chop ( Int ) [function]
  // --------------------------------------
-    rule chop ( I:Int ) => I %Int pow256 requires I <Int 0  orBool I >=Int pow256
-    rule chop ( I:Int ) => I             requires I >=Int 0 andBool I <Int pow256
+    rule chop ( I:Int ) => I %Int pow256 // requires I <Int 0  orBool I >=Int pow256 [smt-lemma]
+    // rule chop ( I:Int ) => I             requires I >=Int 0 andBool I <Int pow256
 
 
 // -   `bool2Word` interperets a `Bool` as a `Int`.
@@ -306,7 +308,7 @@ module EVM-DATA
 // as a cons-list, so we provide some standard cons-list manipulation tools.
 
 
-    syntax WordStack ::= ".WordStack" | Int ":" WordStack
+    syntax WordStack ::= ".WordStack" [smtlib(word_stack_empty)] | Int ":" WordStack
  // -----------------------------------------------------
 
 
@@ -404,6 +406,12 @@ module EVM-DATA
     rule #asByteStack( W ) => #asByteStack( W , .WordStack )
     rule #asByteStack( 0 , WS ) => WS
     rule #asByteStack( W , WS ) => #asByteStack( W /Int 256 , W %Int 256 : WS ) requires W =/=K 0
+
+    syntax WordStack ::= #asByteStackWidth ( Int , Int )             [smtlib(asByteStackWidth)]
+                       | #asByteStackWidth ( Int , Int, WordStack ) [function, klabel(#asByteStackWidthAux), smtlib(asByteStackWidthAux)]
+//    rule #asByteStackWidth( N , W ) => #asByteStackWidth( N , W , .WordStack )
+    rule #asByteStackWidth( 0 , _ , WS ) => WS
+    rule #asByteStackWidth( N , W , WS ) => #asByteStackWidth( N -Int 1 , W /Int 256 , W %Int 256 : WS ) requires N >Int 0
 
 
 // Addresses
@@ -569,7 +577,7 @@ module EVM-DATA
 //     wide enough.
 
 
-    syntax String ::= #unparseByteStack ( WordStack ) [function]
+    syntax String ::= #unparseByteStack ( WordStack ) [smtlib(unparse_byte_stack), function]
  // ------------------------------------------------------------
     rule #unparseByteStack( .WordStack ) => ""
     rule #unparseByteStack( W : WS )     => chrChar(W %Int (2 ^Int 8)) +String #unparseByteStack(WS)

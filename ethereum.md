@@ -82,7 +82,7 @@ To do so, we'll extend sort `JSON` with some EVM specific syntax, and provide a 
     syntax EthereumCommand ::= "flush"
  // ----------------------------------
     rule <k> #end       ~> flush => #finalizeTx(false)               ... </k>
-    rule <k> #exception ~> flush => #finalizeTx(false) ~> #exception ... </k>
+//    rule <k> #exception ~> flush => #finalizeTx(false) ~> #exception ... </k>
 ```
 
 -   `startTx` computes the sender of the transaction, and places loadTx on the `k` cell.
@@ -165,7 +165,7 @@ To do so, we'll extend sort `JSON` with some EVM specific syntax, and provide a 
 
     syntax EthereumCommand ::= "#finishTx"
  // --------------------------------------
-    rule <k> #exception ~> #finishTx => #popCallStack ~> #popWorldState ~> #exception ... </k>
+//    rule <k> #exception ~> #finishTx => #popCallStack ~> #popWorldState ~> #exception ... </k>
 
     rule <k> #end ~> #finishTx => #mkCodeDeposit ACCT ~> #end ... </k>
          <id> ACCT </id>
@@ -231,7 +231,7 @@ TODO: Handle blocks with ommers.
 ```{.k .uiuck .rvk}
     syntax EthereumCommand ::= "exception" | "failure" String | "success"
  // ---------------------------------------------------------------------
-    rule <k> #exception ~> exception => . ... </k>
+//    rule <k> #exception ~> exception => . ... </k>
     rule <k> success => . ... </k> <exit-code> _ => 0 </exit-code>
     rule failure _ => .
 ```
@@ -546,7 +546,7 @@ The `"rlp"` key loads the block information.
 ```{.k .uiuck .rvk}
     syntax EthereumCommand ::= "check" JSON
  // ---------------------------------------
-    rule #exception ~> check J:JSON => check J ~> #exception
+//    rule #exception ~> check J:JSON => check J ~> #exception
     rule check DATA : { .JSONList } => . requires DATA =/=String "transactions"
     rule check DATA : { (KEY:String) : VALUE , REST } => check DATA : { KEY : VALUE } ~> check DATA : { REST }
       requires REST =/=K .JSONList andBool notBool DATA in (SetItem("callcreates") SetItem("logs") SetItem("transactions"))

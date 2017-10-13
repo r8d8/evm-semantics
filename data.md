@@ -20,10 +20,12 @@ Some important numbers that are referred to often during execution:
 ```{.k .uiuck .rvk}
     syntax Int ::= "pow256" [function]
                  | "pow255" [function]
+                 | "pow160" [function]
                  | "pow16"  [function]
  // ----------------------------------
     rule pow256 => 2 ^Int 256
     rule pow255 => 2 ^Int 255
+    rule pow160 => 2 ^Int 160
     rule pow16  => 2 ^Int 16
 ```
 
@@ -50,8 +52,8 @@ Primitives provide the basic conversion from K's sorts `Int` and `Bool` to EVM's
 ```{.k .uiuck .rvk}
     syntax Int ::= chop ( Int ) [function]
  // --------------------------------------
-    rule chop ( I:Int ) => I %Int pow256 requires I <Int 0  orBool I >=Int pow256
-    rule chop ( I:Int ) => I             requires I >=Int 0 andBool I <Int pow256
+    rule chop ( I:Int ) => I %Int pow256 // requires I <Int 0  orBool I >=Int pow256 [smt-lemma]
+    // rule chop ( I:Int ) => I             requires I >=Int 0 andBool I <Int pow256
 ```
 
 -   `bool2Word` interperets a `Bool` as a `Int`.
@@ -308,7 +310,8 @@ The stack and some standard operations over it are provided here.
 This stack also serves as a cons-list, so we provide some standard cons-list manipulation tools.
 
 ```{.k .uiuck .rvk}
-    syntax WordStack ::= ".WordStack" | Int ":" WordStack
+    syntax WordStack ::= ".WordStack" [smtlib(word_stack_empty)]
+                       | Int ":" WordStack [klabel(_:WordStack_), smtlib(word_stack_cons)]
  // -----------------------------------------------------
 ```
 
@@ -318,12 +321,12 @@ This stack also serves as a cons-list, so we provide some standard cons-list man
 -   `WS [ N .. W ]` access the range of `WS` beginning with `N` of width `W`.
 
 ```{.k .uiuck .rvk}
-    syntax WordStack ::= WordStack "++" WordStack [function]
+    syntax WordStack ::= WordStack "++" WordStack [function, smtlib(appWordStack)]
  // --------------------------------------------------------
     rule .WordStack ++ WS' => WS'
     rule (W : WS)   ++ WS' => W : (WS ++ WS')
 
-    syntax WordStack ::= #take ( Int , WordStack ) [function]
+    syntax WordStack ::= #take ( Int , WordStack ) [function, smtlib(take)]
  // ---------------------------------------------------------
     rule #take(0, WS)         => .WordStack
     rule #take(N, .WordStack) => 0 : #take(N -Int 1, .WordStack) requires N >Int 0
@@ -339,7 +342,7 @@ This stack also serves as a cons-list, so we provide some standard cons-list man
  // --------------------------------------------------------------
     rule WS [ START .. WIDTH ] => #take(WIDTH, #drop(START, WS))
 ```
-
+        
 -   `WS [ N ]` accesses element $N$ of $WS$.
 -   `WS [ N := W ]` sets element $N$ of $WS$ to $W$ (padding with zeros as needed).
 
@@ -402,6 +405,13 @@ The local memory of execution is a byte-array (instead of a word-array).
     rule #asByteStack( W ) => #asByteStack( W , .WordStack )
     rule #asByteStack( 0 , WS ) => WS
     rule #asByteStack( W , WS ) => #asByteStack( W /Int 256 , W %Int 256 : WS ) requires W =/=K 0
+
+    syntax WordStack ::= #asByteStackWidth ( Int , Int )             [smtlib(asByteStackWidth)]
+                       | #asByteStackWidth ( Int , Int, WordStack ) [function, klabel(#asByteStackWidthAux), smtlib(asByteStackWidthAux)]
+//    rule #asByteStackWidth( N , W ) => #asByteStackWidth( N , W , .WordStack )
+    rule #asByteStackWidth( 0 , _ , WS ) => WS
+    rule #asByteStackWidth( N , W , WS ) => #asByteStackWidth( N -Int 1 , W /Int 256 , W %Int 256 : WS ) requires N >Int 0
+
 ```
 
 Addresses
@@ -554,7 +564,7 @@ We need to interperet a `WordStack` as a `String` again so that we can call `Kec
 -   `#padByte` ensures that the `String` interperetation of a `Int` is wide enough.
 
 ```{.k .uiuck .rvk}
-    syntax String ::= #unparseByteStack ( WordStack ) [function]
+    syntax String ::= #unparseByteStack ( WordStack ) [smtlib(unparse_byte_stack), function]
  // ------------------------------------------------------------
     rule #unparseByteStack( .WordStack ) => ""
     rule #unparseByteStack( W : WS )     => chrChar(W %Int (2 ^Int 8)) +String #unparseByteStack(WS)
