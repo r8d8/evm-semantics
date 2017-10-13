@@ -340,7 +340,7 @@ Simple commands controlling exceptions provide control-flow.
     syntax KItem ::= "#?" K ":" K "?#"
  // ----------------------------------
     rule <k>                #? K : _ ?#  => K         ... </k>
-    rule <k> #exception ~>  #? _ : K ?#  => K         ... </k>
+//    rule <k> #exception ~>  #? _ : K ?#  => K         ... </k>
     rule <k> #end       ~> (#? K : _ ?#) => K ~> #end ... </k>
 ```
 
@@ -432,7 +432,7 @@ Some checks if an opcode will throw an exception are relatively quick and done u
 ```{.k .uiuck .rvk}
     syntax InternalOp ::= "#invalid?" "[" OpCode "]"
  // ------------------------------------------------
-    rule <k> #invalid? [ INVALID(_) ] => #exception ... </k>
+//    rule <k> #invalid? [ INVALID(_) ] => #exception ... </k>
     rule <k> #invalid? [ OP         ] => .          ... </k> requires notBool isInvalidOp(OP)
 ```
 
@@ -442,10 +442,10 @@ Some checks if an opcode will throw an exception are relatively quick and done u
 ```{.k .uiuck .rvk}
     syntax InternalOp ::= "#stackNeeded?" "[" OpCode "]"
  // ----------------------------------------------------
-    rule <k> #stackNeeded? [ OP ] => #exception ... </k>
-         <wordStack> WS </wordStack>
-   requires #sizeWordStack(WS) <Int #stackNeeded(OP)
-     orBool #sizeWordStack(WS) +Int #stackDelta(OP) >Int 1024
+//    rule <k> #stackNeeded? [ OP ] => #exception ... </k>
+//         <wordStack> WS </wordStack>
+//   requires #sizeWordStack(WS) <Int #stackNeeded(OP)
+//     orBool #sizeWordStack(WS) +Int #stackDelta(OP) >Int 1024
 
     rule <k> #stackNeeded? [ OP ] => .K ... </k>
          <wordStack> WS </wordStack>
@@ -501,11 +501,11 @@ Some checks if an opcode will throw an exception are relatively quick and done u
     rule <k> #badJumpDest? [ OP    ] => . ... </k> <wordStack> DEST  : WS </wordStack> <program> ... DEST |-> JUMPDEST ... </program> requires isJumpOp(OP)
     rule <k> #badJumpDest? [ JUMPI ] => . ... </k> <wordStack> _ : 0 : WS </wordStack>
 
-    rule <k> #badJumpDest? [ JUMP  ] => #exception ... </k> <wordStack> DEST :     WS </wordStack> <program> ... DEST |-> OP ... </program> requires OP =/=K JUMPDEST
-    rule <k> #badJumpDest? [ JUMPI ] => #exception ... </k> <wordStack> DEST : W : WS </wordStack> <program> ... DEST |-> OP ... </program> requires OP =/=K JUMPDEST andBool W =/=K 0
+//    rule <k> #badJumpDest? [ JUMP  ] => #exception ... </k> <wordStack> DEST :     WS </wordStack> <program> ... DEST |-> OP ... </program> requires OP =/=K JUMPDEST
+//    rule <k> #badJumpDest? [ JUMPI ] => #exception ... </k> <wordStack> DEST : W : WS </wordStack> <program> ... DEST |-> OP ... </program> requires OP =/=K JUMPDEST andBool W =/=K 0
 
-    rule <k> #badJumpDest? [ JUMP  ] => #exception ... </k> <wordStack> DEST :     WS </wordStack> <program> PGM </program> requires notBool (DEST in_keys(PGM))
-    rule <k> #badJumpDest? [ JUMPI ] => #exception ... </k> <wordStack> DEST : W : WS </wordStack> <program> PGM </program> requires (notBool (DEST in_keys(PGM))) andBool W =/=K 0
+//    rule <k> #badJumpDest? [ JUMP  ] => #exception ... </k> <wordStack> DEST :     WS </wordStack> <program> PGM </program> requires notBool (DEST in_keys(PGM))
+//    rule <k> #badJumpDest? [ JUMPI ] => #exception ... </k> <wordStack> DEST : W : WS </wordStack> <program> PGM </program> requires (notBool (DEST in_keys(PGM))) andBool W =/=K 0
 ```
 
 ### Execution Step
@@ -566,12 +566,12 @@ The `CallOp` opcodes all interperet their second argument as an address.
  // ----------------------------------------------------------
     rule <k> #gas [ OP ] => #gasExec(SCHED, OP) ~> #memory(OP, MU) ~> #deductGas ... </k> <memoryUsed> MU </memoryUsed> <schedule> SCHED </schedule>
 
-    rule <k> GEXEC:Int ~> MU':Int ~> #deductGas => #exception ... </k> requires MU' >=Int pow256
+//    rule <k> GEXEC:Int ~> MU':Int ~> #deductGas => #exception ... </k> requires MU' >=Int pow256
     rule <k> (GEXEC:Int ~> MU':Int => (Cmem(SCHED, MU') -Int Cmem(SCHED, MU)) +Int GEXEC)  ~> #deductGas ... </k>
          <memoryUsed> MU => MU' </memoryUsed> <schedule> SCHED </schedule>
       requires MU' <Int pow256
 
-    rule <k> G:Int ~> #deductGas => #exception ... </k> <gas> GAVAIL                  </gas> requires GAVAIL <Int G
+//    rule <k> G:Int ~> #deductGas => #exception ... </k> <gas> GAVAIL                  </gas> requires GAVAIL <Int G
     rule <k> G:Int ~> #deductGas => .          ... </k> <gas> GAVAIL => GAVAIL -Int G </gas> <previousGas> _ => GAVAIL </previousGas> requires GAVAIL >=Int G
 
     syntax Int ::= Cmem ( Schedule , Int ) [function, memo]
@@ -784,6 +784,7 @@ These are just used by the other operators for shuffling local execution state a
          <activeAccounts> ... ACCTTO |-> (EMPTY => #if VALUE >Int 0 #then false #else EMPTY #fi) ACCTFROM |-> (_ => ORIGFROM ==Int VALUE andBool NONCE ==Int 0 andBool CODE ==K .Map) ... </activeAccounts>
       requires ACCTFROM =/=K ACCTTO andBool VALUE <=Int ORIGFROM
 
+/*
     rule <k> #transferFunds ACCTFROM ACCTTO VALUE => #exception ... </k>
          <account>
            <acctID> ACCTFROM </acctID>
@@ -791,6 +792,7 @@ These are just used by the other operators for shuffling local execution state a
            ...
          </account>
       requires VALUE >Int ORIGFROM
+ */
 
     rule <k> (. => #newAccount ACCTTO) ~> #transferFunds ACCTFROM ACCTTO VALUE ... </k>
          <activeAccounts> ACCTS </activeAccounts>
@@ -846,7 +848,7 @@ These operations are getters/setters of the local execution memory.
     syntax BinStackOp ::= "MSTORE" | "MSTORE8"
  // ------------------------------------------
     rule <k> MSTORE INDEX VALUE => . ... </k>
-         <localMem> LM => LM [ INDEX := #padToWidth(32, #asByteStack(VALUE)) ] </localMem>
+         <localMem> LM => LM [ INDEX := #asByteStackWidth(32, VALUE) ] </localMem>
 
     rule <k> MSTORE8 INDEX VALUE => . ... </k>
          <localMem> LM => LM [ INDEX <- (VALUE %Int 256) ]    </localMem>
@@ -1204,10 +1206,12 @@ The various `CALL*` (and other inter-contract control flow) operations will be d
          <activeAccounts> ACCTS </activeAccounts>
       requires notBool (ACCTCODE >Int 0 andBool ACCTCODE <=Int 4) andBool notBool ACCTCODE in_keys(ACCTS)
 
-    rule #callWithCode ACCTFROM ACCTTO CODE GLIMIT VALUE APPVALUE ARGS
+/*
+  rule #callWithCode ACCTFROM ACCTTO CODE GLIMIT VALUE APPVALUE ARGS
       => #pushCallStack ~> #pushWorldState
       ~> #transferFunds ACCTFROM ACCTTO VALUE
       ~> #mkCall ACCTFROM ACCTTO CODE GLIMIT VALUE APPVALUE ARGS
+ */
 
     rule <mode> EXECMODE </mode>
          <k> #mkCall ACCTFROM ACCTTO CODE GLIMIT VALUE APPVALUE ARGS
@@ -1234,10 +1238,11 @@ The various `CALL*` (and other inter-contract control flow) operations will be d
 
     syntax KItem ::= "#return" Int Int
  // ----------------------------------
-    rule <k> #exception ~> #return _ _
+/*    rule <k> #exception ~> #return _ _
           => #popCallStack ~> #popWorldState  ~> 0 ~> #push
          ...
          </k>
+ */
 
     rule <mode> EXECMODE </mode>
          <k> #end ~> #return RETSTART RETWIDTH
@@ -1327,10 +1332,12 @@ For each `CALL*` operation, we make a corresponding call to `#call` and a state-
          </account>
       requires VALUE >Int BAL orBool CD >=Int 1024
 
+/*
     rule #create ACCTFROM ACCTTO GAVAIL VALUE INITCODE
       => #pushCallStack ~> #pushWorldState
       ~> #transferFunds ACCTFROM ACCTTO VALUE
       ~> #mkCreate ACCTFROM ACCTTO INITCODE GAVAIL VALUE
+ */
 
     rule <mode> EXECMODE </mode>
          <k> #mkCreate ACCTFROM ACCTTO INITCODE GAVAIL VALUE
@@ -1362,7 +1369,7 @@ For each `CALL*` operation, we make a corresponding call to `#call` and a state-
                    | "#mkCodeDeposit" Int
                    | "#finishCodeDeposit"
  // -------------------------------------
-    rule <k> #exception ~> #codeDeposit _ => #popCallStack ~> #popWorldState ~> 0 ~> #push ... </k>
+//    rule <k> #exception ~> #codeDeposit _ => #popCallStack ~> #popWorldState ~> 0 ~> #push ... </k>
 
     rule <mode> EXECMODE </mode>
          <k> #end ~> #codeDeposit ACCT => #mkCodeDeposit ACCT ~> ACCT ~> #push ...</k>
@@ -2160,6 +2167,6 @@ Assembler
     rule #asmOpCodes( DUP(W)       ; OPS ) => W +Int 127 : #asmOpCodes(OPS)
     rule #asmOpCodes( SWAP(W)      ; OPS ) => W +Int 143 : #asmOpCodes(OPS)
     rule #asmOpCodes( LOG(W)       ; OPS ) => W +Int 160 : #asmOpCodes(OPS)
-    rule #asmOpCodes( PUSH(N, W)   ; OPS ) => N +Int 95  : (#padToWidth(N, #asByteStack(W)) ++ #asmOpCodes(OPS))
+    rule #asmOpCodes( PUSH(N, W)   ; OPS ) => N +Int 95  : (#asByteStackWidth(N,W) ++ #asmOpCodes(OPS))
 endmodule
 ```
