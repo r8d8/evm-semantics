@@ -700,5 +700,18 @@ TODO: case with nonzero ommers.
     rule check TESTID : { "uncleHeaders" : OMMERS } => check "ommerHeaders" : OMMERS ~> failure TESTID
  // --------------------------------------------------------------------------------------------------
     rule <k> check "ommerHeaders" : [ .JSONList ] => . ... </k> <ommerBlockHeaders> [ .JSONList ] </ommerBlockHeaders>
+```
+
+### Unit testing
+
+`[function]`s are best tested using "unit tests". Failing assertions get stuck.
+
+```{.k .uiuck .rvk}
+    syntax EthereumCommand ::= "assert_equal" String "==" String [function]
+ // --------------------------------------------------------------------
+    rule assert_equal X == X => .
+```
+
+```{.k .uiuck .rvk}
 endmodule
 ```

@@ -18,6 +18,22 @@ module VERIFICATION
     rule #sizeWordStack ( _ ) >=Int 0 => true [smt-lemma]
 
 
+// ABI Helpers
+// -----------
+
+// `#abiCall` is a helper generating the `callData` cell, for calling into [ABI
+// compliant](https://solidity.readthedocs.io/en/develop/abi-spec.html). It takes a
+// function name and an argument list. Currently, we support a subset of the
+// possible argument types.
+
+
+    syntax AbiArg    ::= "#uint" "<" Int ">" "(" Int ")" | "Foo" | "Bar"
+    syntax AbiArgs   ::= List{ AbiArg , ":" }
+    syntax WordStack ::= #abiCall ( String , AbiArgs ) [function]
+    syntax String ::= #signature ( String , AbiArgs ) [function]
+    rule #signature ( F, ARG : ARGS ) => F ++ "(fooo)"
+
+
 // Sum to N
 // --------
 

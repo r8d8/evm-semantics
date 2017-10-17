@@ -714,5 +714,18 @@ module ETHEREUM-SIMULATION
     rule check TESTID : { "uncleHeaders" : OMMERS } => check "ommerHeaders" : OMMERS ~> failure TESTID
  // --------------------------------------------------------------------------------------------------
     rule <k> check "ommerHeaders" : [ .JSONList ] => . ... </k> <ommerBlockHeaders> [ .JSONList ] </ommerBlockHeaders>
+
+
+// ### Unit testing
+
+// `[function]`s are best tested using "unit tests". Failing assertions get stuck.
+
+
+    syntax EthereumCommand ::= "assert_equal" String "==" String [function]
+ // --------------------------------------------------------------------
+    rule assert_equal X == X => .
+
+
+
 endmodule
 
