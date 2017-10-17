@@ -31,6 +31,7 @@ defn: $(defn_files)
 
 proof_dir=tests/proofs
 proof_files=${proof_dir}/sum-to-n-spec.k \
+            ${proof_dir}/sum-to-n-abi-spec.k \
 			${proof_dir}/hkg/allowance-spec.k \
 			${proof_dir}/hkg/approve-spec.k \
 			${proof_dir}/hkg/balanceOf-spec.k \
@@ -40,10 +41,10 @@ proof_files=${proof_dir}/sum-to-n-spec.k \
 
 proofs: $(proof_files)
 
-tests/proofs/sum-to-n-spec.k: proofs/sum-to-n.md
+tests/proofs/sum-to-n%-spec.k: proofs/sum-to-n%.md
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc-tangle --from markdown --to code-k --code sum-to-n $< > $@
+	pandoc-tangle --from markdown --to code-k $< > $@
 
 tests/proofs/hkg/%-spec.k: proofs/hkg.md
 	@echo "==  tangle: $@"
