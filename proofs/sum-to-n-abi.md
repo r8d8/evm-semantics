@@ -2,13 +2,13 @@
 module SUM-TO-N-ABI
     imports ETHEREUM-SIMULATION
     imports VERIFICATION
-    rule <k> start </k>
+    rule <k> #execute     ...</k>
          <exit-code> 1       </exit-code>
          <mode>      NORMAL  </mode>
          <schedule>  DEFAULT </schedule>
 
          <output>        .WordStack </output>
-         <memoryUsed>    3          </memoryUsed>
+         <memoryUsed>    0          </memoryUsed>
          <callDepth>     0          </callDepth>
          <callStack>     .List      </callStack>
          <interimStates> .List      </interimStates>
@@ -22,7 +22,7 @@ module SUM-TO-N-ABI
 
          <wordStack>.WordStack          </wordStack>
          <localMem>     .Map           </localMem>
-         <pc>           0 => 1         </pc>
+         <pc>           0 => 0         </pc>
          <gas>          100000         </gas>
          <previousGas>  _              </previousGas>
 
