@@ -25,12 +25,12 @@ ABI Helpers
 takes a function name and an argument list. Currently, we support a subset of
 the possible argument types.
 
-```{.k .uiuck}
+```{.xk .xuiuck}
     syntax AbiArg    ::= "#uint" "<" Int ">" "(" Int ")" | "Foo" | "Bar"
     syntax AbiArgs   ::= List{ AbiArg , ":" }
     syntax WordStack ::= #abiCall ( String , AbiArgs ) [function]
     syntax String ::= #signature ( String , AbiArgs ) [function]
-    rule #signature ( F, ARG : ARGS ) => F ++ "(fooo)"
+    rule #signature ( F, ARG : ARGS ) => F +String "(fooo)"
 ```
 
 Sum to N
