@@ -721,7 +721,7 @@ module ETHEREUM-SIMULATION
 // `[function]`s are best tested using "unit tests". Failing assertions get stuck.
 
 
-    syntax EthereumCommand ::= "assert_equal" String "==" String [function]
+    syntax EthereumCommand ::= "assert_equal" String "==" String
  // --------------------------------------------------------------------
     rule assert_equal X == X => .
 

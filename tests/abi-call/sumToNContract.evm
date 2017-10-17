@@ -1,0 +1,22 @@
+// solidity ^0.4.0;
+// contract SumToNContract {
+//     function sumToN(uint256 n) public constant returns (uint256 sum) {
+//         sum = (n * (n + 1)) / 2;
+//     }
+// }
+
+mkAcct 7
+load "account" : { 7 : { "balance" : 1000000000
+                       , "nonce"   : 1
+                       , "code"    : .Map
+                       , "storage" : .Map
+                       }
+                 }
+
+load "exec" : { "address" : 7
+              , "gas"     : 100000
+              , "code"    : "60606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806327cd9d9e14603c57600080fd5b3415604657600080fd5b605a60048080359060200190919050506070565b6040518082815260200191505060405180910390f35b60006002600183018302811515608257fe5b0490509190505600a165627a7a72305820580557625b425b3bc768bf8537f306a95dd6906cdf461e28ba77a128ec53ed2e0029"
+              }
+start
+check "out" : "1234"
+.EthereumSimulation
