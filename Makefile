@@ -41,6 +41,11 @@ proof_files=${proof_dir}/sum-to-n-spec.k \
 
 proofs: $(proof_files)
 
+tests/proofs/sum-to-n-spec.k: proofs/sum-to-n.md
+	@echo "==  tangle: $@"
+	mkdir -p $(dir $@)
+	pandoc-tangle --from markdown --to code-k $< > $@
+
 tests/proofs/sum-to-n%-spec.k: proofs/sum-to-n%.md
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
