@@ -180,6 +180,49 @@ These helper constants make writing the proof claims simpler/cleaner.
                        | "%sumToNOutput"        [function]
     rule %SumToNABI         => #asMapOpCodes(#dasmOpCodes(#parseByteStack( "60606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806327cd9d9e14603c57600080fd5b3415604657600080fd5b605a60048080359060200190919050506070565b6040518082815260200191505060405180910390f35b60006002600183018302811515608257fe5b0490509190505600a165627a7a72305820f557ffa9526076033da17171cc3bc8ce8e3641f23ee55c35d98756e0da6099ad0029"))) [macro]
     rule %SumToNABICallData => #parseByteStack("27cd9d9e0000000000000000000000000000000000000000000000000000000000000064") [macro]
-    rule %sumToNOutput      => #parseByteStack("0000000000000000000000000000000000000000000000000000000000013ba") [macro]
+    rule %sumToNOutput      => #parseByteStack("0000000000000000000000000000000000000000000000000000000000013ba")
+```
+ABI Call Desugaring 
+-------------------
+
+We'd eventually like the syntax to look like - 
+
+ `#abiCall(*FUNCTION_NAME*, TypedArgs)`, where the typed args to have be of the
+ `#uint160(*DATA*)` where the types are from the ABI specification, and enclose
+ the data.
+
+```{.k .uiuck}
+    syntax TypedArg ::= "#uint160" "(" Int ")"
+    syntax TypedArgs ::= List{ TypedArg , "," } 
+
+    syntax InternalOp ::= #abiCall( String , TypedArgs )
+                        | #copyWordStackToCallData( WordStack )
+
+    syntax String ::= #typeName			        ( TypedArg )            [function]
+                    | #genSignature		        ( String, TypedArgs)    [function]
+                    | #accumulateParamString	( String, TypedArgs)    [function]
+                    | #encodeArgs               ( String, TypedArgs)    [function] 
+                    | #encodeArg                ( TypedArg )            [function]
+
+    rule #abiCall( FNAME , ARGS ) =>
+                #copyWordStackToCallData(#parseByteStack(
+                  substrString(Keccak256(#genSignature(FNAME +String "(", ARGS)), 0, 8)))
+
+//    rule <k> #abiCall( F , ARGS ) =>
+//        #copyWordStackToCallData(#parseByteStack(
+//                                subStrString(
+//                                Keccak256(#genSig()) 0, 8)))
+    rule <k> #copyWordStackToCallData( WS ) => . ... </k>
+         <callData> _ => WS </callData>
+
+    rule #genSignature(SIGN, TARG, TARGS)   => #generateSignature(SIGN +String "," +String #typeName(TARG), TARGS) 
+    rule #genSignature(SIGN, .TypedArgs)    => SIGN +String ")"
+    
+    rule #typeName(#uint160( _ ))       => "uint160"
+
+```
+
+```{.k .uiuck}
 endmodule
 ```
+

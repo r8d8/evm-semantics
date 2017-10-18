@@ -7,7 +7,7 @@ Verify that `#abiCall` correctly desugars:
 ```{.k .uiuck}
     imports ETHEREUM-SIMULATION
     imports VERIFICATION
-    rule <k> #execute     ...</k>
+    rule <k> #copyWordStackToCallData(%SumToNABICallData) ~> #execute     ...</k>
          <exit-code> 1       </exit-code>
          <mode>      NORMAL  </mode>
          <schedule>  DEFAULT </schedule>
