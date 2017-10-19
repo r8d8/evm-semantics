@@ -7,7 +7,7 @@ Verify that `#abiCall` correctly desugars:
 ```{.k .uiuck}
     imports ETHEREUM-SIMULATION
     imports VERIFICATION
-    rule <k> #copyWordStackToCallData(%SumToNABICallData) ~> #execute     ...</k>
+    rule <k> #abiCall(sumToN, #uint256(200)) =>  #execute     ...</k>
          <exit-code> 1       </exit-code>
          <mode>      NORMAL  </mode>
          <schedule>  DEFAULT </schedule>
@@ -19,11 +19,11 @@ Verify that `#abiCall` correctly desugars:
          <interimStates> .List      </interimStates>
          <callLog>       .Set       </callLog>
 
-         <program>   %SumToNABI         </program>
-         <id>        %ACCT_ID           </id>
-         <caller>    %CALLER_ID         </caller>
-         <callData>  %SumToNABICallData </callData>
-         <callValue> 0                  </callValue>
+         <program>   %SumToNABI                            </program>
+         <id>        %ACCT_ID                              </id>
+         <caller>    %CALLER_ID                            </caller>
+         <callData>  .WordStack => %SumToNABICallData      </callData>   
+         <callValue> 0                                     </callValue>
 
          <wordStack>.WordStack          </wordStack>
          <localMem>     .Map           </localMem>
@@ -57,7 +57,7 @@ Verify that `#abiCall` correctly desugars:
          </accounts>
 ```
 
-```{.k .uiuck}
+```{.kxx .uiuckxx}
     rule <k> #execute     ...</k>
          <exit-code> 1       </exit-code>
          <mode>      NORMAL  </mode>
