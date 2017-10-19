@@ -26,8 +26,7 @@ module BALANCE-OF-SPEC
          <program>      %HKG_Program </program>
          <id>           %ACCT_ID     </id>
          <caller>       %CALLER_ID   </caller>
-         <callData>     #parseHexBytes("70a08231") : #uint160(T) </callData>
-//         <callData>     112 : 160 : 130 : 49 : #uint160(T) </callData>
+         <callData>     #parseHexBytes("70a08231") ++ #uint(T) </callData>
          // "70a08231": "balanceOf(address)"
          <callValue>    0            </callValue>
 

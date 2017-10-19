@@ -831,7 +831,7 @@ module EVM
     syntax BinStackOp ::= "MSTORE" | "MSTORE8"
  // ------------------------------------------
     rule <k> MSTORE INDEX VALUE => . ... </k>
-         <localMem> LM => LM [ INDEX := #padToWidth(32, #asByteStack(VALUE)) ] </localMem>
+         <localMem> LM => LM [ INDEX := #asByteStackWidth(32, VALUE) ] </localMem>
 
     rule <k> MSTORE8 INDEX VALUE => . ... </k>
          <localMem> LM => LM [ INDEX <- (VALUE %Int 256) ]    </localMem>
@@ -2006,6 +2006,6 @@ module EVM
     rule #asmOpCodes( DUP(W)       ; OPS ) => W +Int 127 : #asmOpCodes(OPS)
     rule #asmOpCodes( SWAP(W)      ; OPS ) => W +Int 143 : #asmOpCodes(OPS)
     rule #asmOpCodes( LOG(W)       ; OPS ) => W +Int 160 : #asmOpCodes(OPS)
-    rule #asmOpCodes( PUSH(N, W)   ; OPS ) => N +Int 95  : (#padToWidth(N, #asByteStack(W)) ++ #asmOpCodes(OPS))
+    rule #asmOpCodes( PUSH(N, W)   ; OPS ) => N +Int 95  : (#asByteStackWidth(N,W) ++ #asmOpCodes(OPS))
 endmodule
 
