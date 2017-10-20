@@ -26,13 +26,15 @@ module BALANCE-OF-SPEC
          <program>      %HKG_Program </program>
          <id>           %ACCT_ID     </id>
          <caller>       %CALLER_ID   </caller>
-         <callData>     .WordStack   </callData>
+         <callData>     #parseHexBytes("70a08231") ++ #uint(T) </callData>
+         // "70a08231": "balanceOf(address)"
          <callValue>    0            </callValue>
 
-         <wordStack>    WS    => ?A:WordStack </wordStack>
+//         <wordStack>    .WordStack    => _ : 360 : 1889567281 : .WordStack </wordStack>
+         <wordStack>    .WordStack    => _    </wordStack>
          <localMem>     .Map  => ?B:Map       </localMem>
-         <pc>           316   => 381          </pc>
-         <gas>          G     => G -Int 274   </gas>
+         <pc>           0     => 358          </pc>
+         <gas>          1000  => _            </gas>
          <previousGas>  _     => _            </previousGas>
 
          <selfDestruct> .Set    </selfDestruct>
@@ -55,16 +57,12 @@ module BALANCE-OF-SPEC
              <balance> BAL           </balance>
              <code>    %HKG_Program  </code>
              <acctMap> "nonce" |-> 0 </acctMap>
-             <storage> %ACCT_1_BALANCE |-> B1:Int
-                       %ACCT_1_ALLOWED |-> A1:Int
-                       %ACCT_2_BALANCE |-> B2:Int
-                       %ACCT_2_ALLOWED |-> A2:Int
-                       3 |-> %ORIGIN_ID
-                       4 |-> %CALLER_ID
+             <storage> _
              </storage>
            </account>
          </accounts>
 
-      requires #sizeWordStack(WS) <Int 1018 andBool G >=Int 274
+      requires #sizeWordStack(WS) <Int 1018
+          andBool 0 <=Int T andBool T <Int 1461501637330902918203684832716283019655932542976
 endmodule
 

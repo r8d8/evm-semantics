@@ -153,7 +153,7 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 // the data.
 
 
-    syntax TypedArg ::= "#uint160" "(" Int ")"
+    syntax TypedArg ::= "#uint256" "(" Int ")"
     syntax TypedArgs ::= List{ TypedArg , "," } 
 
     syntax InternalOp ::= #abiCall( String , TypedArgs )
@@ -167,8 +167,8 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 
     rule #abiCall( FNAME , ARGS ) =>
                 #copyWordStackToCallData(#parseByteStack(
-                  substrString(Keccak256(#genSignature(FNAME +String "(", ARGS)), 0, 8)))
 
+                  substrString(Keccak256(#genSignature(FNAME +String "(", ARGS)), 0, 8)))
     rule <k> #copyWordStackToCallData( WS ) => . ... </k>
          <callData> _ => WS </callData>
 
