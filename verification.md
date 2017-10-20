@@ -192,22 +192,22 @@ We'd eventually like the syntax to look like -
  the data.
 
 ```{.k .uiuck}
-    syntax TypedArg ::= "#uint256" "(" Int ")"
+    syntax TypedArg ::= "#uint160"  "(" Int ")"
+                      | "#address"  "(" Int ")"
     syntax TypedArgs ::= List{ TypedArg , "," } 
 
     syntax InternalOp ::= #abiCall( String , TypedArgs )
                         | #copyWordStackToCallData( WordStack )
 
     syntax String ::= #typeName			        ( TypedArg )            [function]
-                    | #genSignature		        ( String, TypedArgs)    [function]
+                    | #generateSignature        ( String, TypedArgs)    [function]
                     | #accumulateParamString	( String, TypedArgs)    [function]
                     | #encodeArgs               ( String, TypedArgs)    [function] 
                     | #encodeArg                ( TypedArg )            [function]
 
     rule #abiCall( FNAME , ARGS ) =>
                 #copyWordStackToCallData(#parseByteStack(
-
-                  substrString(Keccak256(#genSignature(FNAME +String "(", ARGS)), 0, 8)))
+                  substrString(Keccak256(#generateSignature(FNAME +String "(", ARGS)), 0, 8)))
     rule <k> #copyWordStackToCallData( WS ) => . ... </k>
          <callData> _ => WS </callData>
 
@@ -215,6 +215,7 @@ We'd eventually like the syntax to look like -
     rule #genSignature(SIGN, .TypedArgs)    => SIGN +String ")"
     
     rule #typeName(#uint160( _ ))       => "uint160"
+    rule #typeName(#address( _ ))       => "address"
 
 ```
 
