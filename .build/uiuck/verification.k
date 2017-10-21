@@ -162,28 +162,24 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
                        | "#getData" "(" TypedArg ")"                    [function]
     
     
-    syntax InternalOp ::= #abiCall( String , TypedArgs )                [function]
-                        | #copyWordStackToCallData( WordStack )         [function]
+    syntax WordStack ::= #abiCallData( String , TypedArgs )             [function]
 
     syntax String ::= #typeName                 ( TypedArg )            [function]
                     | #generateSignature        ( String, TypedArgs)    [function]
 
-    rule #abiCall( FNAME , ARGS ) =>
-                #copyWordStackToCallData(#parseByteStack(
-                  substrString(Keccak256(#generateSignature(FNAME +String "(", ARGS)), 0, 8)) ++
-                    #encodeArgs(.WordStack | ARGS))
+    rule #abiCallData( FNAME , ARGS ) =>
+                #parseByteStack(substrString(Keccak256(#generateSignature(FNAME +String "(", ARGS)), 0, 8))
+                    ++ #encodeArgs(.WordStack | ARGS)
 
-    rule <k>        #copyWordStackToCallData( WS ) => . ... </k>
-         <callData> _                              => WS    </callData>
-
-    rule #generateSignature(SIGN, TARG, TARGS)   => #generateSignature(SIGN +String "," +String #typeName(TARG), TARGS) 
-    rule #generateSignature(SIGN, .TypedArgs)    => SIGN +String ")"
+    rule #generateSignature(SIGN, TARGA, TARGB, TARGS)  => #generateSignature(SIGN +String #typeName(TARGA) +String ",", TARGB, TARGS) 
+    rule #generateSignature(SIGN, TARG, .TypedArgs)     => #generateSignature(SIGN +String #typeName(TARG), .TypedArgs)
+    rule #generateSignature(SIGN, .TypedArgs)           => SIGN +String ")"
     
-    rule #typeName(#uint160( _ ))       => "uint160"
-    rule #typeName(#address( _ ))       => "address"
+    rule #typeName(#uint160( _ ))                       => "uint160"
+    rule #typeName(#address( _ ))                       => "address"
 
     rule #encodeArgs(WS | ARG, ARGS)            => #encodeArgs(WS ++ #getData(ARG) |  ARGS)
-    rule #encodeArgs(WS | .TypedArgs)           => WS ++ .WordStack
+    rule #encodeArgs(WS | .TypedArgs)           => WS 
     rule #encodeArgs(.WordStack | .TypedArgs)   => .WordStack
 
     rule #getData(#uint160( DATA ))             => #uint( DATA )
