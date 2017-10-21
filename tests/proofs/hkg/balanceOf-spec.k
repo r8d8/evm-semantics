@@ -10,7 +10,8 @@
 
 module BALANCE-OF-SPEC
     imports ETHEREUM-SIMULATION
-    rule <k>            #abiCall("balanceOf", #address(T:Int)) =>  #execute ... </k>
+    // The First Rule Uses Desugaring to put the correct arguments on the word stack. 
+    rule <k>            #abiCall("balanceOf", #address(T), .TypedArgs) =>  #execute ... </k>
          <exit-code>    1                                                   </exit-code>
          <mode>         NORMAL                                              </mode>
          <schedule>     DEFAULT                                             </schedule>
@@ -26,7 +27,6 @@ module BALANCE-OF-SPEC
          <id>           %ACCT_ID     </id>
          <caller>       %CALLER_ID   </caller>
          <callData>     .WordStack => #parseHexBytes("70a08231") ++ #uint(T) </callData>
-         // "70a08231": "balanceOf(address)"
          <callValue>    0            </callValue>
 
          <wordStack>    .WordStack    => _      </wordStack>
@@ -60,8 +60,9 @@ module BALANCE-OF-SPEC
            </account>
          </accounts>
 
-         requires 0 <=Int T andBool T <Int 1461501637330902918203684832716283019655932542976
+//         requires 0 <=Int T andBool T <Int 1461501637330902918203684832716283019655932542976
 
+     // Once the correct arguments have been generated, use the unsugared system to prove the rule. 
 //    rule <k> #execute ... </k>
 //         <exit-code> 1       </exit-code>
 //         <mode>      NORMAL  </mode>

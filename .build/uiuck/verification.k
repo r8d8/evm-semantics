@@ -155,28 +155,39 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 
     syntax TypedArg ::= "#uint160"  "(" Int ")"
                       | "#address"  "(" Int ")"
-    syntax TypedArgs ::= List{ TypedArg , "," } 
 
-    syntax InternalOp ::= #abiCall( String , TypedArgs )
-                        | #copyWordStackToCallData( WordStack )
+    syntax TypedArgs ::= List{TypedArg, ","}
 
-    syntax String ::= #typeName			        ( TypedArg )            [function]
+    syntax WordStack ::= "#encodeArgs" "(" WordStack "|" TypedArgs ")"  [function]
+                       | "#getData" "(" TypedArg ")"                    [function]
+    
+    
+    syntax InternalOp ::= #abiCall( String , TypedArgs )                [function]
+                        | #copyWordStackToCallData( WordStack )         [function]
+
+    syntax String ::= #typeName                 ( TypedArg )            [function]
                     | #generateSignature        ( String, TypedArgs)    [function]
-                    | #accumulateParamString	( String, TypedArgs)    [function]
-                    | #encodeArgs               ( String, TypedArgs)    [function] 
-                    | #encodeArg                ( TypedArg )            [function]
 
     rule #abiCall( FNAME , ARGS ) =>
                 #copyWordStackToCallData(#parseByteStack(
-                  substrString(Keccak256(#generateSignature(FNAME +String "(", ARGS)), 0, 8)))
-    rule <k> #copyWordStackToCallData( WS ) => . ... </k>
-         <callData> _ => WS </callData>
+                  substrString(Keccak256(#generateSignature(FNAME +String "(", ARGS)), 0, 8)) ++
+                    #encodeArgs(.WordStack | ARGS))
 
-    rule #genSignature(SIGN, TARG, TARGS)   => #generateSignature(SIGN +String "," +String #typeName(TARG), TARGS) 
-    rule #genSignature(SIGN, .TypedArgs)    => SIGN +String ")"
+    rule <k>        #copyWordStackToCallData( WS ) => . ... </k>
+         <callData> _                              => WS    </callData>
+
+    rule #generateSignature(SIGN, TARG, TARGS)   => #generateSignature(SIGN +String "," +String #typeName(TARG), TARGS) 
+    rule #generateSignature(SIGN, .TypedArgs)    => SIGN +String ")"
     
     rule #typeName(#uint160( _ ))       => "uint160"
     rule #typeName(#address( _ ))       => "address"
+
+    rule #encodeArgs(WS | ARG, ARGS)            => #encodeArgs(WS ++ #getData(ARG) |  ARGS)
+    rule #encodeArgs(WS | .TypedArgs)           => WS ++ .WordStack
+    rule #encodeArgs(.WordStack | .TypedArgs)   => .WordStack
+
+    rule #getData(#uint160( DATA ))             => #uint( DATA )
+    rule #getData(#address( DATA ))             => #uint( DATA )
 
 
 
