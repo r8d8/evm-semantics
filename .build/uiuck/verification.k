@@ -74,6 +74,8 @@ syntax WordStack ::= #uint(Int) [function, smtlib(uint256)]
     rule #getIntBytes(T,A,A,S) => 0
     rule #getIntBytes(T,A,B,S) +Int 0 => #getIntBytes(T,A,B,S)
 
+    rule #getIntBytes(T,0,B,0): (R:WordStack) => (T %Int (2 ^Int (8 *Int B))) : R
+
     rule 1461501637330902918203684832716283019655932542975 &Int #getIntBytes(T,A,B,S)
       => #getIntBytes(T,A,minInt(B,20-Int S),S)
 

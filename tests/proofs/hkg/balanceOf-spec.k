@@ -27,9 +27,9 @@ module BALANCE-OF-SPEC
          <id>           %ACCT_ID     </id>
          <caller>       %CALLER_ID   </caller>
          <callData>
-                    #abiCallData("balanceOf", #address(T), .TypedArgs)
+                    #abiCallData("balanceOf", #address(%ACCT_ID), .TypedArgs)
                     =>
-                    #parseHexBytes("70a08231") ++ #uint(T)
+                    #parseHexBytes("70a08231") ++ #uint(%ACCT_ID)
          </callData>
          <callValue>    0            </callValue>
 
@@ -83,7 +83,7 @@ module BALANCE-OF-SPEC
          <program>      %HKG_Program </program>
          <id>           %ACCT_ID     </id>
          <caller>       %CALLER_ID   </caller>
-         <callData>     #parseHexBytes("70a08231") ++ #uint(T) </callData>
+         <callData>     #parseHexBytes("70a08231") ++ #uint(%ACCT_ID) => .WordStack </callData>
          // "70a08231": "balanceOf(address)"
          <callValue>    0            </callValue>
 
