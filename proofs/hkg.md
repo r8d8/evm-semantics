@@ -449,7 +449,7 @@ module BALANCE-OF-SPEC
          <program>      %HKG_Program </program>
          <id>           %ACCT_ID     </id>
          <caller>       %CALLER_ID   </caller>
-         <callData>     #parseHexBytes("70a08231") ++ #uint(%ACCT_ID) => .WordStack </callData>
+         <callData>     #parseHexBytes("70a08231") ++ #uint(1) => .WordStack </callData>
          // "70a08231": "balanceOf(address)"
          <callValue>    0            </callValue>
 
@@ -480,7 +480,7 @@ module BALANCE-OF-SPEC
              <balance> BAL           </balance>
              <code>    %HKG_Program  </code>
              <acctMap> "nonce" |-> 0 </acctMap>
-             <storage> _
+             <storage> %ACCT_1_BALANCE |-> 15
              </storage>
            </account>
          </accounts>
