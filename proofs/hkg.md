@@ -376,17 +376,17 @@ Here we provide a specification file containing a reachability rule for the veri
 ```{.k .balanceOf}
 module BALANCE-OF-SPEC
     imports ETHEREUM-SIMULATION
-    rule <k> #execute ... </k>
+    rule <k> #execute => ( RETURN 96 32 ) ~> _  </k>
          <exit-code> 1       </exit-code>
          <mode>      NORMAL  </mode>
          <schedule>  DEFAULT </schedule>
 
-         <output>        .WordStack </output>
-         <memoryUsed>    4          </memoryUsed>
-         <callDepth>     0          </callDepth>
-         <callStack>     .List      </callStack>
-         <interimStates> .List      </interimStates>
-         <callLog>       .Set       </callLog>
+         <output>        .WordStack     </output>
+         <memoryUsed>    0    => _      </memoryUsed>
+         <callDepth>     _              </callDepth>
+         <callStack>     .List          </callStack>
+         <interimStates> .List          </interimStates>
+         <callLog>       .Set           </callLog>
 
          <program>      %HKG_Program </program>
          <id>           %ACCT_ID     </id>
@@ -396,8 +396,8 @@ module BALANCE-OF-SPEC
         </callData>
          <callValue>    0            </callValue>
          <wordStack>    .WordStack    => _    </wordStack>
-         <localMem>     .Map  => ?B:Map       </localMem>
-         <pc>           0     => 358          </pc>
+         <localMem>     .Map  => ?B           </localMem>
+         <pc>           0     => _            </pc>
          <gas>          1000  => _            </gas>
          <previousGas>  _     => _            </previousGas>
 
@@ -433,6 +433,7 @@ module BALANCE-OF-SPEC
 
       requires #sizeWordStack(WS) <Int 1018
           andBool 0 <=Int T andBool T <Int 1461501637330902918203684832716283019655932542976
+      ensures #range(B, 96, 32) ==K #asByteStackWidth(32, B2)
 
 endmodule
 ```
