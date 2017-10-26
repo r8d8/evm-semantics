@@ -342,7 +342,7 @@ This stack also serves as a cons-list, so we provide some standard cons-list man
  // --------------------------------------------------------------
     rule WS [ START .. WIDTH ] => #take(WIDTH, #drop(START, WS))
 ```
-        
+
 -   `WS [ N ]` accesses element $N$ of $WS$.
 -   `WS [ N := W ]` sets element $N$ of $WS$ to $W$ (padding with zeros as needed).
 
@@ -407,7 +407,7 @@ The local memory of execution is a byte-array (instead of a word-array).
     rule #asByteStack( 0 , WS ) => WS
     rule #asByteStack( W , WS ) => #asByteStack( W /Int 256 , W %Int 256 : WS ) requires W =/=K 0
 
-    syntax WordStack ::= #asByteStackWidth ( Int , Int )             [function, smtlib(asByteStackWidth)]
+    syntax WordStack ::= #asByteStackWidth ( Int , Int )            [function, smtlib(asByteStackWidth)]
                        | #asByteStackWidth ( Int , Int, WordStack ) [function, klabel(#asByteStackWidthAux), smtlib(asByteStackWidthAux)]
     rule #asByteStackWidth( N , W ) => #asByteStackWidth( N , W , .WordStack )
     rule #asByteStackWidth( 0 , _ , WS ) => WS
