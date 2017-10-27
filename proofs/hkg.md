@@ -376,15 +376,15 @@ Here we provide a specification file containing a reachability rule for the veri
 ```{.k .balanceOf}
 module BALANCE-OF-SPEC
     imports ETHEREUM-SIMULATION
-    rule <k> (#execute => ( RETURN _ _ ) ~> _) ... </k>
+    rule <k> #execute => (RETURN _ _  ~> _) </k>
          <exit-code> 1       </exit-code>
          <mode>      NORMAL  </mode>
          <schedule>  DEFAULT </schedule>
 
          <output>        .WordStack     </output>
-         <memoryUsed>    0    => _      </memoryUsed>
+         <memoryUsed>    0    => 4      </memoryUsed>
          <callDepth>     0              </callDepth>
-         <callStack>     .List          </callStack>
+         <callStack>     .List => _     </callStack>
          <interimStates> .List          </interimStates>
          <callLog>       .Set           </callLog>
 
@@ -392,19 +392,18 @@ module BALANCE-OF-SPEC
          <id>           %ACCT_ID     </id>
          <caller>       %CALLER_ID   </caller>
          <callData>     #abiCallData("balanceOf", #address(%CALLER_ID))
-                     => .WordStack
          </callData>
 
          <callValue>    0                     </callValue>
          <wordStack>    .WordStack    => _    </wordStack>
          <localMem>     .Map    => _            </localMem>
          <pc>           0       => _            </pc>
-         <gas>          100000  => _            </gas>
+         <gas>          1000    => _            </gas>
          <previousGas>  _       => _            </previousGas>
 
-         <selfDestruct> .Set    </selfDestruct>
-         <log>          .Set    </log>
-         <refund>       0  => _ </refund>
+         <selfDestruct> .Set </selfDestruct>
+         <log>          .Set </log>
+         <refund>       0    </refund>
 
          <gasPrice>     _               </gasPrice>
          <origin>       %ORIGIN_ID      </origin>
@@ -433,7 +432,5 @@ module BALANCE-OF-SPEC
          </accounts>
 
       requires #sizeWordStack(WS) <Int 1018
-          andBool 0 <=Int T andBool T <Int 1461501637330902918203684832716283019655932542976
-
 endmodule
 ```
