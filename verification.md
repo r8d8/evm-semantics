@@ -34,6 +34,7 @@ and to keep various constraints down to reasonable sizes.
     rule (N +Int #sizeWordStack(S)) +Int -2 => (N +Int -2) +Int #sizeWordStack(S) [smt-lemma]
        // from callstack, maybe?
 
+    rule #take(N,#uint(X)++W) => #take(N, #uint(X)) requires N <Int 32 [smt-lemma]
     rule #take(N,#uint(X)) => #uint(X) ++ #take(N -Int 32, .WordStack) requires N >=Int 32 [smt-lemma]
     rule #take(N,#uint(X)++W) => #uint(X) ++ #take(N -Int 32, W) requires N >=Int 32 [smt-lemma]
     rule #drop(N,#uint(X)++W) => #drop(N -Int 32, W) requires N >=Int 32 [smt-lemma]
