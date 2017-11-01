@@ -10,22 +10,24 @@
 module TRANSFER-SPEC
     imports ETHEREUM-SIMULATION
 
-    rule <k> #execute ... </k>
+    rule <k> #execute => (RETURN _ _ ~> _) </k>
+         <pc> 0 => _ </pc>
          <exit-code> 1 </exit-code>
          <mode>     NORMAL  </mode>
          <schedule> DEFAULT </schedule>
 
          <output>        .WordStack </output>
-         <memoryUsed>    3          </memoryUsed>
+         <memoryUsed>    0 => _     </memoryUsed>
          <callDepth>     0          </callDepth>
-         <callStack>     .List      </callStack>
+         <callStack>     .List => _ </callStack>
          <interimStates> .List      </interimStates>
          <callLog>       .Set       </callLog>
+         <wordStack> .WordStack => _ </wordStack>
 
          <program>   %HKG_Program </program>
          <id>        %ACCT_ID     </id>
          <caller>    %ORIGIN_ID   </caller>
-         <callData>  .WordStack   </callData>
+         <callData>  #abiCallData("transfer",#address(%CALLER_ID),#uint256(TRANSFER)) </callData>
          <callValue> 0            </callValue>
 
          <gasPrice>     _               </gasPrice>
@@ -38,7 +40,7 @@ module TRANSFER-SPEC
          <difficulty>   256             </difficulty>
 
          <selfDestruct>   .Set                 </selfDestruct>
-         <log>            .Set                 </log>
+         <log>            .Set => _            </log>
          <activeAccounts> SetItem ( %ACCT_ID ) </activeAccounts>
          <messages>       .Bag                 </messages>
 
@@ -55,12 +57,8 @@ module TRANSFER-SPEC
 // ### Then Branch
 
 
-         <pc>  1533 => 1772         </pc>
-         <gas>  G   => G -Int 10544 </gas>
+         <gas>  100000 => _ </gas>
 
-         <wordStack>                        TRANSFER : %CALLER_ID : WS
-                  => B2 +Int TRANSFER : 0 : TRANSFER : %CALLER_ID : WS
-         </wordStack>
          <accounts>
            <account>
              <acctID>   %ACCT_ID     </acctID>
@@ -77,11 +75,12 @@ module TRANSFER-SPEC
            </account>
          </accounts>
 
-      requires TRANSFER >Int 0
-       andBool B1 >=Int TRANSFER andBool B1 <Int pow256
-       andBool B2 >=Int 0        andBool B2 +Int TRANSFER <Int pow256
+      requires TRANSFER >Int 0 andBool TRANSFER <Int pow256
+       andBool B1 >=Int 0      andBool B1 <Int pow256
+       andBool B2 >=Int 0      andBool B2 <Int pow256
+       andBool B2 +Int TRANSFER <Int pow256
+       andBool B1 -Int TRANSFER >=Int 0
        andBool #sizeWordStack(WS) <Int 1017
-       andBool G >=Int 10544
 endmodule
 
 
