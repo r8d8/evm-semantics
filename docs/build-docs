@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+set -e
+
+base_dir="$(cd "$(dirname $0)/.."; pwd)"
+build_dir="$base_dir/.build"
+virtualenv_dir="$build_dir/docs/virtualenv" 
+target_dir="$build_dir/docs/www"
+docs_dir="$base_dir/docs/"
+
+check_dep() { type "$1" >/dev/null || { echo >&2 Please install "'$1'"; exit 1; } ; }
+have_dependencies() {
+    check_dep virtualenv
+    check_dep pandoc
+}
+
+setup_virtual_env() {
+    virtualenv "$virtualenv_dir"
+    source "$virtualenv_dir/bin/activate"
+}
+
+install_python_packages() {
+    pip install Sphinx 
+    pip install sphinx_rtd_theme
+}
+
+
+# Main
+# ----
+
+cd "$docs_dir"
+have_dependencies
+setup_virtual_env
+install_python_packages
+sphinx-build -b dirhtml ./src "$target_dir"
