@@ -17,6 +17,8 @@ module SUM-SPEC
 Sum To N Program and Claim
 --------------------------
 
+. . .
+
 ### High Level
 
 Canonical "hello world" verification example, in no particular language:
@@ -31,12 +33,16 @@ while (n > 0) {
 return s;
 ```
 
+. . .
+
 ### Claim
 
 $$s = \sum_{i = 1}^N i = \frac{N * (N + 1)}{2}$$
 
 Proof Claims
 ------------
+
+. . .
 
 ### Static Configuration
 
@@ -60,6 +66,8 @@ The first part of the claim is largely static (or abstracted away, like `<previo
 -   The gas consumed is no more than `(52 * N) + 27`.
 -   `N` is sufficiently low that overflow will not occur in execution.
 
+. . .
+
 ```{.k .sum-to-n}
      <pc>        0  => 53                                </pc>
      <wordStack> WS => 0 : N *Int (N +Int 1) /Int 2 : WS </wordStack>
@@ -73,6 +81,8 @@ The first part of the claim is largely static (or abstracted away, like `<previo
 
 Proof Claims
 ------------
+
+. . .
 
 ### Static Circularity
 
@@ -99,6 +109,8 @@ We specify the behaviour of the rest of the program any time it reaches the loop
 -   The gas consumed for this fragment is no more than `(52 * I) + 21`.
 -   `S` and `I` are sufficiently low that overflow will not occur during execution.
 
+. . .
+
 ```{.k .sum-to-n}
      <pc> 35 => 53                         </pc>
      <gas> G => G -Int (52 *Int I +Int 21) </gas>
@@ -111,6 +123,10 @@ We specify the behaviour of the rest of the program any time it reaches the loop
    andBool S +Int I *Int (I +Int 1) /Int 2 <Int pow256
    andBool #sizeWordStack(WS) <Int 1021
    andBool G >=Int 52 *Int I +Int 21
+```
 
+### End Circularity (Loop Invariant)
+
+```{.k .sum-to-n}
 endmodule
 ```

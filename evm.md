@@ -579,22 +579,47 @@ Execution
     rule <k> #exec [ OP ] => #gas [ OP ] ~> OP ... </k> requires isInternalOp(OP) orBool isNullStackOp(OP) orBool isPushOp(OP)
 ```
 
-Here we load the correct number of arguments from the `wordStack` based on the sort of the opcode.
-Some of them require an argument to be interpereted as an address (modulo 160 bits), so the `#addr?` function performs that check.
+Argument Loading
+----------------
+
+. . .
+
+### OpCode Subsorts
+
+Sort `OpCode` is broken into several subsorts for easier handling.
 
 ```{.k .uiuck .rvk}
     syntax KItem  ::= OpCode
-    syntax OpCode ::= NullStackOp | UnStackOp | BinStackOp | TernStackOp | QuadStackOp
-                    | InvalidOp | StackOp | InternalOp | CallOp | CallSixOp | PushOp
- // --------------------------------------------------------------------------------
+    syntax OpCode ::= NullStackOp | UnStackOp | BinStackOp
+ // ------------------------------------------------------
+```
 
-    syntax InternalOp ::= UnStackOp   Int
-                        | BinStackOp  Int Int
-                        | TernStackOp Int Int Int
+. . .
+
+### Arity-based Argument Loading
+
+Based on the sort of an opcode, we load the correct number of arguments:
+
+```{.k .uiuck .rvk}
+    syntax InternalOp ::= UnStackOp Int | BinStackOp Int Int
+ // --------------------------------------------------------
+    rule <k> #exec [ UOP:UnStackOp => UOP #addr?(UOP, W0) ] ... </k>
+         <wordStack> W0 : WS => WS </wordStack>
+
+    rule <k> #exec [ BOP:BinStackOp => BOP #addr?(BOP, W0) W1 ] ... </k>
+         <wordStack> W0 : W1 : WS => WS </wordStack>
+```
+
+### Remaining `OpCode` Subsorts
+
+```{.k .uiuck .rvk}
+    syntax OpCode ::= StackOp | CallOp    | CallSixOp
+                    | PushOp  | InvalidOp | InternalOp
+ // --------------------------------------------------
+
+    syntax InternalOp ::= TernStackOp Int Int Int
                         | QuadStackOp Int Int Int Int
  // -------------------------------------------------
-    rule <k> #exec [ UOP:UnStackOp   => UOP #addr?(UOP, W0)          ] ... </k> <wordStack> W0 : WS                => WS </wordStack>
-    rule <k> #exec [ BOP:BinStackOp  => BOP #addr?(BOP, W0) W1       ] ... </k> <wordStack> W0 : W1 : WS           => WS </wordStack>
     rule <k> #exec [ TOP:TernStackOp => TOP #addr?(TOP, W0) W1 W2    ] ... </k> <wordStack> W0 : W1 : W2 : WS      => WS </wordStack>
     rule <k> #exec [ QOP:QuadStackOp => QOP #addr?(QOP, W0) W1 W2 W3 ] ... </k> <wordStack> W0 : W1 : W2 : W3 : WS => WS </wordStack>
 ```
@@ -1169,7 +1194,7 @@ These operators query about the current `CALL*` state.
 Ethereum Network OpCodes
 ------------------------
 
-Operators that require access to the rest of the Ethereum network world-state can be taken as a first draft of a "blockchain generic" language.
+. . .
 
 ### Account Queries
 
