@@ -36,6 +36,8 @@ Writing a JSON-ish parser in K takes 6 lines.
 Utilities
 ---------
 
+. . .
+
 ### Important Powers
 
 Some important numbers that are referred to often during execution:
@@ -50,13 +52,31 @@ Some important numbers that are referred to often during execution:
     rule pow16  => 2 ^Int 16
 ```
 
--   `chop` interperets an integers modulo $2^256$.
+### Modulo Arithmetic
 
 ```{.k .uiuck .rvk}
     syntax Int ::= chop ( Int ) [function]
  // --------------------------------------
-    rule chop ( I:Int ) => I %Int pow256 requires I <Int 0  orBool I >=Int pow256
-    rule chop ( I:Int ) => I             requires I >=Int 0 andBool I <Int pow256
+    rule chop ( I:Int ) => I %Int pow256
+      requires I <Int 0  orBool I >=Int pow256
+
+    rule chop ( I:Int ) => I
+      requires I >=Int 0 andBool I <Int pow256
+```
+
+. . .
+
+### Word Arithmetic
+
+`<op>Word` operations incorporate the behavior for EVM arithmetic:
+
+```{.k .uiuck .rvk}
+    syntax Int ::= Int "+Word" Int [function]
+                 | Int "/Word" Int [function]
+ // -----------------------------------------
+    rule W0 +Word W1 => chop( W0 +Int W1 )
+    rule W0 /Word 0  => 0
+    rule W0 /Word W1 => chop( W0 /Int W1 ) requires W1 =/=K 0
 ```
 
 ### Boolean Conversions
@@ -169,28 +189,21 @@ You could alternatively calculate `I1 %Int I2`, then add one to the normal integ
     rule log256Int(N) => log2Int(N) /Int 8
 ```
 
-The corresponding `<op>Word` operations automatically perform the correct modulus for EVM words.
-
-```{.k .uiuck .rvk}
-    syntax Int ::= Int "+Word" Int [function]
-                 | Int "*Word" Int [function]
-                 | Int "-Word" Int [function]
-                 | Int "/Word" Int [function]
-                 | Int "%Word" Int [function]
- // -----------------------------------------
-    rule W0 +Word W1 => chop( W0 +Int W1 )
-    rule W0 -Word W1 => chop( W0 -Int W1 ) requires W0 >=Int W1
-    rule W0 -Word W1 => chop( (W0 +Int pow256) -Int W1 ) requires W0 <Int W1
-    rule W0 *Word W1 => chop( W0 *Int W1 )
-    rule W0 /Word 0  => 0
-    rule W0 /Word W1 => chop( W0 /Int W1 ) requires W1 =/=K 0
-    rule W0 %Word 0  => 0
-    rule W0 %Word W1 => chop( W0 %Int W1 ) requires W1 =/=K 0
-```
+### End Word Arithmetic
 
 Care is needed for `^Word` to avoid big exponentiation.
 
 ```{.k .uiuck .rvk}
+    syntax Int ::= Int "-Word" Int [function]
+                 | Int "*Word" Int [function]
+                 | Int "%Word" Int [function]
+ // -----------------------------------------
+    rule W0 -Word W1 => chop( W0 -Int W1 )               requires W0 >=Int W1
+    rule W0 -Word W1 => chop( (W0 +Int pow256) -Int W1 ) requires W0 <Int  W1
+    rule W0 *Word W1 => chop( W0 *Int W1 )
+    rule W0 %Word 0  => 0
+    rule W0 %Word W1 => chop( W0 %Int W1 ) requires W1 =/=K 0
+
     syntax Int ::= Int "^Word" Int [function]
  // -----------------------------------------
     rule W0 ^Word W1 => (W0 ^Word (W1 /Int 2)) ^Word 2  requires W1 >=Int pow16 andBool W1 %Int 2 ==Int 0
@@ -229,21 +242,27 @@ The `<op>Word` comparisons similarly lift K operators to EVM ones:
 
 ```{.k .uiuck .rvk}
     syntax Int ::= Int "<Word"  Int [function]
-                 | Int ">Word"  Int [function]
-                 | Int "<=Word" Int [function]
-                 | Int ">=Word" Int [function]
                  | Int "==Word" Int [function]
  // ------------------------------------------
     rule W0 <Word  W1 => 1 requires W0 <Int   W1
     rule W0 <Word  W1 => 0 requires W0 >=Int  W1
-    rule W0 >Word  W1 => 1 requires W0 >Int   W1
-    rule W0 >Word  W1 => 0 requires W0 <=Int  W1
-    rule W0 <=Word W1 => 1 requires W0 <=Int  W1
-    rule W0 <=Word W1 => 0 requires W0 >Int   W1
-    rule W0 >=Word W1 => 1 requires W0 >=Int  W1
-    rule W0 >=Word W1 => 0 requires W0 <Int   W1
     rule W0 ==Word W1 => 1 requires W0 ==Int  W1
     rule W0 ==Word W1 => 0 requires W0 =/=Int W1
+```
+
+### End Word Comparison
+
+```{.k .uiuck .rvk}
+    syntax Int ::= Int ">Word"  Int [function]
+                 | Int ">=Word" Int [function]
+                 | Int "<=Word" Int [function]
+ // ------------------------------------------
+    rule W0 >Word  W1 => 1 requires W0 >Int   W1
+    rule W0 >Word  W1 => 0 requires W0 <=Int  W1
+    rule W0 >=Word W1 => 1 requires W0 >=Int  W1
+    rule W0 >=Word W1 => 0 requires W0 <Int   W1
+    rule W0 <=Word W1 => 1 requires W0 <=Int  W1
+    rule W0 <=Word W1 => 0 requires W0 >Int   W1
 ```
 
 -   `s<Word` implements a less-than for `Word` (with signed interperetation).
@@ -326,6 +345,7 @@ Data-Structures over `Word`
 A WordStack for EVM
 -------------------
 
+. . .
 
 ### As a cons-list
 
@@ -340,29 +360,44 @@ A cons-list is used for the EVM wordstack.
  // -----------------------------------------------------
 ```
 
--   `_++_` acts as `WordStack` append.
--   `#take(N , WS)` keeps the first $N$ elements of a `WordStack` (passing with zeros as needed).
--   `#drop(N , WS)` removes the first $N$ elements of a `WordStack`.
+This can be thought of as a singly linked-list.
+
+. . .
+
+### WordStack Append
 
 ```{.k .uiuck .rvk}
     syntax WordStack ::= WordStack "++" WordStack [function]
  // --------------------------------------------------------
     rule .WordStack ++ WS' => WS'
     rule (W : WS)   ++ WS' => W : (WS ++ WS')
+```
 
-    syntax WordStack ::= #take ( Int , WordStack ) [function]
- // ---------------------------------------------------------
-    rule #take(0, WS)         => .WordStack
-    rule #take(N, .WordStack) => 0 : #take(N -Int 1, .WordStack) requires N >Int 0
-    rule #take(N, (W : WS))   => W : #take(N -Int 1, WS)         requires N >Int 0
+### WordStack Drop
 
+This function removes the first `N` elements of a `WordStack`.
+
+```{.k .uiuck .rvk}
     syntax WordStack ::= #drop ( Int , WordStack ) [function]
  // ---------------------------------------------------------
     rule #drop(0, WS)         => WS
     rule #drop(N, .WordStack) => .WordStack
     rule #drop(N, (W : WS))   => #drop(N -Int 1, WS) requires N >Int 0
-
 ```
+
+### End WordStack Operations
+
+-   `#take(N , WS)` gives the first `N` elements[^zeropad].
+
+```{.k .uiuck .rvk}
+    syntax WordStack ::= #take ( Int , WordStack ) [function]
+ // ---------------------------------------------------------
+    rule #take(0, WS)         => .WordStack
+    rule #take(N, .WordStack) => 0 : #take(N -Int 1, .WordStack) requires N >Int 0
+    rule #take(N, (W : WS))   => W : #take(N -Int 1, WS)         requires N >Int 0
+```
+
+[^zeropad]: `#take` pads with zeros if `N` is less than the length of the `WordStack`.
 
 ### Element Access
 
