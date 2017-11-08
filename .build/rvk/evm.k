@@ -1,6 +1,8 @@
 // EVM Execution
 // =============
 
+// ### Overview
+
 // The EVM is a stack machine over some simple opcodes. Most of the opcodes are
 // "local" to the execution state of the machine, but some of them must interact
 // with the world state. This file only defines the local execution operations, the
@@ -25,7 +27,7 @@ module EVM
 // We've broken up the configuration into two components; those parts of the state
 // that mutate during execution of a single transaction and those that are static
 // throughout. In the comments next to each cell, we've marked which component of
-// the yellowpaper state corresponds to each cell.
+// the YellowPaper state corresponds to each cell.
 
 
     configuration <k> $PGM:EthereumSimulation </k>
@@ -191,8 +193,10 @@ module EVM
     rule <k> EX:Exception ~> (#setMode _ => .) ... </k>
 
 
-// Hardware
-// --------
+// State Stacks
+// ------------
+
+// ### The CallStack
 
 // The `callStack` cell stores a list of previous VM execution states.
 
@@ -243,6 +247,8 @@ module EVM
     rule <k> #dropCallStack => . ... </k> <callStack> (ListItem(_) => .List) ... </callStack>
 
 
+// ### The StateStack
+
 // The `interimStates` cell stores a list of previous world states.
 
 // -   `#pushWorldState` stores a copy of the current accounts at the top of the
@@ -280,6 +286,8 @@ module EVM
     rule <k> #dropWorldState => . ... </k> <interimStates> (ListItem(_) => .List) ... </interimStates>
 
 
+// ### The SubstateStack
+
 // The `substateStack` cell stores a list of previous substate logs.
 
 // -   `#pushSubstate` stores a copy of the current substate at the top of the
@@ -305,42 +313,38 @@ module EVM
     rule <k> #dropSubstate => .K ... </k> <substateStack> (ListItem(_) => .List) ... </substateStack>
 
 
-// Simple commands controlling exceptions provide control-flow.
+// Control Flow
+// ------------
 
-// -   `#end` is used to indicate the (non-exceptional) end of execution.
-// -   `#exception` is used to indicate exceptional states (it consumes any
-//     operations to be performed after it).
-// -   `#?_:_?#` allows for branching control-flow; if it reaches the front of the
-//     `op` cell it takes the first branch, if an exception runs into it it takes
-//     the second branch.
+// ### Exception Based
+
+// -   `#end` indicates (non-exceptional) end of execution.
+// -   `#exception` indicates exceptions (consuming opcodes until a catch).
 
 
-    syntax KItem ::= Exception
+    syntax KItem     ::= Exception
     syntax Exception ::= "#exception" | "#end"
  // ------------------------------------------
     rule <k> EX:Exception ~> (_:Int    => .) ... </k>
     rule <k> EX:Exception ~> (_:OpCode => .) ... </k>
 
+
+// -   `#?_:_?#` provides an "if-then-else" (choice):
+//     -   If there is no exception, take the first branch.
+//     -   Else, catch exception and take the second branch.
+
+
     syntax KItem ::= "#?" K ":" K "?#"
  // ----------------------------------
-    rule <k>                #? K : _ ?#  => K         ... </k>
-    rule <k> #exception ~>  #? _ : K ?#  => K         ... </k>
-    rule <k> #end       ~> (#? K : _ ?#) => K ~> #end ... </k>
+    rule <k>                #? B1 : _  ?#  => B1         ... </k>
+    rule <k> #exception ~>  #? _  : B2 ?#  => B2         ... </k>
+    rule <k> #end       ~> (#? B1 : _  ?#) => B1 ~> #end ... </k>
 
 
-// OpCode Execution Cycle
-// ----------------------
+// OpCode Execution
+// ----------------
 
-// `OpCode` is broken into several subsorts for easier handling. Here all `OpCode`s
-// are subsorted into `KItem` (allowing sequentialization), and the various sorts
-// of opcodes are subsorted into `OpCode`.
-
-
-    syntax KItem  ::= OpCode
-    syntax OpCode ::= NullStackOp | UnStackOp | BinStackOp | TernStackOp | QuadStackOp
-                    | InvalidOp | StackOp | InternalOp | CallOp | CallSixOp | PushOp
- // --------------------------------------------------------------------------------
-
+// ### Execution Macros
 
 // -   `#execute` calls `#next` repeatedly until it recieves an `#end` or
 //     `#exception`.
@@ -389,14 +393,23 @@ module EVM
       requires notBool (PCOUNT in_keys(PGM))
 
 
-// -   In `NORMAL` or `VMTESTS` mode, `#next` checks if the opcode is exceptional,
-//     runs it if not, then increments the program counter.
+// ### Single Step
+
+// The `#next` operator executes a single step by:
+
+// 1.  performing some quick checks for exceptional opcodes,
+// 2.  executes the opcode if it is not immediately exceptional,
+// 3.  increments the program counter, and finally
+// 4.  reverts state if any of the above steps threw an exception.
+
+// . . .
 
 
     rule <mode> EXECMODE </mode>
          <k> #next
-          => #pushCallStack
-          ~> #exceptional? [ OP ] ~> #exec [ OP ] ~> #pc [ OP ]
+          => #pushCallStack ~> #exceptional? [ OP ]
+                            ~> #exec         [ OP ]
+                            ~> #pc           [ OP ]
           ~> #? #dropCallStack : #popCallStack ~> #exception ?#
          ...
          </k>
@@ -407,17 +420,19 @@ module EVM
 
 // ### Exceptional OpCodes
 
-// Some checks if an opcode will throw an exception are relatively quick and done
-// up front.
-
 // -   `#exceptional?` checks if the operator is invalid and will not cause
 //     `wordStack` size issues (this implements the function `Z` in the
-//     yellowpaper, section 9.4.2).
+//     YellowPaper, section 9.4.2).
 
 
     syntax InternalOp ::= "#exceptional?" "[" OpCode "]"
  // ----------------------------------------------------
-    rule <k> #exceptional? [ OP ] => #invalid? [ OP ] ~> #stackNeeded? [ OP ] ~> #badJumpDest? [ OP ] ... </k>
+    rule <k> #exceptional? [ OP ]
+          => #invalid?     [ OP ]
+          ~> #stackNeeded? [ OP ]
+          ~> #badJumpDest? [ OP ]
+         ...
+         </k>
 
 
 // -   `#invalid?` checks if it's the designated invalid opcode.
@@ -519,8 +534,13 @@ module EVM
 // address (modulo 160 bits), so the `#addr?` function performs that check.
 
 
-    syntax InternalOp ::= UnStackOp Int
-                        | BinStackOp Int Int
+    syntax KItem  ::= OpCode
+    syntax OpCode ::= NullStackOp | UnStackOp | BinStackOp | TernStackOp | QuadStackOp
+                    | InvalidOp | StackOp | InternalOp | CallOp | CallSixOp | PushOp
+ // --------------------------------------------------------------------------------
+
+    syntax InternalOp ::= UnStackOp   Int
+                        | BinStackOp  Int Int
                         | TernStackOp Int Int Int
                         | QuadStackOp Int Int Int Int
  // -------------------------------------------------
@@ -528,14 +548,6 @@ module EVM
     rule <k> #exec [ BOP:BinStackOp  => BOP #addr?(BOP, W0) W1       ] ... </k> <wordStack> W0 : W1 : WS           => WS </wordStack>
     rule <k> #exec [ TOP:TernStackOp => TOP #addr?(TOP, W0) W1 W2    ] ... </k> <wordStack> W0 : W1 : W2 : WS      => WS </wordStack>
     rule <k> #exec [ QOP:QuadStackOp => QOP #addr?(QOP, W0) W1 W2 W3 ] ... </k> <wordStack> W0 : W1 : W2 : W3 : WS => WS </wordStack>
-
-    syntax Int ::= "#addr?" "(" OpCode "," Int ")" [function]
- // ---------------------------------------------------------
-    rule #addr?(BALANCE,      W) => #addr(W)
-    rule #addr?(EXTCODESIZE,  W) => #addr(W)
-    rule #addr?(EXTCODECOPY,  W) => #addr(W)
-    rule #addr?(SELFDESTRUCT, W) => #addr(W)
-    rule #addr?(OP, W)           => W        requires (OP =/=K BALANCE) andBool (OP =/=K EXTCODESIZE) andBool (OP =/=K EXTCODECOPY) andBool (OP =/=K SELFDESTRUCT)
 
 
 // `StackOp` is used for opcodes which require a large portion of the stack.
@@ -556,9 +568,21 @@ module EVM
     rule <k> #exec [ CO:CallOp     => CO  W0 #addr(W1) W2 W3 W4 W5 W6 ] ... </k> <wordStack> W0 : W1 : W2 : W3 : W4 : W5 : W6 : WS => WS </wordStack>
 
 
+// ### Helpers
+
+// -   `#addr` decides if the given argument should be interpreted as an address
+//     (given the opcode).
 // -   `#gas` calculates how much gas this operation costs, and takes into account
 //     the memory consumed.
 
+
+    syntax Int ::= "#addr?" "(" OpCode "," Int ")" [function]
+ // ---------------------------------------------------------
+    rule #addr?(BALANCE,      W) => #addr(W)
+    rule #addr?(EXTCODESIZE,  W) => #addr(W)
+    rule #addr?(EXTCODECOPY,  W) => #addr(W)
+    rule #addr?(SELFDESTRUCT, W) => #addr(W)
+    rule #addr?(OP, W)           => W        requires (OP =/=K BALANCE) andBool (OP =/=K EXTCODESIZE) andBool (OP =/=K EXTCODECOPY) andBool (OP =/=K SELFDESTRUCT)
 
     syntax InternalOp ::= "#gas" "[" OpCode "]" | "#deductGas" | "#deductMemory"
  // ----------------------------------------------------------------------------
@@ -600,7 +624,7 @@ module EVM
 // ### Substate Log
 
 // During execution of a transaction some things are recorded in the substate log
-// (Section 6.1 in yellowpaper). This is a right cons-list of `SubstateLogEntry`
+// (Section 6.1 in YellowPaper). This is a right cons-list of `SubstateLogEntry`
 // (which contains the account ID along with the specified portions of the
 // `wordStack` and `localMem`).
 
@@ -711,15 +735,17 @@ module EVM
 // EVM Programs
 // ============
 
-// Lists of opcodes form programs. Deciding if an opcode is in a list will be
-// useful for modeling gas, and converting a program into a map of program-counter
-// to opcode is useful for execution.
+// ### Program Structure
 
-// Note that `_in_` ignores the arguments to operators that are parametric.
+// Lists of opcodes form programs.
 
 
     syntax OpCodes ::= ".OpCodes" | OpCode ";" OpCodes
  // --------------------------------------------------
+
+
+// ### Converting to/from `Map` Representation
+
 
     syntax Map ::= #asMapOpCodes ( OpCodes )             [function]
                  | #asMapOpCodes ( Int , OpCodes , Map ) [function, klabel(#asMapOpCodesAux)]
@@ -742,10 +768,6 @@ module EVM
 
 // EVM OpCodes
 // -----------
-
-// Each subsection has a different class of opcodes. Organization is based roughly
-// on what parts of the execution state are needed to compute the result of each
-// operator. This sometimes corresponds to the organization in the yellowpaper.
 
 // ### Internal Operations
 
@@ -1013,7 +1035,10 @@ module EVM
     rule #blockhash(ListItem(_) L, N, HI, A) => #blockhash(L, N, HI -Int 1, A +Int 1) [owise]
 
 
-// ### `JUMP*`
+// EVM OpCodes {#evm-opcodes-1}
+// -----------
+
+// ### EVM Control Flow
 
 // The `JUMP*` family of operations affect the current program counter.
 
@@ -1145,7 +1170,7 @@ module EVM
 
 // ### Account Storage Operations
 
-// These operations interact with the account storage.
+// These rules reach into the network state and load/store from account storage:
 
 
     syntax UnStackOp ::= "SLOAD"
@@ -1315,6 +1340,11 @@ module EVM
     rule <k> #setLocalMem START WIDTH WS => . ... </k>
          <localMem> LM => LM [ START := #take(minInt(WIDTH, #sizeWordStack(WS)), WS) ] </localMem>
 
+
+// Ethereum Network OpCodes {#ethereum-network-opcodes-1}
+// ------------------------
+
+// ### Call Operations {#call-operations-1}
 
 // For each `CALL*` operation, we make a corresponding call to `#call` and a
 // state-change to setup the custom parts of the calling environment.
@@ -1590,20 +1620,16 @@ module EVM
 // Ethereum Gas Calculation
 // ========================
 
-// The gas calculation is designed to mirror the style of the yellowpaper. Gas is
-// consumed either by increasing the amount of memory being used, or by executing
-// opcodes.
-
 // Memory Consumption
 // ------------------
 
 // Memory consumed is tracked to determine the appropriate amount of gas to charge
-// for each operation. In the yellowpaper, each opcode is defined to consume zero
+// for each operation. In the YellowPaper, each opcode is defined to consume zero
 // gas unless specified otherwise next to the semantics of the opcode (appendix H).
 
 // -   `#memory` computes the new memory size given the old size and next operator
 //     (with its arguments).
-// -   `#memoryUsageUpdate` is the function `M` in appendix H of the yellowpaper
+// -   `#memoryUsageUpdate` is the function `M` in appendix H of the YellowPaper
 //     which helps track the memory used.
 
 
@@ -1701,8 +1727,7 @@ module EVM
 // Execution Gas
 // -------------
 
-// Each opcode has an intrinsic gas cost of execution as well (appendix H of the
-// yellowpaper).
+// The intrinsic gas calculation mirrors the style of the YellowPaper (appendix H).
 
 // -   `#gasExec` loads all the relevant surronding state and uses that to compute
 //     the intrinsic execution gas of each opcode.
@@ -1829,7 +1854,7 @@ module EVM
 
 
 // There are several helpers for calculating gas (most of them also specified in
-// the yellowpaper).
+// the YellowPaper).
 
 // Note: These are all functions as the operator `#gasExec` has already loaded all
 // the relevant state.
@@ -1899,9 +1924,11 @@ module EVM
 // Fee Schedule from C++ Implementation
 // ------------------------------------
 
+// ### From the C++ Implementation
+
 // The [C++ Implementation of EVM](https://github.com/ethereum/cpp-ethereum)
 // specifies several different "profiles" for how the VM works. Here we provide
-// each protocol from the C++ implementation, as the yellowpaper does not contain
+// each protocol from the C++ implementation, as the YellowPaper does not contain
 // all the different profiles. Specify which profile by passing in the argument
 // `-cSCHEDULE=<FEE_SCHEDULE>` when calling `krun` (the available `<FEE_SCHEDULE>`
 // are supplied here).
@@ -1917,8 +1944,9 @@ module EVM
  // --------------------------------------------------------------------------------------------------------------------------
 
 
-// A `ScheduleConst` is a constant determined by the fee schedule; applying a
-// `ScheduleConst` to a `Schedule` yields the correct constant for that schedule.
+// ### Schedule Constants
+
+// A `ScheduleConst` is a constant determined by the fee schedule.
 
 
     syntax Int ::= ScheduleConst "<" Schedule ">" [function]
@@ -1933,7 +1961,7 @@ module EVM
  // ------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-// ### Defualt Schedule
+// ### Default Schedule
 
 
     syntax Schedule ::= "DEFAULT"
