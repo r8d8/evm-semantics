@@ -391,6 +391,7 @@ Control Flow
 OpCode Execution
 ----------------
 
+. . .
 
 ### Execution Macros
 
@@ -462,7 +463,8 @@ The `#next` operator executes a single step by:
       requires EXECMODE in (SetItem(NORMAL) SetItem(VMTESTS))
 ```
 
-### Exceptional OpCodes
+Exceptional OpCodes
+-------------------
 
 -   `#exceptional?` checks if the operator is invalid and will not cause `wordStack` size issues (this implements the function `Z` in the YellowPaper, section 9.4.2).
 
@@ -477,13 +479,35 @@ The `#next` operator executes a single step by:
          </k>
 ```
 
+. . .
+
 -   `#invalid?` checks if it's the designated invalid opcode.
 
 ```{.k .uiuck .rvk}
     syntax InternalOp ::= "#invalid?" "[" OpCode "]"
  // ------------------------------------------------
     rule <k> #invalid? [ INVALID ] => #exception ... </k>
-    rule <k> #invalid? [ OP      ] => .          ... </k> requires notBool isInvalidOp(OP)
+    rule <k> #invalid? [ OP      ] => .          ... </k>
+      requires OP =/=K INVALID
+```
+
+End Exceptional OpCodes
+-----------------------
+
+-   `#badJumpDest?` determines if the opcode will result in a bad jump destination.
+
+```{.k .uiuck .rvk}
+    syntax InternalOp ::= "#badJumpDest?" "[" OpCode "]"
+ // ----------------------------------------------------
+    rule <k> #badJumpDest? [ OP    ] => . ... </k> requires notBool isJumpOp(OP)
+    rule <k> #badJumpDest? [ OP    ] => . ... </k> <wordStack> DEST  : WS </wordStack> <program> ... DEST |-> JUMPDEST ... </program> requires isJumpOp(OP)
+    rule <k> #badJumpDest? [ JUMPI ] => . ... </k> <wordStack> _ : 0 : WS </wordStack>
+
+    rule <k> #badJumpDest? [ JUMP  ] => #exception ... </k> <wordStack> DEST :     WS </wordStack> <program> ... DEST |-> OP ... </program> requires OP =/=K JUMPDEST
+    rule <k> #badJumpDest? [ JUMPI ] => #exception ... </k> <wordStack> DEST : W : WS </wordStack> <program> ... DEST |-> OP ... </program> requires OP =/=K JUMPDEST andBool W =/=K 0
+
+    rule <k> #badJumpDest? [ JUMP  ] => #exception ... </k> <wordStack> DEST :     WS </wordStack> <program> PGM </program> requires notBool (DEST in_keys(PGM))
+    rule <k> #badJumpDest? [ JUMPI ] => #exception ... </k> <wordStack> DEST : W : WS </wordStack> <program> PGM </program> requires (notBool (DEST in_keys(PGM))) andBool W =/=K 0
 ```
 
 -   `#stackNeeded?` checks that the stack will be not be under/overflown.
@@ -542,21 +566,8 @@ The `#next` operator executes a single step by:
     rule #stackDelta(OP) => #stackAdded(OP) -Int #stackNeeded(OP)
 ```
 
--   `#badJumpDest?` determines if the opcode will result in a bad jump destination.
-
-```{.k .uiuck .rvk}
-    syntax InternalOp ::= "#badJumpDest?" "[" OpCode "]"
- // ----------------------------------------------------
-    rule <k> #badJumpDest? [ OP    ] => . ... </k> requires notBool isJumpOp(OP)
-    rule <k> #badJumpDest? [ OP    ] => . ... </k> <wordStack> DEST  : WS </wordStack> <program> ... DEST |-> JUMPDEST ... </program> requires isJumpOp(OP)
-    rule <k> #badJumpDest? [ JUMPI ] => . ... </k> <wordStack> _ : 0 : WS </wordStack>
-
-    rule <k> #badJumpDest? [ JUMP  ] => #exception ... </k> <wordStack> DEST :     WS </wordStack> <program> ... DEST |-> OP ... </program> requires OP =/=K JUMPDEST
-    rule <k> #badJumpDest? [ JUMPI ] => #exception ... </k> <wordStack> DEST : W : WS </wordStack> <program> ... DEST |-> OP ... </program> requires OP =/=K JUMPDEST andBool W =/=K 0
-
-    rule <k> #badJumpDest? [ JUMP  ] => #exception ... </k> <wordStack> DEST :     WS </wordStack> <program> PGM </program> requires notBool (DEST in_keys(PGM))
-    rule <k> #badJumpDest? [ JUMPI ] => #exception ... </k> <wordStack> DEST : W : WS </wordStack> <program> PGM </program> requires (notBool (DEST in_keys(PGM))) andBool W =/=K 0
-```
+Execution
+=========
 
 ### Execution Step
 
@@ -801,6 +812,7 @@ Lists of opcodes form programs.
 EVM OpCodes
 -----------
 
+. . .
 
 ### Internal Operations
 
@@ -928,44 +940,34 @@ Some operators don't calculate anything, they just push the stack around a bit.
     rule <k> PUSH(_, W) => W ~> #push ... </k>
 ```
 
-### Local Memory
-
-These operations are getters/setters of the local execution memory.
-
-```{.k .uiuck .rvk}
-    syntax UnStackOp ::= "MLOAD"
- // ----------------------------
-    rule <k> MLOAD INDEX => #asWord(#range(LM, INDEX, 32)) ~> #push ... </k>
-         <localMem> LM </localMem>
-
-    syntax BinStackOp ::= "MSTORE" | "MSTORE8"
- // ------------------------------------------
-    rule <k> MSTORE INDEX VALUE => . ... </k>
-         <localMem> LM => LM [ INDEX := #padToWidth(32, #asByteStack(VALUE)) ] </localMem>
-
-    rule <k> MSTORE8 INDEX VALUE => . ... </k>
-         <localMem> LM => LM [ INDEX <- (VALUE %Int 256) ]    </localMem>
-```
-
 ### Expressions
 
-Expression calculations are simple and don't require anything but the arguments from the `wordStack` to operate.
+Expression opcodes call the corresponding `<op>Word` operators, then `#push` the result:
+
+```{.k .uiuck .rvk}
+    syntax BinStackOp ::= "SUB" | "DIV"
+ // -----------------------------------
+    rule <k> SUB W0 W1 => W0 -Word W1 ~> #push ... </k>
+    rule <k> DIV W0 W1 => W0 /Word W1 ~> #push ... </k>
+```
+
+. . .
+
+### End Expressions
 
 NOTE: We have to call the opcode `OR` by `EVMOR` instead, because K has trouble parsing it/compiling the definition otherwise.
 
-```{.k .uiuck .rvk}
+```{.k .uiuc .rvk}
     syntax UnStackOp ::= "ISZERO" | "NOT"
  // -------------------------------------
     rule <k> ISZERO 0 => 1        ~> #push ... </k>
     rule <k> ISZERO W => 0        ~> #push ... </k> requires W =/=K 0
     rule <k> NOT    W => ~Word W  ~> #push ... </k>
 
-    syntax BinStackOp ::= "ADD" | "MUL" | "SUB" | "DIV" | "EXP" | "MOD"
- // -------------------------------------------------------------------
+    syntax BinStackOp ::= "ADD" | "MUL" | "EXP" | "MOD"
+ // ---------------------------------------------------
     rule <k> ADD W0 W1 => W0 +Word W1 ~> #push ... </k>
     rule <k> MUL W0 W1 => W0 *Word W1 ~> #push ... </k>
-    rule <k> SUB W0 W1 => W0 -Word W1 ~> #push ... </k>
-    rule <k> DIV W0 W1 => W0 /Word W1 ~> #push ... </k>
     rule <k> EXP W0 W1 => W0 ^Word W1 ~> #push ... </k>
     rule <k> MOD W0 W1 => W0 %Word W1 ~> #push ... </k>
 
@@ -1008,6 +1010,30 @@ NOTE: We have to call the opcode `OR` by `EVMOR` instead, because K has trouble 
  // ----------------------------
     rule <k> SHA3 MEMSTART MEMWIDTH => keccak(#range(LM, MEMSTART, MEMWIDTH)) ~> #push ... </k>
          <localMem> LM </localMem>
+```
+
+### Local Memory
+
+```{.k .uiuck .rvk}
+    syntax UnStackOp ::= "MLOAD"
+ // ----------------------------
+    rule <k> MLOAD INDEX => #asWord(#range(LM, INDEX, 32)) ~> #push ... </k>
+         <localMem> LM </localMem>
+
+    syntax BinStackOp ::= "MSTORE"
+ // ------------------------------
+    rule <k> MSTORE I V => . ... </k>
+         <localMem> LM => LM [ I := #padToWidth(32, #asByteStack(V)) ]
+         </localMem>
+```
+
+### End Local Memory
+
+```{.k .uiuck .rvk}
+    syntax BinStackOp ::= "MSTORE8"
+ // -------------------------------
+    rule <k> MSTORE8 INDEX VALUE => . ... </k>
+         <localMem> LM => LM [ INDEX <- (VALUE %Int 256) ]    </localMem>
 ```
 
 ### Local State
@@ -1077,11 +1103,16 @@ The `JUMP*` family of operations affect the current program counter.
     syntax UnStackOp ::= "JUMP"
  // ---------------------------
     rule <k> JUMP DEST => . ... </k> <pc> _ => DEST </pc>
+```
 
+### Conditional Jump
+
+```{.k .uiuck .rvk}
     syntax BinStackOp ::= "JUMPI"
  // -----------------------------
-    rule <k> JUMPI DEST I => . ... </k> <pc> _      => DEST          </pc> requires I =/=K 0
     rule <k> JUMPI DEST 0 => . ... </k> <pc> PCOUNT => PCOUNT +Int 1 </pc>
+    rule <k> JUMPI DEST I => . ... </k> <pc> _      => DEST          </pc>
+      requires I =/=K 0
 ```
 
 ### `STOP` and `RETURN`
@@ -1200,6 +1231,31 @@ These rules reach into the network state and load/store from account storage:
 ```{.k .uiuck .rvk}
     syntax UnStackOp ::= "SLOAD"
  // ----------------------------
+    rule <k> SLOAD INDEX => VALUE ~> #push ... </k> <id> ACCT </id>
+         <account>
+           <acctID> ACCT </acctID>
+           <storage> ... INDEX |-> VALUE ... </storage>
+           ...
+         </account>
+```
+
+. . .
+
+```{.k .uiuck .rvk}
+    syntax BinStackOp ::= "SSTORE"
+ // ------------------------------
+    rule <k> SSTORE INDEX VALUE => . ... </k> <id> ACCT </id>
+         <account>
+           <acctID> ACCT </acctID>
+           <storage> STORAGE => STORAGE [ INDEX <- VALUE ] </storage>
+           ...
+         </account>
+      requires notBool (INDEX in_keys(STORAGE))
+```
+
+### End Account Storage Operations
+
+```{.k .uiuck .rvk}
     rule <k> SLOAD INDEX => 0 ~> #push ... </k>
          <id> ACCT </id>
          <account>
@@ -1207,14 +1263,6 @@ These rules reach into the network state and load/store from account storage:
            <storage> STORAGE </storage>
            ...
          </account> requires notBool INDEX in_keys(STORAGE)
-
-    rule <k> SLOAD INDEX => VALUE ~> #push ... </k>
-         <id> ACCT </id>
-         <account>
-           <acctID> ACCT </acctID>
-           <storage> ... INDEX |-> VALUE ... </storage>
-           ...
-         </account>
 
     syntax BinStackOp ::= "SSTORE"
  // ------------------------------
@@ -1231,18 +1279,7 @@ These rules reach into the network state and load/store from account storage:
                        #fi
          </refund>
          <schedule> SCHED </schedule>
-
-    rule <k> SSTORE INDEX VALUE => . ... </k>
-         <id> ACCT </id>
-         <account>
-           <acctID> ACCT </acctID>
-           <storage> STORAGE => STORAGE [ INDEX <- VALUE ] </storage>
-           ...
-         </account>
-      requires notBool (INDEX in_keys(STORAGE))
 ```
-
-### Call Operations
 
 The various `CALL*` (and other inter-contract control flow) operations will be desugared into these `InternalOp`s.
 
@@ -1362,6 +1399,8 @@ The various `CALL*` (and other inter-contract control flow) operations will be d
 Ethereum Network OpCodes
 ------------------------
 
+. . .
+
 ### Call Operations
 
 For each `CALL*` operation, we make a corresponding call to `#call` and a state-change to setup the custom parts of the calling environment.
@@ -1380,7 +1419,11 @@ For each `CALL*` operation, we make a corresponding call to `#call` and a state-
          <localMem> LM </localMem>
          <activeAccounts> ACCTS </activeAccounts>
          <previousGas> GAVAIL </previousGas>
+```
 
+### End Call Operations
+
+```{.k .uiuck .rvk}
     syntax CallOp ::= "CALLCODE"
  // ----------------------------
     rule <k> CALLCODE GCAP ACCTTO VALUE ARGSTART ARGWIDTH RETSTART RETWIDTH
@@ -1739,19 +1782,28 @@ Execution Gas
 
 The intrinsic gas calculation mirrors the style of the YellowPaper (appendix H).
 
--   `#gasExec` loads all the relevant surronding state and uses that to compute the intrinsic execution gas of each opcode.
+. . .
+
+### SSTORE Gas
 
 ```{.k .uiuck .rvk}
     syntax InternalOp ::= #gasExec ( Schedule , OpCode )
  // ----------------------------------------------------
-    rule <k> #gasExec(SCHED, SSTORE INDEX VALUE) => Csstore(SCHED, VALUE, #lookup(STORAGE, INDEX)) ... </k>
+    rule <k> #gasExec(SCHED, SSTORE INDEX VALUE)
+          => Csstore(SCHED, VALUE, #lookup(STORAGE, INDEX))
+         ...
+         </k>
          <id> ACCT </id>
          <account>
            <acctID> ACCT </acctID>
            <storage> STORAGE </storage>
            ...
          </account>
+```
 
+### End SSTORE Gas
+
+```{.k .uiuck .rvk}
     rule <k> #gasExec(SCHED, EXP W0 0)  => Gexp < SCHED > ... </k>
     rule <k> #gasExec(SCHED, EXP W0 W1) => Gexp < SCHED > +Int (Gexpbyte < SCHED > *Int (1 +Int (log256Int(W1)))) ... </k> requires W1 =/=K 0
 
@@ -1866,18 +1918,40 @@ There are several helpers for calculating gas (most of them also specified in th
 
 Note: These are all functions as the operator `#gasExec` has already loaded all the relevant state.
 
+Gas Calculation Functions
+-------------------------
+
+The following functions are defined in the YellowPaper.
+
+### Csstore
+
 ```{.k .uiuck .rvk}
     syntax Int ::= Csstore ( Schedule , Int , Int ) [function]
  // ----------------------------------------------------------
-    rule Csstore(SCHED, VALUE, OLD) => #ifInt VALUE =/=Int 0 andBool OLD ==Int 0 #then Gsstoreset < SCHED > #else Gsstorereset < SCHED > #fi
+    rule Csstore(SCHED, VALUE, OLD)
+      => #ifInt VALUE =/=Int 0 andBool OLD ==Int 0
+            #then Gsstoreset   < SCHED >
+            #else Gsstorereset < SCHED >
+         #fi
+```
 
-    syntax Int ::= Ccall    ( Schedule , Int , Map , Int , Int , Int ) [function]
-                 | Ccallgas ( Schedule , Int , Map , Int , Int , Int ) [function]
-                 | Cgascap  ( Schedule , Int , Int , Int )             [function]
-                 | Cextra   ( Schedule , Int , Map , Int )             [function]
-                 | Cxfer    ( Schedule , Int )                         [function]
-                 | Cnew     ( Schedule , Int , Map , Int )             [function]
- // -----------------------------------------------------------------------------
+. . .
+
+### Others
+
+```{.k .uiuck .rvk}
+    syntax Int ::= Ccall    (Schedule, Int, Map, Int, Int, Int) [function]
+                 | Ccallgas (Schedule, Int, Map, Int, Int, Int) [function]
+                 | Cgascap  (Schedule, Int, Int, Int)           [function]
+                 | Cextra   (Schedule, Int, Map, Int)           [function]
+                 | Cxfer    (Schedule, Int)                     [function]
+                 | Cnew     (Schedule, Int, Map, Int)           [function]
+ // ----------------------------------------------------------------------
+```
+
+### End Csstore
+
+```{.k .uiuck .rvk}
     rule Ccall(SCHED, ACCT, ACCTS, GCAP, GAVAIL, VALUE) => Cextra(SCHED, ACCT, ACCTS, VALUE) +Int Cgascap(SCHED, GCAP, GAVAIL, Cextra(SCHED, ACCT, ACCTS, VALUE))
 
     rule Ccallgas(SCHED, ACCT, ACCTS, GCAP, GAVAIL, 0)     => Cgascap(SCHED, GCAP, GAVAIL, Cextra(SCHED, ACCT, ACCTS,     0))
@@ -1931,6 +2005,7 @@ Note: These are all functions as the operator `#gasExec` has already loaded all 
 Fee Schedule from C++ Implementation
 ------------------------------------
 
+. . .
 
 ### From the C++ Implementation
 
@@ -1954,9 +2029,18 @@ A `ScheduleConst` is a constant determined by the fee schedule.
 
 ```{.k .uiuck .rvk}
     syntax Int ::= ScheduleConst "<" Schedule ">" [function]
- // --------------------------------------------------------
 
-    syntax ScheduleConst ::= "Gzero"        | "Gbase"        | "Gverylow"      | "Glow"           | "Gmid"         | "Ghigh"
+    syntax ScheduleConst ::= "Gzero" | "Gbase" | "Gverylow"
+ // -------------------------------------------------------
+```
+
+. . .
+
+### End Schedule Constants
+
+
+```{.k .uiuck .rvk}
+    syntax ScheduleConst ::= "Glow"         | "Gmid"         | "Ghigh"
                            | "Gextcodesize" | "Gextcodecopy" | "Gbalance"      | "Gsload"         | "Gjumpdest"    | "Gsstoreset"
                            | "Gsstorereset" | "Rsstoreclear" | "Rselfdestruct" | "Gselfdestruct"  | "Gcreate"      | "Gcodedeposit"
                            | "Gcall"        | "Gcallvalue"   | "Gcallstipend"  | "Gnewaccount"    | "Gexp"         | "Gexpbyte"
@@ -1970,8 +2054,15 @@ A `ScheduleConst` is a constant determined by the fee schedule.
 ```{.k .uiuck .rvk}
     syntax Schedule ::= "DEFAULT"
  // -----------------------------
-    rule Gzero    < DEFAULT > => 0
-    rule Gbase    < DEFAULT > => 2
+    rule Gzero < DEFAULT > => 0
+    rule Gbase < DEFAULT > => 2
+```
+
+. . .
+
+### End Default Schedule
+
+```{.k .uicuk .rvk}
     rule Gverylow < DEFAULT > => 3
     rule Glow     < DEFAULT > => 5
     rule Gmid     < DEFAULT > => 8
@@ -2122,8 +2213,13 @@ static const EVMSchedule HomesteadSchedule = EVMSchedule(true, true, 53000);
 ```{.k .uiuck .rvk}
     syntax Schedule ::= "EIP150"
  // ----------------------------
-    rule Gbalance      < EIP150 > => 400
-    rule Gsload        < EIP150 > => 200
+    rule Gbalance < EIP150 > => 400
+    rule Gsload   < EIP150 > => 200
+```
+
+### End EIP150 Schedule
+
+```{.k .uiuck .rvk}
     rule Gcall         < EIP150 > => 700
     rule Gselfdestruct < EIP150 > => 5000
     rule Gextcodesize  < EIP150 > => 700
