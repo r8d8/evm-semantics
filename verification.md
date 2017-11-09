@@ -83,6 +83,8 @@ syntax WordStack ::= #uint(Int) [function, smtlib(uint256)]
       => #getIntBytes(T,A,minInt(B,20-Int S),S)
 
 syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
+
+    rule (X /Int Y) /Int 256 => X /Int (Y *Int 256) [lemma]
 ```
 
     #getIntBytes(T,A,B,S) representes an integer formed by division, mod,

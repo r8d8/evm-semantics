@@ -85,6 +85,8 @@ syntax WordStack ::= #uint(Int) [function, smtlib(uint256)]
 
 syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 
+    rule (X /Int Y) /Int 256 => X /Int (Y *Int 256) [lemma]
+
 
 // Sum to N
 // --------

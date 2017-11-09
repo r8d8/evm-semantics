@@ -11,14 +11,14 @@
 module TOKEN-SPEC
 imports ETHEREUM-SIMULATION
 
-    rule <k> #execute ... </k>
+    rule <k> #execute => (RETURN _ _ ~> _) ... </k>
          <exit-code> 1       </exit-code>
          <mode>      NORMAL  </mode>
          <schedule>  DEFAULT </schedule>
 
          <output>        .WordStack </output>
-         <memoryUsed>    3          </memoryUsed>
-         <callDepth>     0          </callDepth>
+         <memoryUsed>    0 => 3          </memoryUsed>
+         <callDepth>     _          </callDepth>
          <callStack>     .List      </callStack>
          <interimStates> .List      </interimStates>
          <callLog>       .Set       </callLog>
@@ -28,10 +28,10 @@ imports ETHEREUM-SIMULATION
          <caller>      %CALLER_ID            </caller>
          <callData>    .WordStack            </callData>
          <callValue>   0                     </callValue>
-         <wordStack>   WS   => WS1:WordStack </wordStack>
-         <localMem>    .Map => ?B:Map        </localMem>
-         <pc>          469  => 573           </pc>
-         <gas>         G    => G -Int 415    </gas>
+         <wordStack>   .WordStack => _ </wordStack>
+         <localMem>    .Map => _        </localMem>
+         <pc>          0  => _           </pc>
+         <gas>         100000 => _    </gas>
          <previousGas> _    => _             </previousGas>
 
          <selfDestruct> .Set   </selfDestruct>
