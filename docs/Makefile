@@ -10,7 +10,7 @@ all: ${TMP_DIR}/conf.py ${TMP_DIR}/index.rst \
 
 ${TMP_DIR}/%.rst: ${BASE_DIR}/%.md
 	mkdir -p $(dir $@)
-	pandoc -o $@ $<
+	pandoc $< -t rst | sed 's/code:: k/code-block:: k/g' > $@
 
 ${TMP_DIR}/index.rst: ${CFG_DIR}/index.rst
 	mkdir -p $(dir $@)
