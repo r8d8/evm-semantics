@@ -4,11 +4,11 @@ Ethereum Simulations
 Ethereum is using the EVM to drive updates over the world state. Actual
 execution of the EVM is defined in `the EVM file <evm.md>`__.
 
-.. code:: k
+.. code-block:: k
 
     requires "verification.k"
 
-.. code:: k
+.. code-block:: k
 
     requires "evm.k"
     requires "analysis.k"
@@ -17,11 +17,11 @@ execution of the EVM is defined in `the EVM file <evm.md>`__.
         imports EVM
         imports EVM-ANALYSIS
 
-.. code:: k
+.. code-block:: k
 
         imports VERIFICATION
 
-.. code:: k
+.. code-block:: k
 
         imports K-REFLECTION
 
@@ -29,7 +29,7 @@ An Ethereum simulation is a list of Ethereum commands. Some Ethereum
 commands take an Ethereum specification (eg. for an account or
 transaction).
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumSimulation ::= ".EthereumSimulation"
                                     | EthereumCommand EthereumSimulation
@@ -46,7 +46,7 @@ terms of its op-codes and not the hex-encoding that the tests use. To do
 so, we'll extend sort ``JSON`` with some EVM specific syntax, and
 provide a "pretti-fication" to the nicer input form.
 
-.. code:: k
+.. code-block:: k
 
         syntax JSON ::= Int | WordStack | OpCodes | Map | Call | SubstateLogEntry | Account
      // -----------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ Driving Execution
 -  ``flush`` places ``#finalize`` on the ``<k>`` cell once it sees
    ``#end`` in the ``<k>`` cell, clearing any exceptions it finds.
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumCommand ::= "start"
      // ----------------------------------
@@ -98,7 +98,7 @@ Driving Execution
 -  ``finishTx`` is a place-holder for performing necessary cleanup after
    a transaction.
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumCommand ::= "startTx"
      // ------------------------------------
@@ -206,7 +206,7 @@ Driving Execution
 -  ``#rewardOmmers(_)`` pays out the reward to uncle blocks so that
    blocks are orphaned less often in Ethereum.
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumCommand ::= "#finalizeBlock" | #rewardOmmers ( JSONList )
      // ------------------------------------------------------------------------
@@ -250,7 +250,7 @@ Driving Execution
 -  ``failure_`` holds the name of a test that failed if a test does
    fail.
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumCommand ::= "exception" | "failure" String | "success"
      // ---------------------------------------------------------------------
@@ -266,7 +266,7 @@ Running Tests
 Note that ``TEST`` is sorted here so that key ``"network"`` comes before
 key ``"pre"``.
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumCommand ::= "run" JSON
      // -------------------------------------
@@ -285,7 +285,7 @@ key ``"pre"``.
 -  ``#loadKeys`` are all the JSON nodes which should be considered as
    loads before execution.
 
-.. code:: k
+.. code-block:: k
 
         syntax Set ::= "#loadKeys" [function]
      // -------------------------------------
@@ -299,7 +299,7 @@ key ``"pre"``.
 -  ``#execKeys`` are all the JSON nodes which should be considered for
    execution (between loading and checking).
 
-.. code:: k
+.. code-block:: k
 
         syntax Set ::= "#execKeys" [function]
      // -------------------------------------
@@ -315,7 +315,7 @@ key ``"pre"``.
 -  ``#checkKeys`` are all the JSON nodes which should be considered as
    checks after execution.
 
-.. code:: k
+.. code-block:: k
 
         syntax Set ::= "#postKeys" [function] | "#allPostKeys" [function] | "#checkKeys" [function]
      // -------------------------------------------------------------------------------------------
@@ -331,7 +331,7 @@ key ``"pre"``.
 -  ``#discardKeys`` are all the JSON nodes in the tests which should
    just be ignored.
 
-.. code:: k
+.. code-block:: k
 
         syntax Set ::= "#discardKeys" [function]
      // ----------------------------------------
@@ -349,7 +349,7 @@ Clearing State
 -  ``clearX`` clears the substate ``X``, for ``TX``, ``BLOCK``, and
    ``NETWORK``.
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumCommand ::= "clear"
      // ----------------------------------
@@ -416,7 +416,7 @@ Loading State
 -  ``mkAcct_`` creates an account with the supplied ID (assuming it's
    already been chopped to 160 bits).
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumCommand ::= "mkAcct" Int
      // ---------------------------------------
@@ -424,7 +424,7 @@ Loading State
 
 -  ``load`` loads an account or transaction into the world state.
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumCommand ::= "load" JSON
      // --------------------------------------
@@ -438,7 +438,7 @@ Loading State
 Here we perform pre-proccesing on account data which allows "pretty"
 specification of input.
 
-.. code:: k
+.. code-block:: k
 
         rule load "pre" : { (ACCTID:String) : ACCT } => mkAcct #parseAddr(ACCTID) ~> load "account" : { ACCTID : ACCT }
         rule load "account" : { ACCTID: { KEY : VALUE , REST } } => load "account" : { ACCTID : { KEY : VALUE } } ~> load "account" : { ACCTID : { REST } } requires REST =/=K .JSONList
@@ -451,7 +451,7 @@ specification of input.
 
 The individual fields of the accounts are dealt with here.
 
-.. code:: k
+.. code-block:: k
 
         rule <k> load "account" : { ACCT : { "balance" : (BAL:Int) } } => . ... </k>
              <account>
@@ -486,7 +486,7 @@ The individual fields of the accounts are dealt with here.
 
 Here we load the environmental information.
 
-.. code:: k
+.. code-block:: k
 
         rule load "env" : { KEY : ((VAL:String) => #parseWord(VAL)) }
           requires KEY in (SetItem("currentTimestamp") SetItem("currentGasLimit") SetItem("currentNumber") SetItem("currentDifficulty"))
@@ -521,7 +521,7 @@ Here we load the environmental information.
 
 The ``"network"`` key allows setting the fee schedule inside the test.
 
-.. code:: k
+.. code-block:: k
 
         rule <k> load "network" : SCHEDSTRING => . ... </k>
              <schedule> _ => #asScheduleString(SCHEDSTRING) </schedule>
@@ -537,7 +537,7 @@ The ``"network"`` key allows setting the fee schedule inside the test.
 
 The ``"rlp"`` key loads the block information.
 
-.. code:: k
+.. code-block:: k
 
         rule load "rlp" : (VAL:String => #rlpDecode(#unparseByteStack(#parseByteStack(VAL))))
         rule load "genesisRLP" : (VAL:String => #rlpDecode(#unparseByteStack(#parseByteStack(VAL))))
@@ -593,7 +593,7 @@ Checking State
 -  ``check_`` checks if an account/transaction appears in the
    world-state as stated.
 
-.. code:: k
+.. code-block:: k
 
         syntax EthereumCommand ::= "check" JSON
      // ---------------------------------------
@@ -649,7 +649,7 @@ Checking State
 
 Here we check the other post-conditions associated with an EVM test.
 
-.. code:: k
+.. code-block:: k
 
         rule check TESTID : { "out" : OUT } => check "out" : OUT ~> failure TESTID
      // --------------------------------------------------------------------------
@@ -767,7 +767,7 @@ Here we check the other post-conditions associated with an EVM test.
 
 TODO: case with nonzero ommers.
 
-.. code:: k
+.. code-block:: k
 
         rule check TESTID : { "uncleHeaders" : OMMERS } => check "ommerHeaders" : OMMERS ~> failure TESTID
      // --------------------------------------------------------------------------------------------------

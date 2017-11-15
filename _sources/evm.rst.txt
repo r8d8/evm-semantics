@@ -7,7 +7,7 @@ interact with the world state. This file only defines the local
 execution operations, the file ``ethereum.md`` will define the
 interactions with the world state.
 
-.. code:: k
+.. code-block:: k
 
     requires "data.k"
 
@@ -29,7 +29,7 @@ that are static throughout. In the comments next to each cell, we've
 marked which component of the yellowpaper state corresponds to each
 cell.
 
-.. code:: k
+.. code-block:: k
 
         configuration <k> $PGM:EthereumSimulation </k>
                       <exit-code exit=""> 1 </exit-code>
@@ -121,15 +121,15 @@ cell.
 
 -  UIUC-K and RV-K have slight differences of opinion here.
 
-.. code:: k
+.. code-block:: k
 
                             <account multiplicity="*" type="Bag">
 
-.. code:: k
+.. code-block:: k
 
                             <account multiplicity="*" type="Map">
 
-.. code:: k
+.. code-block:: k
 
                               <acctID>  0          </acctID>
                               <balance> 0          </balance>
@@ -149,15 +149,15 @@ cell.
 
 -  UIUC-K and RV-K have slight differences of opinion here.
 
-.. code:: k
+.. code-block:: k
 
                             <message multiplicity="*" type="Bag">
 
-.. code:: k
+.. code-block:: k
 
                             <message multiplicity="*" type="Map">
 
-.. code:: k
+.. code-block:: k
 
                               <msgID>      0          </msgID>
                               <txNonce>    0          </txNonce>            // T_n
@@ -188,13 +188,13 @@ line via ``-cMODE=EXECMODE``.
 -  ``NORMAL`` executes as a client on the network would.
 -  ``VMTESTS`` skips ``CALL*`` and ``CREATE`` operations.
 
-.. code:: k
+.. code-block:: k
 
         syntax Mode ::= "NORMAL" | "VMTESTS"
 
 -  ``#setMode_`` sets the mode to the supplied one.
 
-.. code:: k
+.. code-block:: k
 
         syntax Mode ::= "#setMode" Mode
      // -------------------------------
@@ -211,7 +211,7 @@ The ``callStack`` cell stores a list of previous VM execution states.
 -  ``#popCallStack`` restores the top element of the ``callStack``.
 -  ``#dropCallStack`` removes the top element of the ``callStack``.
 
-.. code:: k
+.. code-block:: k
 
         syntax State ::= "{" Int "|" Int "|" Map "|" WordStack "|" Int "|" WordStack "|" Int "|" WordStack "|" Map "|" Int "|" Int "|" Int "}"
      // --------------------------------------------------------------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ for technical limitations on the prover. In the long term, a new prover
 will be built capable of supporting the same code in both versions of
 the semantics.
 
-.. code:: k
+.. code-block:: k
 
         syntax Account ::= "{" Int "|" Int "|" WordStack "|" Map "|" Int "|" Bool "}"
      // -----------------------------------------------------------------------------
@@ -318,7 +318,7 @@ the semantics.
      // ---------------------------------------
         rule <k> #dropWorldState => . ... </k> <interimStates> (ListItem(_) => .List) ... </interimStates>
 
-.. code:: k
+.. code-block:: k
 
         syntax Accounts ::= "{" AccountsCell "|" Map "}"
      // ------------------------------------------------
@@ -348,7 +348,7 @@ The ``substateStack`` cell stores a list of previous substate logs.
 -  ``#popSubstate`` restores the top element of the ``substateStack``.
 -  ``#dropSubstate`` removes the top element of the ``substateStack``.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#pushSubstate"
      // -------------------------------------
@@ -375,7 +375,7 @@ Simple commands controlling exceptions provide control-flow.
    front of the ``op`` cell it takes the first branch, if an exception
    runs into it it takes the second branch.
 
-.. code:: k
+.. code-block:: k
 
         syntax KItem ::= Exception
         syntax Exception ::= "#exception" | "#end"
@@ -396,7 +396,7 @@ OpCode Execution Cycle
 ``OpCode``\ s are subsorted into ``KItem`` (allowing sequentialization),
 and the various sorts of opcodes are subsorted into ``OpCode``.
 
-.. code:: k
+.. code-block:: k
 
         syntax KItem  ::= OpCode
         syntax OpCode ::= NullStackOp | UnStackOp | BinStackOp | TernStackOp | QuadStackOp
@@ -408,7 +408,7 @@ and the various sorts of opcodes are subsorted into ``OpCode``.
 -  ``#execTo`` executes until the next opcode is one of the specified
    ones.
 
-.. code:: k
+.. code-block:: k
 
         syntax KItem ::= "#execute"
      // ---------------------------
@@ -444,7 +444,7 @@ it's in the middle of the program somewhere but is invalid? I suppose
 the semantics currently loads ``INVALID`` where ``N`` is the position in
 the bytecode array.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#next"
      // -----------------------------
@@ -456,7 +456,7 @@ the bytecode array.
 -  In ``NORMAL`` or ``VMTESTS`` mode, ``#next`` checks if the opcode is
    exceptional, runs it if not, then increments the program counter.
 
-.. code:: k
+.. code-block:: k
 
         rule <mode> EXECMODE </mode>
              <k> #next
@@ -479,7 +479,7 @@ and done up front.
    cause ``wordStack`` size issues (this implements the function ``Z``
    in the yellowpaper, section 9.4.2).
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#exceptional?" "[" OpCode "]"
      // ----------------------------------------------------
@@ -487,7 +487,7 @@ and done up front.
 
 -  ``#invalid?`` checks if it's the designated invalid opcode.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#invalid?" "[" OpCode "]"
      // ------------------------------------------------
@@ -499,7 +499,7 @@ and done up front.
 -  ``#stackNeeded``, ``#stackAdded``, and ``#stackDelta`` are helpers
    for deciding ``#stackNeeded?``.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#stackNeeded?" "[" OpCode "]"
      // ----------------------------------------------------
@@ -555,7 +555,7 @@ and done up front.
 -  ``#badJumpDest?`` determines if the opcode will result in a bad jump
    destination.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#badJumpDest?" "[" OpCode "]"
      // ----------------------------------------------------
@@ -576,7 +576,7 @@ Execution Step
    ``#stackNeeded?`` is accurate and has been called) and trigger the
    subsequent operations.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#exec" "[" OpCode "]"
      // --------------------------------------------
@@ -587,7 +587,7 @@ based on the sort of the opcode. Some of them require an argument to be
 interpereted as an address (modulo 160 bits), so the ``#addr?`` function
 performs that check.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= UnStackOp Int
                             | BinStackOp Int Int
@@ -610,7 +610,7 @@ performs that check.
 ``StackOp`` is used for opcodes which require a large portion of the
 stack.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= StackOp WordStack
      // ---------------------------------------
@@ -619,7 +619,7 @@ stack.
 The ``CallOp`` opcodes all interperet their second argument as an
 address.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= CallSixOp Int Int     Int Int Int Int
                             | CallOp    Int Int Int Int Int Int Int
@@ -630,7 +630,7 @@ address.
 -  ``#gas`` calculates how much gas this operation costs, and takes into
    account the memory consumed.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#gas" "[" OpCode "]" | "#deductGas" | "#deductMemory"
      // ----------------------------------------------------------------------------
@@ -658,7 +658,7 @@ in the correct way.
 
 -  ``#pc`` calculates the next program counter of the given operator.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#pc" "[" OpCode "]"
      // ------------------------------------------
@@ -678,7 +678,7 @@ substate log (Section 6.1 in yellowpaper). This is a right cons-list of
 ``SubstateLogEntry`` (which contains the account ID along with the
 specified portions of the ``wordStack`` and ``localMem``).
 
-.. code:: k
+.. code-block:: k
 
         syntax SubstateLogEntry ::= "{" Int "|" WordStack "|" WordStack "}"
      // -------------------------------------------------------------------
@@ -689,7 +689,7 @@ substate log recorded.
 -  ``#finalizeTx`` makes the substate log actually have an effect on the
    state.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= #finalizeTx ( Bool )
      // ------------------------------------------
@@ -793,7 +793,7 @@ program-counter to opcode is useful for execution.
 Note that ``_in_`` ignores the arguments to operators that are
 parametric.
 
-.. code:: k
+.. code-block:: k
 
         syntax OpCodes ::= ".OpCodes" | OpCode ";" OpCodes
      // --------------------------------------------------
@@ -834,7 +834,7 @@ state around on the EVM.
    checks.
 -  ``#setStack_`` will set the current stack to the given one.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#push" | "#setStack" WordStack
      // -----------------------------------------------------
@@ -847,7 +847,7 @@ state around on the EVM.
    an exception is thrown. Otherwise, if the account already exists, the
    storage is cleared.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#newAccount" Int
      // ---------------------------------------
@@ -888,7 +888,7 @@ state around on the EVM.
 -  ``#transferFunds`` moves money from one account into another,
    creating the destination account if it doesn't exist.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#transferFunds" Int Int Int
      // --------------------------------------------------
@@ -934,7 +934,7 @@ Invalid Operator
 We use ``INVALID`` both for marking the designated invalid operator and
 for garbage bytes in the input program.
 
-.. code:: k
+.. code-block:: k
 
         syntax InvalidOp ::= "INVALID"
      // ------------------------------
@@ -945,7 +945,7 @@ Stack Manipulations
 Some operators don't calculate anything, they just push the stack around
 a bit.
 
-.. code:: k
+.. code-block:: k
 
         syntax UnStackOp ::= "POP"
      // --------------------------
@@ -965,7 +965,7 @@ Local Memory
 
 These operations are getters/setters of the local execution memory.
 
-.. code:: k
+.. code-block:: k
 
         syntax UnStackOp ::= "MLOAD"
      // ----------------------------
@@ -989,7 +989,7 @@ arguments from the ``wordStack`` to operate.
 NOTE: We have to call the opcode ``OR`` by ``EVMOR`` instead, because K
 has trouble parsing it/compiling the definition otherwise.
 
-.. code:: k
+.. code-block:: k
 
         syntax UnStackOp ::= "ISZERO" | "NOT"
      // -------------------------------------
@@ -1051,7 +1051,7 @@ Local State
 
 These operators make queries about the current execution state.
 
-.. code:: k
+.. code-block:: k
 
         syntax NullStackOp ::= "PC" | "GAS" | "GASPRICE" | "GASLIMIT"
      // -------------------------------------------------------------
@@ -1104,7 +1104,7 @@ These operators make queries about the current execution state.
 
 The ``JUMP*`` family of operations affect the current program counter.
 
-.. code:: k
+.. code-block:: k
 
         syntax NullStackOp ::= "JUMPDEST"
      // ---------------------------------
@@ -1122,7 +1122,7 @@ The ``JUMP*`` family of operations affect the current program counter.
 ``STOP`` and ``RETURN``
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: k
+.. code-block:: k
 
         syntax NullStackOp ::= "STOP"
      // -----------------------------
@@ -1140,7 +1140,7 @@ Call Data
 
 These operators query about the current ``CALL*`` state.
 
-.. code:: k
+.. code-block:: k
 
         syntax NullStackOp ::= "CALLDATASIZE"
      // -------------------------------------
@@ -1161,7 +1161,7 @@ These operators query about the current ``CALL*`` state.
 Log Operations
 ~~~~~~~~~~~~~~
 
-.. code:: k
+.. code-block:: k
 
         syntax BinStackOp ::= LogOp
         syntax LogOp ::= LOG ( Int )
@@ -1188,7 +1188,7 @@ these operators. ``BALANCE`` is specified to push 0 in this case, but
 the others are not specified. For now, I assume that they instantiate an
 empty account and use the empty data.
 
-.. code:: k
+.. code-block:: k
 
         syntax UnStackOp ::= "BALANCE"
      // ------------------------------
@@ -1219,7 +1219,7 @@ empty account and use the empty data.
 TODO: What should happen in the case that the account doesn't exist with
 ``EXTCODECOPY``? Should we pad zeros (for the copied "program")?
 
-.. code:: k
+.. code-block:: k
 
         syntax QuadStackOp ::= "EXTCODECOPY"
      // ------------------------------------
@@ -1240,7 +1240,7 @@ Account Storage Operations
 
 These operations interact with the account storage.
 
-.. code:: k
+.. code-block:: k
 
         syntax UnStackOp ::= "SLOAD"
      // ----------------------------
@@ -1294,7 +1294,7 @@ will be desugared into these ``InternalOp``\ s.
 -  The ``callLog`` is used to store the ``CALL*``/``CREATE`` operations
    so that we can compare them against the test-set.
 
-.. code:: k
+.. code-block:: k
 
         syntax Call ::= "{" Int "|" Int "|" Int "|" WordStack "}"
      // ---------------------------------------------------------
@@ -1308,7 +1308,7 @@ will be desugared into these ``InternalOp``\ s.
 -  ``#return__`` is a placeholder for the calling program, specifying
    where to place the returned data in memory.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#checkCall" Int Int
                             | "#call" Int Int Int Int Int Int WordStack
@@ -1413,7 +1413,7 @@ will be desugared into these ``InternalOp``\ s.
 For each ``CALL*`` operation, we make a corresponding call to ``#call``
 and a state-change to setup the custom parts of the calling environment.
 
-.. code:: k
+.. code-block:: k
 
         syntax CallOp ::= "CALL"
      // ------------------------
@@ -1467,7 +1467,7 @@ Account Creation/Deletion
 -  ``#codeDeposit_`` checks the result of initialization code and
    whether the code deposit can be paid, indicating an error if not.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= "#create" Int Int Int Int WordStack
                             | "#mkCreate" Int Int WordStack Int Int
@@ -1576,7 +1576,7 @@ Account Creation/Deletion
 ``CREATE`` will attempt to ``#create`` the account using the
 initialization code and cleans up the result with ``#codeDeposit``.
 
-.. code:: k
+.. code-block:: k
 
         syntax TernStackOp ::= "CREATE"
      // -------------------------------
@@ -1601,7 +1601,7 @@ funds out of the current account. Self destructing to yourself, unlike a
 regular transfer, destroys the balance in the account, irreparably
 losing it.
 
-.. code:: k
+.. code-block:: k
 
         syntax UnStackOp ::= "SELFDESTRUCT"
      // -----------------------------------
@@ -1637,7 +1637,7 @@ Precompiled Contracts
 -  ``#precompiled`` is a placeholder for the 4 pre-compiled contracts at
    addresses 1 through 4.
 
-.. code:: k
+.. code-block:: k
 
         syntax NullStackOp   ::= PrecompiledOp
         syntax PrecompiledOp ::= #precompiled ( Int ) [function]
@@ -1652,7 +1652,7 @@ Precompiled Contracts
 -  ``RIP160`` performs the RIPEMD-160 hash function.
 -  ``ID`` is the identity function (copies input to output).
 
-.. code:: k
+.. code-block:: k
 
         syntax PrecompiledOp ::= "ECREC"
      // --------------------------------
@@ -1703,7 +1703,7 @@ opcode (appendix H).
 -  ``#memoryUsageUpdate`` is the function ``M`` in appendix H of the
    yellowpaper which helps track the memory used.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= #memory ( OpCode , Int ) [function]
      // --------------------------------------------------
@@ -1726,7 +1726,7 @@ opcode (appendix H).
 
 Grumble grumble, K sucks at ``owise``.
 
-.. code:: k
+.. code-block:: k
 
         rule #memory(JUMP _,    MU) => MU
         rule #memory(JUMPI _ _, MU) => MU
@@ -1804,7 +1804,7 @@ of the yellowpaper).
 -  ``#gasExec`` loads all the relevant surronding state and uses that to
    compute the intrinsic execution gas of each opcode.
 
-.. code:: k
+.. code-block:: k
 
         syntax InternalOp ::= #gasExec ( Schedule , OpCode )
      // ----------------------------------------------------
@@ -1931,7 +1931,7 @@ specified in the yellowpaper).
 Note: These are all functions as the operator ``#gasExec`` has already
 loaded all the relevant state.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= Csstore ( Schedule , Int , Int ) [function]
      // ----------------------------------------------------------
@@ -2008,7 +2008,7 @@ A ``ScheduleFlag`` is a boolean determined by the fee schedule; applying
 a ``ScheduleFlag`` to a ``Schedule`` yields whether the flag is set or
 not.
 
-.. code:: k
+.. code-block:: k
 
         syntax Bool ::= ScheduleFlag "<<" Schedule ">>" [function]
      // ----------------------------------------------------------
@@ -2020,7 +2020,7 @@ A ``ScheduleConst`` is a constant determined by the fee schedule;
 applying a ``ScheduleConst`` to a ``Schedule`` yields the correct
 constant for that schedule.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= ScheduleConst "<" Schedule ">" [function]
      // --------------------------------------------------------
@@ -2036,7 +2036,7 @@ constant for that schedule.
 Defualt Schedule
 ~~~~~~~~~~~~~~~~
 
-.. code:: k
+.. code-block:: k
 
         syntax Schedule ::= "DEFAULT"
      // -----------------------------
@@ -2160,7 +2160,7 @@ Defualt Schedule
 Frontier Schedule
 ~~~~~~~~~~~~~~~~~
 
-.. code:: k
+.. code-block:: k
 
         syntax Schedule ::= "FRONTIER"
      // ------------------------------
@@ -2176,7 +2176,7 @@ Frontier Schedule
 Homestead Schedule
 ~~~~~~~~~~~~~~~~~~
 
-.. code:: k
+.. code-block:: k
 
         syntax Schedule ::= "HOMESTEAD"
      // -------------------------------
@@ -2191,7 +2191,7 @@ Homestead Schedule
 EIP150 Schedule
 ~~~~~~~~~~~~~~~
 
-.. code:: k
+.. code-block:: k
 
         syntax Schedule ::= "EIP150"
      // ----------------------------
@@ -2230,7 +2230,7 @@ EIP150 Schedule
 EIP158 Schedule
 ~~~~~~~~~~~~~~~
 
-.. code:: k
+.. code-block:: k
 
         syntax Schedule ::= "EIP158"
      // ----------------------------
@@ -2258,7 +2258,7 @@ EIP158 Schedule
 Byzantium Schedule
 ~~~~~~~~~~~~~~~~~~
 
-.. code:: k
+.. code-block:: k
 
         syntax Schedule ::= "BYZANTIUM"
      // -------------------------------
@@ -2281,7 +2281,7 @@ Byzantium Schedule
 Constantinople Schedule
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: k
+.. code-block:: k
 
         syntax Schedule ::= "CONSTANTINOPLE"
      // ------------------------------------
@@ -2333,7 +2333,7 @@ it should be changed into an ``OpCodes`` for use by the EVM semantics.
 -  ``#dasmPUSH`` handles the case of a ``PushOp``.
 -  ``#dasmOpCode`` interperets a ``Int`` as an ``OpCode``.
 
-.. code:: k
+.. code-block:: k
 
         syntax OpCodes ::= #dasmOpCodes ( WordStack , Schedule )           [function]
                          | #dasmOpCodes ( OpCodes , WordStack , Schedule ) [function, klabel(#dasmOpCodesAux)]

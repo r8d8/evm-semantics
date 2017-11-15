@@ -5,7 +5,7 @@ EVM uses bounded 256 bit integer words, and sometimes also bytes (8 bit
 words). Here we provide the arithmetic of these words, as well as some
 data-structures over them. Both are implemented using K's ``Int``.
 
-.. code:: k
+.. code-block:: k
 
     requires "krypto.k"
     requires "domains.k"
@@ -18,7 +18,7 @@ data-structures over them. Both are implemented using K's ``Int``.
 
 Some important numbers that are referred to often during execution:
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= "pow256" [function]
                      | "pow255" [function]
@@ -31,7 +31,7 @@ Some important numbers that are referred to often during execution:
 The JSON format is used extensively for communication in the Ethereum
 circles. Writing a JSON-ish parser in K takes 6 lines.
 
-.. code:: k
+.. code-block:: k
 
         syntax JSONList ::= List{JSON,","}
         syntax JSONKey  ::= String | Int
@@ -49,7 +49,7 @@ Primitives provide the basic conversion from K's sorts ``Int`` and
 
 -  ``chop`` interperets an integers modulo :math:`2^256`.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= chop ( Int ) [function]
      // --------------------------------------
@@ -59,7 +59,7 @@ Primitives provide the basic conversion from K's sorts ``Int`` and
 -  ``bool2Word`` interperets a ``Bool`` as a ``Int``.
 -  ``word2Bool`` interperets a ``Int`` as a ``Bool``.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= bool2Word ( Bool ) [function]
      // --------------------------------------------
@@ -76,7 +76,7 @@ Primitives provide the basic conversion from K's sorts ``Int`` and
 -  ``#ifSet_#then_#else_#fi`` provides a conditional in ``Set``
    expressions.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= "#ifInt" Bool "#then" Int "#else" Int "#fi" [function, smtlib(ite)]
         syntax Set ::= "#ifSet" Bool "#then" Set "#else" Set "#fi" [function]
@@ -87,7 +87,7 @@ it will attempt to only do an "implies-check" instead of full
 unification (which is problematic when ``B`` is symbolic during
 proving).
 
-.. code:: k
+.. code-block:: k
 
         rule #ifInt B #then W #else _ #fi => W requires B
         rule #ifInt B #then _ #else W #fi => W requires notBool B
@@ -95,7 +95,7 @@ proving).
         rule #ifSet B #then W #else _ #fi => W requires B
         rule #ifSet B #then _ #else W #fi => W requires notBool B
 
-.. code:: k
+.. code-block:: k
 
         rule #ifInt A #then B #else C #fi => #if A #then B #else C #fi [macro]
         rule #ifSet A #then B #else C #fi => #if A #then B #else C #fi [macro]
@@ -105,7 +105,7 @@ proving).
 -  ``abs`` gives the twos-complement interperetation of the magnitude of
    a word.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= sgn ( Int ) [function]
                      | abs ( Int ) [function]
@@ -124,7 +124,7 @@ Empty Account
    set. This is used, for example, when referring to the destination of
    a message which creates a new contract.
 
-.. code:: k
+.. code-block:: k
 
         syntax Account ::= ".Account" | Int
 
@@ -136,7 +136,7 @@ Symbolic Words
 
 Note: Comment out this block (remove the ``k`` tag) if using RV K.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= "#symbolicWord" [function]
      // -----------------------------------------
@@ -152,7 +152,7 @@ doing the division to mimic the C++ implementation. You could
 alternatively calculate ``I1 %Int I2``, then add one to the normal
 integer division afterward depending on the result.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= Int "up/Int" Int [function]
      // ------------------------------------------
@@ -162,7 +162,7 @@ integer division afterward depending on the result.
 
 -  ``logNInt`` returns the log base N (floored) of an integer.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= log2Int ( Int ) [function]
      // -----------------------------------------
@@ -176,7 +176,7 @@ integer division afterward depending on the result.
 The corresponding ``<op>Word`` operations automatically perform the
 correct modulus for EVM words.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= Int "+Word" Int [function]
                      | Int "*Word" Int [function]
@@ -195,7 +195,7 @@ correct modulus for EVM words.
 
 Care is needed for ``^Word`` to avoid big exponentiation.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= Int "^Word" Int [function]
      // -----------------------------------------
@@ -204,18 +204,18 @@ Care is needed for ``^Word`` to avoid big exponentiation.
 
 RV-K has a more efficient power-modulus operator.
 
-.. code:: k
+.. code-block:: k
 
         rule W0 ^Word W1 => (W0 ^Int W1) %Int pow256 requires W1 <Int pow16
 
-.. code:: k
+.. code-block:: k
 
         rule W0 ^Word W1 => W0 ^%Int W1 pow256 requires W1 <Int pow16
 
 ``/sWord`` and ``%sWord`` give the signed interperetations of ``/Word``
 and ``%Word``.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= Int "/sWord" Int [function]
                      | Int "%sWord" Int [function]
@@ -235,7 +235,7 @@ Comparison Operators
 The ``<op>Word`` comparison operators automatically interperet the
 ``Bool`` as a ``Word``.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= Int "<Word"  Int [function]
                      | Int ">Word"  Int [function]
@@ -257,7 +257,7 @@ The ``<op>Word`` comparison operators automatically interperet the
 -  ``s<Word`` implements a less-than for ``Word`` (with signed
    interperetation).
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= Int "s<Word" Int [function]
      // ------------------------------------------
@@ -271,7 +271,7 @@ Bitwise Operators
 
 Bitwise logical operators are lifted from the integer versions.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= "~Word" Int       [function]
                      | Int "|Word"   Int [function]
@@ -286,7 +286,7 @@ Bitwise logical operators are lifted from the integer versions.
 -  ``bit`` gets bit :math:`N` (0 being MSB).
 -  ``byte`` gets byte :math:`N` (0 being the MSB).
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= bit  ( Int , Int ) [function]
                      | byte ( Int , Int ) [function]
@@ -301,7 +301,7 @@ Bitwise logical operators are lifted from the integer versions.
 -  ``#nBytes`` shifts in :math:`N` bytes of ones from the right.
 -  ``_<<Byte_`` shifts an integer 8 bits to the left.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= #nBits  ( Int )  [function]
                      | #nBytes ( Int )  [function]
@@ -314,7 +314,7 @@ Bitwise logical operators are lifted from the integer versions.
 -  ``signextend(N, W)`` sign-extends from byte :math:`N` of :math:`W` (0
    being MSB).
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= signextend( Int , Int ) [function]
      // -------------------------------------------------
@@ -325,7 +325,7 @@ Bitwise logical operators are lifted from the integer versions.
 -  ``keccak`` serves as a wrapper around the ``Keccak256`` in
    ``KRYPTO``.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= keccak ( WordStack ) [function]
      // ----------------------------------------------
@@ -345,7 +345,7 @@ stack and some standard operations over it are provided here. This stack
 also serves as a cons-list, so we provide some standard cons-list
 manipulation tools.
 
-.. code:: k
+.. code-block:: k
 
         syntax WordStack [flatPredicate]
         syntax WordStack ::= ".WordStack" | Int ":" WordStack
@@ -359,7 +359,7 @@ manipulation tools.
 -  ``WS [ N .. W ]`` access the range of ``WS`` beginning with ``N`` of
    width ``W``.
 
-.. code:: k
+.. code-block:: k
 
         syntax WordStack ::= WordStack "++" WordStack [function]
      // --------------------------------------------------------
@@ -386,7 +386,7 @@ manipulation tools.
 -  ``WS [ N := W ]`` sets element :math:`N` of :math:`WS` to :math:`W`
    (padding with zeros as needed).
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= WordStack "[" Int "]" [function]
      // -----------------------------------------------
@@ -403,7 +403,7 @@ manipulation tools.
 -  ``#sizeWordStack`` calculates the size of a ``WordStack``.
 -  ``_in_`` determines if a ``Int`` occurs in a ``WordStack``.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= #sizeWordStack ( WordStack )       [function, smtlib(sizeWordStack)]
                      | #sizeWordStack ( WordStack , Int ) [function, klabel(sizeWordStackAux), smtlib(sizeWordStackAux)]
@@ -420,7 +420,7 @@ manipulation tools.
 -  ``#padToWidth(N, WS)`` makes sure that a ``WordStack`` is the correct
    size.
 
-.. code:: k
+.. code-block:: k
 
         syntax WordStack ::= #padToWidth ( Int , WordStack ) [function]
      // ---------------------------------------------------------------
@@ -440,7 +440,7 @@ The local memory of execution is a byte-array (instead of a word-array).
 -  ``#asByteStack`` will split a single word up into a ``WordStack``
    where each word is a byte wide.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= #asWord ( WordStack ) [function, smtlib(asWord)]
      // ---------------------------------------------------------------
@@ -466,7 +466,7 @@ Addresses
 -  ``#addr`` turns an Ethereum word into the corresponding Ethereum
    address (160 LSB).
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= #addr ( Int ) [function]
      // ---------------------------------------
@@ -477,7 +477,7 @@ Addresses
 -  ``#sender`` computes the sender of the transaction from its data and
    signature.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= #newAddr ( Int , Int ) [function]
      // ------------------------------------------------
@@ -498,7 +498,7 @@ Addresses
 -  ``#blockHeaderHash`` computes the hash of a block header given all
    the block data.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= #blockHeaderHash( Int , Int , Int , Int , Int , Int , WordStack , Int , Int , Int , Int , Int , WordStack , Int , Int ) [function]
                      | #blockHeaderHash(String, String, String, String, String, String, String, String, String, String, String, String, String, String, String) [function, klabel(#blockHashHeaderStr)]
@@ -547,7 +547,7 @@ Most of EVM data is held in finite maps. We are using the polymorphic
    :math:`WM` beginning at position :math:`START` (padding with zeros as
    needed).
 
-.. code:: k
+.. code-block:: k
 
         syntax Map ::= Map "[" Int ":=" WordStack "]" [function]
      // --------------------------------------------------------
@@ -569,7 +569,7 @@ Most of EVM data is held in finite maps. We are using the polymorphic
 
 -  ``#removeZeros`` removes any entries in a map with zero values.
 
-.. code:: k
+.. code-block:: k
 
         syntax Map ::= #removeZeros ( Map ) [function]
      // ----------------------------------------------
@@ -580,7 +580,7 @@ Most of EVM data is held in finite maps. We are using the polymorphic
 -  ``#lookup`` looks up a key in a map and returns 0 if the key doesn't
    exist, otherwise returning its value.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= #lookup ( Map , Int ) [function]
      // -----------------------------------------------
@@ -613,7 +613,7 @@ These parsers can interperet hex-encoded strings as ``Int``\ s,
 -  ``#parseAddr`` interperets a string as a 160 bit hex-endcoded
    address.
 
-.. code:: k
+.. code-block:: k
 
         syntax Int ::= #parseHexWord ( String ) [function]
                      | #parseWord    ( String ) [function]
@@ -663,7 +663,7 @@ can call ``Keccak256`` on it from ``KRYPTO``.
 -  ``#padByte`` ensures that the ``String`` interperetation of a ``Int``
    is wide enough.
 
-.. code:: k
+.. code-block:: k
 
         syntax String ::= #unparseByteStack ( WordStack )                [function]
                         | #unparseByteStack ( WordStack , StringBuffer ) [function, klabel(#unparseByteStackAux)]
@@ -691,7 +691,7 @@ Encoding
 -  ``#rlpEncodeWord`` RLP encodes a single EVM word.
 -  ``#rlpEncodeString`` RLP encodes a single ``String``.
 
-.. code:: k
+.. code-block:: k
 
         syntax String ::= #rlpEncodeWord ( Int )            [function]
                         | #rlpEncodeBytes ( Int , Int )     [function]
@@ -728,7 +728,7 @@ Decoding
 -  ``#rlpDecodeList`` RLP decodes a single ``String`` into a
    ``JSONList``, interpereting the string as the RLP encoding of a list.
 
-.. code:: k
+.. code-block:: k
 
         syntax JSON ::= #rlpDecode(String)               [function]
                       | #rlpDecode(String, LengthPrefix) [function, klabel(#rlpDecodeAux)]

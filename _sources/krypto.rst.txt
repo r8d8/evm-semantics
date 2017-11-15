@@ -3,7 +3,7 @@ Cryptographic Primitives
 
 Here we implement the various cryptographic primitives needed for KEVM.
 
-.. code:: k
+.. code-block:: k
 
     module KRYPTO
         imports STRING-SYNTAX
@@ -20,7 +20,7 @@ Here we implement the various cryptographic primitives needed for KEVM.
    post <https://ethereum.stackexchange.com/questions/15766/what-does-v-r-s-in-eth-gettransactionbyhash-mean>`__
    for some information about v, r, and s.
 
-.. code:: k
+.. code-block:: k
 
         syntax String ::= Keccak256 ( String )                            [function, hook(KRYPTO.keccak256)]
                         | ECDSARecover ( String , Int , String , String ) [function, hook(KRYPTO.ecdsaRecover)]

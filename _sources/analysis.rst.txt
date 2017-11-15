@@ -7,7 +7,7 @@ execution. One benefit of K is that we do not have to re-specify
 properties about the operational behavior in our analysis tools; instead
 we can take the operational behavior directly.
 
-.. code:: k
+.. code-block:: k
 
     requires "evm.k"
 
@@ -28,7 +28,7 @@ engine so that we can provide proper bounds on the gas used.
 -  The mode ``GASANALYZE`` performs gas analysis of the program instead
    of executing normally.
 
-.. code:: k
+.. code-block:: k
 
         syntax Mode ::= "GASANALYZE"
 
@@ -41,7 +41,7 @@ about how much gas has been used.
    ``"gasAnalyze"`` and performs the substraction necessary to state how
    much gas has been used since the corresponding ``#beginSummary``.
 
-.. code:: k
+.. code-block:: k
 
         syntax Summary ::= "{" Int "|" Int "|" Int "}"
                          | "{" Int "==>" Int "|" Int "|" Int "}"
@@ -61,7 +61,7 @@ about how much gas has been used.
 -  In ``GASANALYZE`` mode, summaries of the state are taken at each
    ``#gasBreaks`` opcode, otherwise execution is as in ``NORMAL``.
 
-.. code:: k
+.. code-block:: k
 
         rule <mode> GASANALYZE </mode>
              <k> #next => #setMode NORMAL ~> #execTo #gasBreaks ~> #setMode GASANALYZE ... </k>
@@ -89,7 +89,7 @@ about how much gas has been used.
    analysis state appropriately and then setting the mode to
    ``GASANALYZE``.
 
-.. code:: k
+.. code-block:: k
 
         syntax KItem ::= "#gasAnalyze"
      // ------------------------------
