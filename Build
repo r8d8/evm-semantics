@@ -202,8 +202,10 @@ run_partests() {
 }
 
 build_archive() {
-    local prefix="$(git show-ref HEAD --abbrev --hash)"
-    local outname="tmp/kevm-$prefix.tar.gz"
+    local prefix="kevm-$(git show-ref HEAD --abbrev --hash)"
+    local outname="tmp/$prefix.tar.gz"
+    mkdir -p tmp
+    progress "Building archive in '$outname'"
     git archive --prefix="$prefix/" --format tar.gz -o "$outname" HEAD
 }
 
