@@ -24,6 +24,9 @@ install_python_packages() {
     pip install sphinx_rtd_theme
 }
 
+disable_jekyll() {
+    touch "$target_dir/.nojekyll"
+}
 
 # Main
 # ----
@@ -33,5 +36,6 @@ have_dependencies
 setup_virtual_env
 install_python_packages
 sphinx-build -b dirhtml ./src "$target_dir"
+disable_jekyll
 
 [[ "$1" == "--commit" ]] && ./git-commit-filetree gh-pages "$target_dir"
