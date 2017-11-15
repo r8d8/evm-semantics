@@ -1,8 +1,8 @@
 // Ethereum Simulations
 // ====================
 
-// Ethereum is using the EVM to drive updates over the world state. Actual
-// execution of the EVM is defined in [the EVM file](evm.md).
+// Ethereum is using the EVM to drive updates over the world state.
+// Actual execution of the EVM is defined in [the EVM file](evm.md).
 
 
 requires "verification.k"
@@ -21,8 +21,8 @@ module ETHEREUM-SIMULATION
     imports VERIFICATION
 
 
-// An Ethereum simulation is a list of Ethereum commands. Some Ethereum commands
-// take an Ethereum specification (eg. for an account or transaction).
+// An Ethereum simulation is a list of Ethereum commands.
+// Some Ethereum commands take an Ethereum specification (eg. for an account or transaction).
 
 
     syntax EthereumSimulation ::= ".EthereumSimulation"
@@ -36,10 +36,8 @@ module ETHEREUM-SIMULATION
     rule <k> JSONINPUT:JSON => run JSONINPUT success .EthereumSimulation </k>
 
 
-// For verification purposes, it's much easier to specify a program in terms of its
-// op-codes and not the hex-encoding that the tests use. To do so, we'll extend
-// sort `JSON` with some EVM specific syntax, and provide a "pretti-fication" to
-// the nicer input form.
+// For verification purposes, it's much easier to specify a program in terms of its op-codes and not the hex-encoding that the tests use.
+// To do so, we'll extend sort `JSON` with some EVM specific syntax, and provide a "pretti-fication" to the nicer input form.
 
 
     syntax JSON ::= Int | WordStack | OpCodes | Map | Call | SubstateLogEntry
@@ -67,10 +65,8 @@ module ETHEREUM-SIMULATION
 
 // ### Driving Execution
 
-// -   `start` places `#next` on the `<k>` cell so that execution of the loaded
-//     state begin.
-// -   `flush` places `#finalize` on the `<k>` cell once it sees `#end` in the
-//     `<k>` cell, clearing any exceptions it finds.
+// -   `start` places `#next` on the `<k>` cell so that execution of the loaded state begin.
+// -   `flush` places `#finalize` on the `<k>` cell once it sees `#end` in the `<k>` cell, clearing any exceptions it finds.
 
 
     syntax EthereumCommand ::= "start"
@@ -85,12 +81,9 @@ module ETHEREUM-SIMULATION
 //    rule <k> #exception ~> flush => #finalizeTx(false) ~> #exception ... </k>
 
 
-// -   `startTx` computes the sender of the transaction, and places loadTx on the
-//     `k` cell.
-// -   `loadTx(_)` loads the next transaction to be executed into the
-//     current state.
-// -   `finishTx` is a place-holder for performing necessary cleanup after
-//     a transaction.
+// -   `startTx` computes the sender of the transaction, and places loadTx on the `k` cell.
+// -   `loadTx(_)` loads the next transaction to be executed into the current state.
+// -   `finishTx` is a place-holder for performing necessary cleanup after a transaction.
 
 
     syntax EthereumCommand ::= "startTx"
@@ -191,10 +184,8 @@ module ETHEREUM-SIMULATION
       requires TT =/=Int 0
 
 
-// -   `#finalizeBlock` is used to signal that block finalization procedures should
-//     take place (after transactions have executed).
-// -   `#rewardOmmers(_)` pays out the reward to uncle blocks so that blocks are
-//     orphaned less often in Ethereum.
+// -   `#finalizeBlock` is used to signal that block finalization procedures should take place (after transactions have executed).
+// -   `#rewardOmmers(_)` pays out the reward to uncle blocks so that blocks are orphaned less often in Ethereum.
 
 // TODO: Handle blocks with ommers.
 
@@ -230,8 +221,7 @@ module ETHEREUM-SIMULATION
     rule Rb => 5 *Int (10 ^Int 18)
 
 
-// -   `exception` only clears from the `<k>` cell if there is an exception
-//     preceding it.
+// -   `exception` only clears from the `<k>` cell if there is an exception preceding it.
 // -   `failure_` holds the name of a test that failed if a test does fail.
 
 
@@ -262,8 +252,7 @@ module ETHEREUM-SIMULATION
     rule #hasPost? ({ (KEY:String) : _ , REST }) => (KEY in #postKeys) orBool #hasPost? ({ REST })
 
 
-// -   `#loadKeys` are all the JSON nodes which should be considered as loads
-//     before execution.
+// -   `#loadKeys` are all the JSON nodes which should be considered as loads before execution.
 
 
     syntax Set ::= "#loadKeys" [function]
@@ -276,8 +265,7 @@ module ETHEREUM-SIMULATION
     rule run TESTID : { "blocks" : [ { .JSONList }, .JSONList ] , REST } => run TESTID : { REST }
 
 
-// -   `#execKeys` are all the JSON nodes which should be considered for execution
-//     (between loading and checking).
+// -   `#execKeys` are all the JSON nodes which should be considered for execution (between loading and checking).
 
 
     syntax Set ::= "#execKeys" [function]
@@ -290,10 +278,8 @@ module ETHEREUM-SIMULATION
     rule run TESTID : { "lastblockhash" : (HASH:String) } => startTx
 
 
-// -   `#postKeys` are a subset of `#checkKeys` which correspond to post-state
-//     account checks.
-// -   `#checkKeys` are all the JSON nodes which should be considered as checks
-//     after execution.
+// -   `#postKeys` are a subset of `#checkKeys` which correspond to post-state account checks.
+// -   `#checkKeys` are all the JSON nodes which should be considered as checks after execution.
 
 
     syntax Set ::= "#postKeys" [function] | "#allPostKeys" [function] | "#checkKeys" [function]
@@ -308,8 +294,7 @@ module ETHEREUM-SIMULATION
     rule run TESTID : { KEY : (VAL:JSON) , REST } => run TESTID : { REST } ~> check TESTID : { KEY    : VAL } requires KEY in #checkKeys andBool notBool KEY in #allPostKeys
 
 
-// -   `#discardKeys` are all the JSON nodes in the tests which should just
-//     be ignored.
+// -   `#discardKeys` are all the JSON nodes in the tests which should just be ignored.
 
 
     syntax Set ::= "#discardKeys" [function]
@@ -387,8 +372,7 @@ module ETHEREUM-SIMULATION
 
 // ### Loading State
 
-// -   `mkAcct_` creates an account with the supplied ID (assuming it's already
-//     been chopped to 160 bits).
+// -   `mkAcct_` creates an account with the supplied ID (assuming it's already been chopped to 160 bits).
 
 
     syntax EthereumCommand ::= "mkAcct" Int
@@ -409,8 +393,7 @@ module ETHEREUM-SIMULATION
     rule load DATA : [ { TEST } , REST ] => load DATA : { TEST } ~> load DATA : [ REST ]
 
 
-// Here we perform pre-proccesing on account data which allows "pretty"
-// specification of input.
+// Here we perform pre-proccesing on account data which allows "pretty" specification of input.
 
 
     rule load "pre" : { (ACCTID:String) : ACCT } => mkAcct #parseAddr(ACCTID) ~> load "account" : { ACCTID : ACCT }
@@ -554,8 +537,7 @@ module ETHEREUM-SIMULATION
 
 // ### Checking State
 
-// -   `check_` checks if an account/transaction appears in the world-state
-//     as stated.
+// -   `check_` checks if an account/transaction appears in the world-state as stated.
 
 
     syntax EthereumCommand ::= "check" JSON

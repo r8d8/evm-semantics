@@ -325,6 +325,7 @@ This stack also serves as a cons-list, so we provide some standard cons-list man
  // --------------------------------------------------------
     rule .WordStack ++ WS' => WS'
     rule (W : WS)   ++ WS' => W : (WS ++ WS')
+    rule WS         ++ .WordStack => WS
 
     syntax WordStack ::= #take ( Int , WordStack ) [function, smtlib(take)]
  // ---------------------------------------------------------

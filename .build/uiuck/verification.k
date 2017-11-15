@@ -1,9 +1,8 @@
 // KEVM Verification
 // =================
 
-// Using K's reachability logic theorem prover, we're able to verify many
-// properties about EVM programs as reachability claims. This module defines some
-// helpers which make writing specifications simpler.
+// Using K's reachability logic theorem prover, we're able to verify many properties about EVM programs as reachability claims.
+// This module defines some helpers which make writing specifications simpler.
 
 
 requires "evm.k"
@@ -12,8 +11,8 @@ module VERIFICATION
     imports EVM
 
 
-// These `smt-lemma` helps Z3 reason about stack over/under flow, and to keep
-// various constraints down to reasonable sizes.
+// These `smt-lemma` helps Z3 reason about stack over/under flow,
+// and to keep various constraints down to reasonable sizes.
 
 
     rule #sizeWordStack ( _ ) >=Int 0 => true [smt-lemma]
@@ -44,7 +43,17 @@ module VERIFICATION
     rule #asWordAux(N,#take(K,#uint(X))) =>
          (N *Int (2 ^Int (K *Int 8)) +Int #getIntBytes(X,32 -Int K,32,0)) %Int pow256
 
-syntax WordStack ::= #uint(Int) [function, smtlib(uint256)]
+    syntax WordStack ::= #uint(Int) [function, smtlib(uint256)]
+
+    syntax KItem     ::= "#argdata" "(" Int "," Int ")"
+
+    rule WM[ N := #uint(X) ] => WM[N <- #argdata(X, 32)]
+    rule WM[ N := (#uint(X) ++ WS) ] => WM[N <- #argdata(X, 32)][N +Int 32 := WS]
+
+
+    rule <k> MLOAD INDEX => X ~> #push ... </k>
+         <localMem> INDEX |-> #argdata(X:Int, 32) LM:Map </localMem>
+
 
     rule 0 +Int X => X
 
@@ -91,10 +100,8 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 // Sum to N
 // --------
 
-// As a demonstration of simple reachability claims involing a circularity, we
-// prove the EVM [Sum to N](proofs/sum-to-n.md) program correct. This program sums
-// the numbers from 1 to N (for sufficiently small N), including pre-conditions
-// dis-allowing integer under/overflow and stack overflow.
+// As a demonstration of simple reachability claims involing a circularity, we prove the EVM [Sum to N](proofs/sum-to-n.md) program correct.
+// This program sums the numbers from 1 to N (for sufficiently small N), including pre-conditions dis-allowing integer under/overflow and stack overflow.
 
 
     syntax Map ::= "sumTo" "(" Int ")" [function]
@@ -114,8 +121,8 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 // Hacker Gold (HKG) Token Smart Contract
 // --------------------------------------
 
-// Several proofs about the [HKG Token functions](proofs/hkg.md) have been
-// performed. These helper constants make writing the proof claims simpler/cleaner.
+// Several proofs about the [HKG Token functions](proofs/hkg.md) have been performed.
+// These helper constants make writing the proof claims simpler/cleaner.
 
 
     syntax Int ::= "%ACCT_1_BALANCE" [function]
@@ -143,20 +150,47 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
     rule %HKG_Program_buggy => #asMapOpCodes(#dasmOpCodes(#parseByteStack("60606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063095ea7b31461006a57806323b872dd146100c457806370a082311461013d578063a9059cbb1461018a578063dd62ed3e146101e4575b600080fd5b341561007557600080fd5b6100aa600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091908035906020019091905050610250565b604051808215151515815260200191505060405180910390f35b34156100cf57600080fd5b610123600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091908035906020019091905050610343565b604051808215151515815260200191505060405180910390f35b341561014857600080fd5b610174600480803573ffffffffffffffffffffffffffffffffffffffff169060200190919050506105c4565b6040518082815260200191505060405180910390f35b341561019557600080fd5b6101ca600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803590602001909190505061060e565b604051808215151515815260200191505060405180910390f35b34156101ef57600080fd5b61023a600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610773565b6040518082815260200191505060405180910390f35b600081600260003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925846040518082815260200191505060405180910390a3600190505b92915050565b600081600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410158015610410575081600260008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410155b801561041c5750600082115b156105b35781600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254019250508190555081600260008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825403925050819055508273ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a3600190506105bd565b600090506105bd565b5b9392505050565b6000600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b919050565b600081600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541015801561065f5750600082115b156107635781600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a36001905061076d565b6000905061076d565b5b92915050565b6000600260008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490505b929150505600a165627a7a7230582093e640afb442869193a08cf82ed9577e403c7c53a6a95f589e2b673195da102e0029"))) [macro]
 
 
+// Viper ERC20 Token
+// -----------------
+
+
+
+    syntax Int ::= "%%ACCT_1_BALANCE"  [function]
+                 | "%%ACCT_2_BALANCE"  [function]
+                 | "%%ACCT_1_ALLOWED"  [function]
+                 | "%%ACCT_2_ALLOWED"  [function]
+                 | "%%ACCT_ID"         [function]
+                 | "%%CALLER_ID"       [function]
+                 | "%%ORIGIN_ID"       [function]
+                 | "%%COINBASE_VALUE"  [function]
+
+    syntax Map ::= "%ERC20_Program"    [function]
+
+    rule %%ACCT_1_BALANCE => 18569430475105882587588266137724295692847300064913006139044972249535839468399  [macro]  /*sha3(0) + dummy1*/
+    rule %%ACCT_2_BALANCE => 18569430475105882587588266138035934464399359511419449420251410857375429081150  [macro]  /*sha3(0) + dummy2*/
+    rule %%ACCT_1_ALLOWED => 17182840217023837327815859994655082118553823606506231855369921798308317562248  [macro]  /*sha3(sha3(1) + dummy1) + dummy2*/
+    rule %%ACCT_2_ALLOWED => 109955475301053754984357904000055989125729970749514966289074022487626856024429 [macro]  /*sha3(sha3(1) + dummy2) + dummy1*/
+    rule %%ACCT_ID        => 87579061662017136990230301793909925042452127430                                [macro]
+    rule %%CALLER_ID      => 428365927726247537526132020791190998556166378203                               [macro]
+    rule %%ORIGIN_ID      => 116727156174188091019688739584752390716576765452                               [macro]
+    rule %%COINBASE_VALUE => 244687034288125203496486448490407391986876152250                               [macro]
+
+    rule %ERC20_Program => #asMapOpCodes(#dasmOpCodes(#parseByteStack("0x7c010000000000000000000000000000000000000000000000000000000060003504600052740100000000000000000000000000000000000000006020526f7fffffffffffffffffffffffffffffff6040527fffffffffffffffffffffffffffffffff8000000000000000000000000000000060605274012a05f1fffffffffffffffffffffffffdabf41c006080527ffffffffffffffffffffffffed5fa0e000000000000000000000000000000000060a05263d0e30db06000511415610175573461014052336101605261016051600060c052602060c02001546101405161016051600060c052602060c020015401116101405115171558576101405161016051600060c052602060c02001540161016051600060c052602060c0200155600254610140516002540111610140511517155857610140516002540160025561014051610180526101605160007fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef6020610180a3005b632e1a7d4d6000511415610255576020600461014037341515585733610160526101405161016051600060c052602060c020015410151558576101405161016051600060c052602060c02001540361016051600060c052602060c020015561014051600254101515585761014051600254036002556000600060006000600160605161014051806040519013585780919012585702610160516000f115585761014051610180526000610160517fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef6020610180a3600160005260206000f3005b6318160ddd600051141561027557341515585760025460005260206000f3005b6370a0823160005114156102b6576020600461014037341515585760043560205181101558575061014051600060c052602060c020015460005260206000f3005b63a9059cbb60005114156103b7576040600461014037341515585760043560205181101558575033610180526101605161018051600060c052602060c020015410151558576101605161018051600060c052602060c02001540361018051600060c052602060c020015561014051600060c052602060c02001546101605161014051600060c052602060c020015401116101605115171558576101605161014051600060c052602060c02001540161014051600060c052602060c0200155610160516101a05261014051610180517fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef60206101a0a3600160005260206000f3005b6323b872dd60005114156105185760606004610140373415155857600435602051811015585750602435602051811015585750336101a0526101a05161014051600160c052602060c0200160c052602060c02001546101c0526101805161014051600060c052602060c020015410151558576101805161014051600060c052602060c02001540361014051600060c052602060c020015561016051600060c052602060c02001546101805161016051600060c052602060c020015401116101805115171558576101805161016051600060c052602060c02001540161016051600060c052602060c0200155610180516101c0511015155857610180516101c051036101a05161014051600160c052602060c0200160c052602060c0200155610180516101e05261016051610140517fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef60206101e0a3600160005260206000f3005b63095ea7b3600051141561057157604060046101403734151558576004356020518110155857503361018052610160516101405161018051600160c052602060c0200160c052602060c0200155600160005260206000f3005b63dd62ed3e60005114156105cb57604060046101403734151558576004356020518110155857506024356020518110155857506101605161014051600160c052602060c0200160c052602060c020015460005260206000f3005b"))) [macro]
+
+
 // ABI Calls
 // ---------
 
 // The ABI Call mechanism provides syntatic sugar to make writing proofs easier.
-// Instead of manually populating the `<callData>` cell and `<pc>` cell with the
-// right values, we the sugar allows following conveniences -
+// Instead of manually populating the `<callData>` cell and `<pc>` cell with the right values,
+// we the sugar allows following conveniences -
 
-// `#abiCallData(*FUNCTION_NAME*, TypedArgs)`, where the typed args to have be of
-// the `#uint160(*DATA*)` where the types are from the ABI specification, and
-// enclose the data.
+// `#abiCallData(*FUNCTION_NAME*, TypedArgs)`, where the typed args to have be of the
+// `#uint160(*DATA*)` where the types are from the ABI specification, and enclose
+// the data.
 
-// The above constructs place the correct values (in accordance with the ABI) in
-// the `<callData>` cell, allowing proofs of ABI-compliant EVM program to begin at
-// `<pc> 0 </pc>`.
+// The above constructs place the correct values (in accordance with the ABI) in the `<callData>`
+// cell, allowing proofs of ABI-compliant EVM program to begin at `<pc> 0 </pc>`.
 
 
     syntax TypedArg ::= "#uint160"      "(" Int ")"
