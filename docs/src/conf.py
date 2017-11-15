@@ -168,9 +168,7 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
-
-
-# import pygments_extk
-# from sphinx.highlighting import lexers
-# lexers['k'] = pygments_extk.ExtKLexer(startinline=True)
+import pygments_extk
+from sphinx.highlighting import lexers
+lexers['k'] = pygments_extk.ExtKLexer(startinline=True)
 
