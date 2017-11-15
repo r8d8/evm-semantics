@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; The EVM Jello Paper 0.1 documentation</title>
+  <title>KEVM Verification &mdash; The EVM Jello Paper 0.1 documentation</title>
   
 
   
@@ -34,7 +34,7 @@
   
         <link rel="index" title="Index"
               href="../genindex/"/>
-        <link rel="search" title="Search" href="#"/>
+        <link rel="search" title="Search" href="../search/"/>
     <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/> 
 
   
@@ -71,7 +71,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -88,23 +88,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../evm/">EVM Execution</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-programs">EVM Programs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#precompiled-contracts">Precompiled Contracts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#ethereum-gas-calculation">Ethereum Gas Calculation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-program-representations">EVM Program Representations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ethereum/">Ethereum Simulations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../verification/">KEVM Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data/">EVM Words</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data/#data-structures">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data/#parsing-unparsing">Parsing/Unparsing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data/#recursive-length-prefix-rlp">Recursive Length Prefix (RLP)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysis/">Analysis Tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../krypto/">Cryptographic Primitives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../issues/">EVM Design Issues</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">KEVM Verification</a><ul>
+<li><a class="reference internal" href="#sum-to-n">Sum to N</a></li>
+<li><a class="reference internal" href="#hacker-gold-hkg-token-smart-contract">Hacker Gold (HKG) Token Smart Contract</a></li>
 </ul>
-
+</li>
+</ul>
+</div>
             
           
         </div>
@@ -147,10 +139,14 @@
     
       <li><a href="../">Docs</a> &raquo;</li>
         
-      <li>Search</li>
+      <li>KEVM Verification</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/verification.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -162,19 +158,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="kevm-verification">
+<h1>KEVM Verification<a class="headerlink" href="#kevm-verification" title="Permalink to this headline">¶</a></h1>
+<p>Using K’s reachability logic theorem prover, we’re able to verify many
+properties about EVM programs as reachability claims. This module
+defines some helpers which make writing specifications simpler.</p>
+<p>This <code class="docutils literal"><span class="pre">smt-lemma</span></code> helps Z3 reason about stack over/under flow.</p>
+<div class="section" id="sum-to-n">
+<h2>Sum to N<a class="headerlink" href="#sum-to-n" title="Permalink to this headline">¶</a></h2>
+<p>As a demonstration of simple reachability claims involing a circularity,
+we prove the EVM <a class="reference external" href="proofs/sum-to-n.md">Sum to N</a> program correct. This
+program sums the numbers from 1 to N (for sufficiently small N),
+including pre-conditions dis-allowing integer under/overflow and stack
+overflow.</p>
+</div>
+<div class="section" id="hacker-gold-hkg-token-smart-contract">
+<h2>Hacker Gold (HKG) Token Smart Contract<a class="headerlink" href="#hacker-gold-hkg-token-smart-contract" title="Permalink to this headline">¶</a></h2>
+<p>Several proofs about the <a class="reference external" href="proofs/hkg.md">HKG Token functions</a> have
+been performed. These helper constants make writing the proof claims
+simpler/cleaner.</p>
+</div>
+</div>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
            <div class="articleComments">
@@ -220,7 +225,6 @@
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="../_static/searchtools.js"></script>
 
   
 
@@ -236,14 +240,7 @@
           SphinxRtdTheme.StickyNav.enable();
       });
   </script>
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("../searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>

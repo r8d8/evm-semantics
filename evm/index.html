@@ -1,0 +1,804 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>EVM Execution &mdash; The EVM Jello Paper 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex/"/>
+        <link rel="search" title="Search" href="../search/"/>
+    <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../" class="icon icon-home"> The EVM Jello Paper
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">EVM Execution</a><ul>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#modal-semantics">Modal Semantics</a></li>
+<li><a class="reference internal" href="#hardware">Hardware</a></li>
+<li><a class="reference internal" href="#opcode-execution-cycle">OpCode Execution Cycle</a><ul>
+<li><a class="reference internal" href="#exceptional-opcodes">Exceptional OpCodes</a></li>
+<li><a class="reference internal" href="#execution-step">Execution Step</a></li>
+<li><a class="reference internal" href="#program-counter">Program Counter</a></li>
+<li><a class="reference internal" href="#substate-log">Substate Log</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#evm-programs">EVM Programs</a><ul>
+<li><a class="reference internal" href="#evm-opcodes">EVM OpCodes</a><ul>
+<li><a class="reference internal" href="#internal-operations">Internal Operations</a></li>
+<li><a class="reference internal" href="#invalid-operator">Invalid Operator</a></li>
+<li><a class="reference internal" href="#stack-manipulations">Stack Manipulations</a></li>
+<li><a class="reference internal" href="#local-memory">Local Memory</a></li>
+<li><a class="reference internal" href="#expressions">Expressions</a></li>
+<li><a class="reference internal" href="#local-state">Local State</a></li>
+<li><a class="reference internal" href="#jump"><code class="docutils literal"><span class="pre">JUMP*</span></code></a></li>
+<li><a class="reference internal" href="#stop-and-return"><code class="docutils literal"><span class="pre">STOP</span></code> and <code class="docutils literal"><span class="pre">RETURN</span></code></a></li>
+<li><a class="reference internal" href="#call-data">Call Data</a></li>
+<li><a class="reference internal" href="#log-operations">Log Operations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ethereum-network-opcodes">Ethereum Network OpCodes</a><ul>
+<li><a class="reference internal" href="#account-queries">Account Queries</a></li>
+<li><a class="reference internal" href="#account-storage-operations">Account Storage Operations</a></li>
+<li><a class="reference internal" href="#call-operations">Call Operations</a></li>
+<li><a class="reference internal" href="#account-creation-deletion">Account Creation/Deletion</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#precompiled-contracts">Precompiled Contracts</a></li>
+<li><a class="reference internal" href="#ethereum-gas-calculation">Ethereum Gas Calculation</a><ul>
+<li><a class="reference internal" href="#memory-consumption">Memory Consumption</a></li>
+<li><a class="reference internal" href="#execution-gas">Execution Gas</a></li>
+<li><a class="reference internal" href="#fee-schedule-from-c-implementation">Fee Schedule from C++ Implementation</a><ul>
+<li><a class="reference internal" href="#defualt-schedule">Defualt Schedule</a></li>
+<li><a class="reference internal" href="#frontier-schedule">Frontier Schedule</a></li>
+<li><a class="reference internal" href="#homestead-schedule">Homestead Schedule</a></li>
+<li><a class="reference internal" href="#eip150-schedule">EIP150 Schedule</a></li>
+<li><a class="reference internal" href="#eip158-schedule">EIP158 Schedule</a></li>
+<li><a class="reference internal" href="#byzantium-schedule">Byzantium Schedule</a></li>
+<li><a class="reference internal" href="#constantinople-schedule">Constantinople Schedule</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#evm-program-representations">EVM Program Representations</a><ul>
+<li><a class="reference internal" href="#disassembler">Disassembler</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">The EVM Jello Paper</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../">Docs</a> &raquo;</li>
+        
+      <li>EVM Execution</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/evm.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="evm-execution">
+<h1>EVM Execution<a class="headerlink" href="#evm-execution" title="Permalink to this headline">¶</a></h1>
+<p>The EVM is a stack machine over some simple opcodes. Most of the opcodes
+are “local” to the execution state of the machine, but some of them must
+interact with the world state. This file only defines the local
+execution operations, the file <code class="docutils literal"><span class="pre">ethereum.md</span></code> will define the
+interactions with the world state.</p>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>The configuration has cells for the current account id, the current
+opcode, the program counter, the current gas, the gas price, the current
+program, the word stack, and the local memory. In addition, there are
+cells for the callstack and execution substate.</p>
+<p>We’ve broken up the configuration into two components; those parts of
+the state that mutate during execution of a single transaction and those
+that are static throughout. In the comments next to each cell, we’ve
+marked which component of the yellowpaper state corresponds to each
+cell.</p>
+<ul class="simple">
+<li>UIUC-K and RV-K have slight differences of opinion here.</li>
+</ul>
+<ul class="simple">
+<li>UIUC-K and RV-K have slight differences of opinion here.</li>
+</ul>
+</div>
+<div class="section" id="modal-semantics">
+<h2>Modal Semantics<a class="headerlink" href="#modal-semantics" title="Permalink to this headline">¶</a></h2>
+<p>Our semantics is modal, with the initial mode being set on the command
+line via <code class="docutils literal"><span class="pre">-cMODE=EXECMODE</span></code>.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">NORMAL</span></code> executes as a client on the network would.</li>
+<li><code class="docutils literal"><span class="pre">VMTESTS</span></code> skips <code class="docutils literal"><span class="pre">CALL*</span></code> and <code class="docutils literal"><span class="pre">CREATE</span></code> operations.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#setMode_</span></code> sets the mode to the supplied one.</li>
+</ul>
+</div>
+<div class="section" id="hardware">
+<h2>Hardware<a class="headerlink" href="#hardware" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">callStack</span></code> cell stores a list of previous VM execution states.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#pushCallStack</span></code> saves a copy of VM execution state on the
+<code class="docutils literal"><span class="pre">callStack</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#popCallStack</span></code> restores the top element of the <code class="docutils literal"><span class="pre">callStack</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#dropCallStack</span></code> removes the top element of the <code class="docutils literal"><span class="pre">callStack</span></code>.</li>
+</ul>
+<p>The <code class="docutils literal"><span class="pre">interimStates</span></code> cell stores a list of previous world states.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#pushWorldState</span></code> stores a copy of the current accounts at the top
+of the <code class="docutils literal"><span class="pre">interimStates</span></code> cell.</li>
+<li><code class="docutils literal"><span class="pre">#popWorldState</span></code> restores the top element of the <code class="docutils literal"><span class="pre">interimStates</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#dropWorldState</span></code> removes the top element of the <code class="docutils literal"><span class="pre">interimStates</span></code>.</li>
+</ul>
+<p>We use slightly different rules for rv-k versus uiuc-k because uiuc-k
+does not support storing configuration fragments. The semantics of these
+two sets of rules are identical, however, the version rv-k uses is
+substantially faster. We would use that version in both places if not
+for technical limitations on the prover. In the long term, a new prover
+will be built capable of supporting the same code in both versions of
+the semantics.</p>
+<p>The <code class="docutils literal"><span class="pre">substateStack</span></code> cell stores a list of previous substate logs.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#pushSubstate</span></code> stores a copy of the current substate at the top of
+the <code class="docutils literal"><span class="pre">substateStack</span></code> cell.</li>
+<li><code class="docutils literal"><span class="pre">#popSubstate</span></code> restores the top element of the <code class="docutils literal"><span class="pre">substateStack</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#dropSubstate</span></code> removes the top element of the <code class="docutils literal"><span class="pre">substateStack</span></code>.</li>
+</ul>
+<p>Simple commands controlling exceptions provide control-flow.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#end</span></code> is used to indicate the (non-exceptional) end of execution.</li>
+<li><code class="docutils literal"><span class="pre">#exception</span></code> is used to indicate exceptional states (it consumes
+any operations to be performed after it).</li>
+<li><code class="docutils literal"><span class="pre">#?_:_?#</span></code> allows for branching control-flow; if it reaches the
+front of the <code class="docutils literal"><span class="pre">op</span></code> cell it takes the first branch, if an exception
+runs into it it takes the second branch.</li>
+</ul>
+</div>
+<div class="section" id="opcode-execution-cycle">
+<h2>OpCode Execution Cycle<a class="headerlink" href="#opcode-execution-cycle" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">OpCode</span></code> is broken into several subsorts for easier handling. Here all
+<code class="docutils literal"><span class="pre">OpCode</span></code>s are subsorted into <code class="docutils literal"><span class="pre">KItem</span></code> (allowing sequentialization),
+and the various sorts of opcodes are subsorted into <code class="docutils literal"><span class="pre">OpCode</span></code>.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#execute</span></code> calls <code class="docutils literal"><span class="pre">#next</span></code> repeatedly until it recieves an <code class="docutils literal"><span class="pre">#end</span></code>
+or <code class="docutils literal"><span class="pre">#exception</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#execTo</span></code> executes until the next opcode is one of the specified
+ones.</li>
+</ul>
+<p>Execution follows a simple cycle where first the state is checked for
+exceptions, then if no exceptions will be thrown the opcode is run.</p>
+<ul class="simple">
+<li>Regardless of the mode, <code class="docutils literal"><span class="pre">#next</span></code> will throw <code class="docutils literal"><span class="pre">#end</span></code> or
+<code class="docutils literal"><span class="pre">#exception</span></code> if the current program counter is not pointing at an
+OpCode.</li>
+</ul>
+<p>TODO: I think on <code class="docutils literal"><span class="pre">#next</span></code> we are supposed to pretend it’s <code class="docutils literal"><span class="pre">STOP</span></code> if
+it’s in the middle of the program somewhere but is invalid? I suppose
+the semantics currently loads <code class="docutils literal"><span class="pre">INVALID</span></code> where <code class="docutils literal"><span class="pre">N</span></code> is the position in
+the bytecode array.</p>
+<ul class="simple">
+<li>In <code class="docutils literal"><span class="pre">NORMAL</span></code> or <code class="docutils literal"><span class="pre">VMTESTS</span></code> mode, <code class="docutils literal"><span class="pre">#next</span></code> checks if the opcode is
+exceptional, runs it if not, then increments the program counter.</li>
+</ul>
+<div class="section" id="exceptional-opcodes">
+<h3>Exceptional OpCodes<a class="headerlink" href="#exceptional-opcodes" title="Permalink to this headline">¶</a></h3>
+<p>Some checks if an opcode will throw an exception are relatively quick
+and done up front.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#exceptional?</span></code> checks if the operator is invalid and will not
+cause <code class="docutils literal"><span class="pre">wordStack</span></code> size issues (this implements the function <code class="docutils literal"><span class="pre">Z</span></code>
+in the yellowpaper, section 9.4.2).</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#invalid?</span></code> checks if it’s the designated invalid opcode.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#stackNeeded?</span></code> checks that the stack will be not be
+under/overflown.</li>
+<li><code class="docutils literal"><span class="pre">#stackNeeded</span></code>, <code class="docutils literal"><span class="pre">#stackAdded</span></code>, and <code class="docutils literal"><span class="pre">#stackDelta</span></code> are helpers
+for deciding <code class="docutils literal"><span class="pre">#stackNeeded?</span></code>.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#badJumpDest?</span></code> determines if the opcode will result in a bad jump
+destination.</li>
+</ul>
+</div>
+<div class="section" id="execution-step">
+<h3>Execution Step<a class="headerlink" href="#execution-step" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#exec</span></code> will load the arguments of the opcode (it assumes
+<code class="docutils literal"><span class="pre">#stackNeeded?</span></code> is accurate and has been called) and trigger the
+subsequent operations.</li>
+</ul>
+<p>Here we load the correct number of arguments from the <code class="docutils literal"><span class="pre">wordStack</span></code>
+based on the sort of the opcode. Some of them require an argument to be
+interpereted as an address (modulo 160 bits), so the <code class="docutils literal"><span class="pre">#addr?</span></code> function
+performs that check.</p>
+<p><code class="docutils literal"><span class="pre">StackOp</span></code> is used for opcodes which require a large portion of the
+stack.</p>
+<p>The <code class="docutils literal"><span class="pre">CallOp</span></code> opcodes all interperet their second argument as an
+address.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#gas</span></code> calculates how much gas this operation costs, and takes into
+account the memory consumed.</li>
+</ul>
+</div>
+<div class="section" id="program-counter">
+<h3>Program Counter<a class="headerlink" href="#program-counter" title="Permalink to this headline">¶</a></h3>
+<p>All operators except for <code class="docutils literal"><span class="pre">PUSH</span></code> and <code class="docutils literal"><span class="pre">JUMP*</span></code> increment the program
+counter by 1. The arguments to <code class="docutils literal"><span class="pre">PUSH</span></code> must be skipped over (as they
+are inline), and the opcode <code class="docutils literal"><span class="pre">JUMP</span></code> already affects the program counter
+in the correct way.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#pc</span></code> calculates the next program counter of the given operator.</li>
+</ul>
+</div>
+<div class="section" id="substate-log">
+<h3>Substate Log<a class="headerlink" href="#substate-log" title="Permalink to this headline">¶</a></h3>
+<p>During execution of a transaction some things are recorded in the
+substate log (Section 6.1 in yellowpaper). This is a right cons-list of
+<code class="docutils literal"><span class="pre">SubstateLogEntry</span></code> (which contains the account ID along with the
+specified portions of the <code class="docutils literal"><span class="pre">wordStack</span></code> and <code class="docutils literal"><span class="pre">localMem</span></code>).</p>
+<p>After executing a transaction, it’s necessary to have the effect of the
+substate log recorded.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#finalizeTx</span></code> makes the substate log actually have an effect on the
+state.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="evm-programs">
+<h1>EVM Programs<a class="headerlink" href="#evm-programs" title="Permalink to this headline">¶</a></h1>
+<p>Lists of opcodes form programs. Deciding if an opcode is in a list will
+be useful for modeling gas, and converting a program into a map of
+program-counter to opcode is useful for execution.</p>
+<p>Note that <code class="docutils literal"><span class="pre">_in_</span></code> ignores the arguments to operators that are
+parametric.</p>
+<div class="section" id="evm-opcodes">
+<h2>EVM OpCodes<a class="headerlink" href="#evm-opcodes" title="Permalink to this headline">¶</a></h2>
+<p>Each subsection has a different class of opcodes. Organization is based
+roughly on what parts of the execution state are needed to compute the
+result of each operator. This sometimes corresponds to the organization
+in the yellowpaper.</p>
+<div class="section" id="internal-operations">
+<h3>Internal Operations<a class="headerlink" href="#internal-operations" title="Permalink to this headline">¶</a></h3>
+<p>These are just used by the other operators for shuffling local execution
+state around on the EVM.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#push</span></code> will push an element to the <code class="docutils literal"><span class="pre">wordStack</span></code> without any
+checks.</li>
+<li><code class="docutils literal"><span class="pre">#setStack_</span></code> will set the current stack to the given one.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#newAccount_</span></code> allows declaring a new empty account with the given
+address (and assumes the rounding to 160 bits has already occured).
+If the account already exists with non-zero nonce or non-empty code,
+an exception is thrown. Otherwise, if the account already exists, the
+storage is cleared.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#transferFunds</span></code> moves money from one account into another,
+creating the destination account if it doesn’t exist.</li>
+</ul>
+</div>
+<div class="section" id="invalid-operator">
+<h3>Invalid Operator<a class="headerlink" href="#invalid-operator" title="Permalink to this headline">¶</a></h3>
+<p>We use <code class="docutils literal"><span class="pre">INVALID</span></code> both for marking the designated invalid operator and
+for garbage bytes in the input program.</p>
+</div>
+<div class="section" id="stack-manipulations">
+<h3>Stack Manipulations<a class="headerlink" href="#stack-manipulations" title="Permalink to this headline">¶</a></h3>
+<p>Some operators don’t calculate anything, they just push the stack around
+a bit.</p>
+</div>
+<div class="section" id="local-memory">
+<h3>Local Memory<a class="headerlink" href="#local-memory" title="Permalink to this headline">¶</a></h3>
+<p>These operations are getters/setters of the local execution memory.</p>
+</div>
+<div class="section" id="expressions">
+<h3>Expressions<a class="headerlink" href="#expressions" title="Permalink to this headline">¶</a></h3>
+<p>Expression calculations are simple and don’t require anything but the
+arguments from the <code class="docutils literal"><span class="pre">wordStack</span></code> to operate.</p>
+<p>NOTE: We have to call the opcode <code class="docutils literal"><span class="pre">OR</span></code> by <code class="docutils literal"><span class="pre">EVMOR</span></code> instead, because K
+has trouble parsing it/compiling the definition otherwise.</p>
+</div>
+<div class="section" id="local-state">
+<h3>Local State<a class="headerlink" href="#local-state" title="Permalink to this headline">¶</a></h3>
+<p>These operators make queries about the current execution state.</p>
+</div>
+<div class="section" id="jump">
+<h3><code class="docutils literal"><span class="pre">JUMP*</span></code><a class="headerlink" href="#jump" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">JUMP*</span></code> family of operations affect the current program counter.</p>
+</div>
+<div class="section" id="stop-and-return">
+<h3><code class="docutils literal"><span class="pre">STOP</span></code> and <code class="docutils literal"><span class="pre">RETURN</span></code><a class="headerlink" href="#stop-and-return" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="call-data">
+<h3>Call Data<a class="headerlink" href="#call-data" title="Permalink to this headline">¶</a></h3>
+<p>These operators query about the current <code class="docutils literal"><span class="pre">CALL*</span></code> state.</p>
+</div>
+<div class="section" id="log-operations">
+<h3>Log Operations<a class="headerlink" href="#log-operations" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="ethereum-network-opcodes">
+<h2>Ethereum Network OpCodes<a class="headerlink" href="#ethereum-network-opcodes" title="Permalink to this headline">¶</a></h2>
+<p>Operators that require access to the rest of the Ethereum network
+world-state can be taken as a first draft of a “blockchain generic”
+language.</p>
+<div class="section" id="account-queries">
+<h3>Account Queries<a class="headerlink" href="#account-queries" title="Permalink to this headline">¶</a></h3>
+<p>TODO: It’s unclear what to do in the case of an account not existing for
+these operators. <code class="docutils literal"><span class="pre">BALANCE</span></code> is specified to push 0 in this case, but
+the others are not specified. For now, I assume that they instantiate an
+empty account and use the empty data.</p>
+<p>TODO: What should happen in the case that the account doesn’t exist with
+<code class="docutils literal"><span class="pre">EXTCODECOPY</span></code>? Should we pad zeros (for the copied “program”)?</p>
+</div>
+<div class="section" id="account-storage-operations">
+<h3>Account Storage Operations<a class="headerlink" href="#account-storage-operations" title="Permalink to this headline">¶</a></h3>
+<p>These operations interact with the account storage.</p>
+</div>
+<div class="section" id="call-operations">
+<h3>Call Operations<a class="headerlink" href="#call-operations" title="Permalink to this headline">¶</a></h3>
+<p>The various <code class="docutils literal"><span class="pre">CALL*</span></code> (and other inter-contract control flow) operations
+will be desugared into these <code class="docutils literal"><span class="pre">InternalOp</span></code>s.</p>
+<ul class="simple">
+<li>The <code class="docutils literal"><span class="pre">callLog</span></code> is used to store the <code class="docutils literal"><span class="pre">CALL*</span></code>/<code class="docutils literal"><span class="pre">CREATE</span></code> operations
+so that we can compare them against the test-set.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#call_____</span></code> takes the calling account, the account to execute as,
+the account whose code should execute, the gas limit, the amount to
+transfer, and the arguments.</li>
+<li><code class="docutils literal"><span class="pre">#callWithCode______</span></code> takes the calling account, the accout to
+execute as, the code to execute (as a map), the gas limit, the amount
+to transfer, and the arguments.</li>
+<li><code class="docutils literal"><span class="pre">#return__</span></code> is a placeholder for the calling program, specifying
+where to place the returned data in memory.</li>
+</ul>
+<p>For each <code class="docutils literal"><span class="pre">CALL*</span></code> operation, we make a corresponding call to <code class="docutils literal"><span class="pre">#call</span></code>
+and a state-change to setup the custom parts of the calling environment.</p>
+</div>
+<div class="section" id="account-creation-deletion">
+<h3>Account Creation/Deletion<a class="headerlink" href="#account-creation-deletion" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#create____</span></code> transfers the endowment to the new account and
+triggers the execution of the initialization code.</li>
+<li><code class="docutils literal"><span class="pre">#codeDeposit_</span></code> checks the result of initialization code and
+whether the code deposit can be paid, indicating an error if not.</li>
+</ul>
+<p><code class="docutils literal"><span class="pre">CREATE</span></code> will attempt to <code class="docutils literal"><span class="pre">#create</span></code> the account using the
+initialization code and cleans up the result with <code class="docutils literal"><span class="pre">#codeDeposit</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">SELFDESTRUCT</span></code> marks the current account for deletion and transfers
+funds out of the current account. Self destructing to yourself, unlike a
+regular transfer, destroys the balance in the account, irreparably
+losing it.</p>
+</div>
+</div>
+</div>
+<div class="section" id="precompiled-contracts">
+<h1>Precompiled Contracts<a class="headerlink" href="#precompiled-contracts" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#precompiled</span></code> is a placeholder for the 4 pre-compiled contracts at
+addresses 1 through 4.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">ECREC</span></code> performs ECDSA public key recovery.</li>
+<li><code class="docutils literal"><span class="pre">SHA256</span></code> performs the SHA2-257 hash function.</li>
+<li><code class="docutils literal"><span class="pre">RIP160</span></code> performs the RIPEMD-160 hash function.</li>
+<li><code class="docutils literal"><span class="pre">ID</span></code> is the identity function (copies input to output).</li>
+</ul>
+</div>
+<div class="section" id="ethereum-gas-calculation">
+<h1>Ethereum Gas Calculation<a class="headerlink" href="#ethereum-gas-calculation" title="Permalink to this headline">¶</a></h1>
+<p>The gas calculation is designed to mirror the style of the yellowpaper.
+Gas is consumed either by increasing the amount of memory being used, or
+by executing opcodes.</p>
+<div class="section" id="memory-consumption">
+<h2>Memory Consumption<a class="headerlink" href="#memory-consumption" title="Permalink to this headline">¶</a></h2>
+<p>Memory consumed is tracked to determine the appropriate amount of gas to
+charge for each operation. In the yellowpaper, each opcode is defined to
+consume zero gas unless specified otherwise next to the semantics of the
+opcode (appendix H).</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#memory</span></code> computes the new memory size given the old size and next
+operator (with its arguments).</li>
+<li><code class="docutils literal"><span class="pre">#memoryUsageUpdate</span></code> is the function <code class="docutils literal"><span class="pre">M</span></code> in appendix H of the
+yellowpaper which helps track the memory used.</li>
+</ul>
+<p>Grumble grumble, K sucks at <code class="docutils literal"><span class="pre">owise</span></code>.</p>
+</div>
+<div class="section" id="execution-gas">
+<h2>Execution Gas<a class="headerlink" href="#execution-gas" title="Permalink to this headline">¶</a></h2>
+<p>Each opcode has an intrinsic gas cost of execution as well (appendix H
+of the yellowpaper).</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#gasExec</span></code> loads all the relevant surronding state and uses that to
+compute the intrinsic execution gas of each opcode.</li>
+</ul>
+<p>There are several helpers for calculating gas (most of them also
+specified in the yellowpaper).</p>
+<p>Note: These are all functions as the operator <code class="docutils literal"><span class="pre">#gasExec</span></code> has already
+loaded all the relevant state.</p>
+</div>
+<div class="section" id="fee-schedule-from-c-implementation">
+<h2>Fee Schedule from C++ Implementation<a class="headerlink" href="#fee-schedule-from-c-implementation" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://github.com/ethereum/cpp-ethereum">C++ Implementation of
+EVM</a> specifies several
+different “profiles” for how the VM works. Here we provide each protocol
+from the C++ implementation, as the yellowpaper does not contain all the
+different profiles. Specify which profile by passing in the argument
+<code class="docutils literal"><span class="pre">-cSCHEDULE=&lt;FEE_SCHEDULE&gt;</span></code> when calling <code class="docutils literal"><span class="pre">krun</span></code> (the available
+<code class="docutils literal"><span class="pre">&lt;FEE_SCHEDULE&gt;</span></code> are supplied here).</p>
+<p>A <code class="docutils literal"><span class="pre">ScheduleFlag</span></code> is a boolean determined by the fee schedule; applying
+a <code class="docutils literal"><span class="pre">ScheduleFlag</span></code> to a <code class="docutils literal"><span class="pre">Schedule</span></code> yields whether the flag is set or
+not.</p>
+<p>A <code class="docutils literal"><span class="pre">ScheduleConst</span></code> is a constant determined by the fee schedule;
+applying a <code class="docutils literal"><span class="pre">ScheduleConst</span></code> to a <code class="docutils literal"><span class="pre">Schedule</span></code> yields the correct
+constant for that schedule.</p>
+<div class="section" id="defualt-schedule">
+<h3>Defualt Schedule<a class="headerlink" href="#defualt-schedule" title="Permalink to this headline">¶</a></h3>
+<div class="code cpp highlight-default"><div class="highlight"><pre><span></span>struct EVMSchedule
+{
+    EVMSchedule(): tierStepGas(std::array&lt;unsigned, 8&gt;{{0, 2, 3, 5, 8, 10, 20, 0}}) {}
+    EVMSchedule(bool _efcd, bool _hdc, unsigned const&amp; _txCreateGas): exceptionalFailedCodeDeposit(_efcd), haveDelegateCall(_hdc), tierStepGas(std::array&lt;unsigned, 8&gt;{{0, 2, 3, 5, 8, 10, 20, 0}}), txCreateGas(_txCreateGas) {}
+    bool exceptionalFailedCodeDeposit = true;
+    bool haveDelegateCall = true;
+    bool eip150Mode = false;
+    bool eip158Mode = false;
+    bool haveRevert = false;
+    bool haveReturnData = false;
+    bool haveStaticCall = false;
+    bool haveCreate2 = false;
+    std::array&lt;unsigned, 8&gt; tierStepGas;
+
+    unsigned expGas = 10;
+    unsigned expByteGas = 10;
+    unsigned sha3Gas = 30;
+    unsigned sha3WordGas = 6;
+
+    unsigned sloadGas = 50;
+    unsigned sstoreSetGas = 20000;
+    unsigned sstoreResetGas = 5000;
+    unsigned sstoreRefundGas = 15000;
+
+    unsigned logGas = 375;
+    unsigned logDataGas = 8;
+    unsigned logTopicGas = 375;
+
+    unsigned callGas = 40;
+    unsigned callStipend = 2300;
+    unsigned callValueTransferGas = 9000;
+    unsigned callNewAccountGas = 25000;
+
+    unsigned createGas = 32000;
+    unsigned createDataGas = 200;
+    unsigned suicideGas = 0;
+    unsigned suicideRefundGas = 24000;
+
+    unsigned memoryGas = 3;
+    unsigned quadCoeffDiv = 512;
+    unsigned copyGas = 3;
+
+    unsigned txGas = 21000;
+    unsigned txCreateGas = 53000;
+    unsigned txDataZeroGas = 4;
+    unsigned txDataNonZeroGas = 68;
+
+    unsigned jumpdestGas = 1;
+    unsigned balanceGas = 20;
+    unsigned blockhashGas = 20;
+    unsigned extcodesizeGas = 20;
+    unsigned extcodecopyGas = 20;
+
+    unsigned maxCodeSize = unsigned(-1);
+
+    bool staticCallDepthLimit() const { return !eip150Mode; }
+    bool suicideNewAccountGas() const { return !eip150Mode; }
+    bool suicideChargesNewAccountGas() const { return eip150Mode; }
+    bool emptinessIsNonexistence() const { return eip158Mode; }
+    bool zeroValueTransferChargesNewAccountGas() const { return !eip158Mode; }
+};
+</pre></div>
+</div>
+</div>
+<div class="section" id="frontier-schedule">
+<h3>Frontier Schedule<a class="headerlink" href="#frontier-schedule" title="Permalink to this headline">¶</a></h3>
+<div class="code cpp highlight-default"><div class="highlight"><pre><span></span><span class="n">static</span> <span class="n">const</span> <span class="n">EVMSchedule</span> <span class="n">FrontierSchedule</span> <span class="o">=</span> <span class="n">EVMSchedule</span><span class="p">(</span><span class="n">false</span><span class="p">,</span> <span class="n">false</span><span class="p">,</span> <span class="mi">21000</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="homestead-schedule">
+<h3>Homestead Schedule<a class="headerlink" href="#homestead-schedule" title="Permalink to this headline">¶</a></h3>
+<div class="code cpp highlight-default"><div class="highlight"><pre><span></span><span class="n">static</span> <span class="n">const</span> <span class="n">EVMSchedule</span> <span class="n">HomesteadSchedule</span> <span class="o">=</span> <span class="n">EVMSchedule</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="n">true</span><span class="p">,</span> <span class="mi">53000</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="eip150-schedule">
+<h3>EIP150 Schedule<a class="headerlink" href="#eip150-schedule" title="Permalink to this headline">¶</a></h3>
+<div class="code cpp highlight-default"><div class="highlight"><pre><span></span><span class="n">static</span> <span class="n">const</span> <span class="n">EVMSchedule</span> <span class="n">EIP150Schedule</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="p">{</span>
+    <span class="n">EVMSchedule</span> <span class="n">schedule</span> <span class="o">=</span> <span class="n">HomesteadSchedule</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">eip150Mode</span> <span class="o">=</span> <span class="n">true</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">extcodesizeGas</span> <span class="o">=</span> <span class="mi">700</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">extcodecopyGas</span> <span class="o">=</span> <span class="mi">700</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">balanceGas</span> <span class="o">=</span> <span class="mi">400</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">sloadGas</span> <span class="o">=</span> <span class="mi">200</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">callGas</span> <span class="o">=</span> <span class="mi">700</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">suicideGas</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">schedule</span><span class="p">;</span>
+<span class="p">}();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="eip158-schedule">
+<h3>EIP158 Schedule<a class="headerlink" href="#eip158-schedule" title="Permalink to this headline">¶</a></h3>
+<div class="code cpp highlight-default"><div class="highlight"><pre><span></span><span class="n">static</span> <span class="n">const</span> <span class="n">EVMSchedule</span> <span class="n">EIP158Schedule</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="p">{</span>
+    <span class="n">EVMSchedule</span> <span class="n">schedule</span> <span class="o">=</span> <span class="n">EIP150Schedule</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">expByteGas</span> <span class="o">=</span> <span class="mi">50</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">eip158Mode</span> <span class="o">=</span> <span class="n">true</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">maxCodeSize</span> <span class="o">=</span> <span class="mh">0x6000</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">schedule</span><span class="p">;</span>
+<span class="p">}();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="byzantium-schedule">
+<h3>Byzantium Schedule<a class="headerlink" href="#byzantium-schedule" title="Permalink to this headline">¶</a></h3>
+<div class="code cpp highlight-default"><div class="highlight"><pre><span></span><span class="n">static</span> <span class="n">const</span> <span class="n">EVMSchedule</span> <span class="n">ByzantiumSchedule</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="p">{</span>
+    <span class="n">EVMSchedule</span> <span class="n">schedule</span> <span class="o">=</span> <span class="n">EIP158Schedule</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">haveRevert</span> <span class="o">=</span> <span class="n">true</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">haveReturnData</span> <span class="o">=</span> <span class="n">true</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">haveStaticCall</span> <span class="o">=</span> <span class="n">true</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">blockRewardOverwrite</span> <span class="o">=</span> <span class="p">{</span><span class="mi">3</span> <span class="o">*</span> <span class="n">ether</span><span class="p">};</span>
+    <span class="k">return</span> <span class="n">schedule</span><span class="p">;</span>
+<span class="p">}();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="constantinople-schedule">
+<h3>Constantinople Schedule<a class="headerlink" href="#constantinople-schedule" title="Permalink to this headline">¶</a></h3>
+<div class="code cpp highlight-default"><div class="highlight"><pre><span></span><span class="n">static</span> <span class="n">const</span> <span class="n">EVMSchedule</span> <span class="n">ConstantinopleSchedule</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="p">{</span>
+    <span class="n">EVMSchedule</span> <span class="n">schedule</span> <span class="o">=</span> <span class="n">ByzantiumSchedule</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">blockhashGas</span> <span class="o">=</span> <span class="mi">800</span><span class="p">;</span>
+    <span class="n">schedule</span><span class="o">.</span><span class="n">haveCreate2</span> <span class="o">=</span> <span class="n">true</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">schedule</span><span class="p">;</span>
+<span class="p">}();</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="evm-program-representations">
+<h1>EVM Program Representations<a class="headerlink" href="#evm-program-representations" title="Permalink to this headline">¶</a></h1>
+<p>EVM programs are represented algebraically in K, but programs can load
+and manipulate program data directly. The opcodes <code class="docutils literal"><span class="pre">CODECOPY</span></code> and
+<code class="docutils literal"><span class="pre">EXTCODECOPY</span></code> rely on the assembled form of the programs being
+present. The opcode <code class="docutils literal"><span class="pre">CREATE</span></code> relies on being able to interperet EVM
+data as a program.</p>
+<p>This is a program representation dependence, which we might want to
+avoid. Perhaps the only program representation dependence we should have
+is the hash of the program; doing so achieves:</p>
+<ul class="simple">
+<li>Program representation independence (different analysis tools on the
+language don’t have to ensure they have a common representation of
+programs, just a common interperetation of the data-files holding
+programs).</li>
+<li>Programming language independence (we wouldn’t even have to commit to
+a particular language or interperetation of the data-file).</li>
+<li>Only depending on the hash allows us to know that we have <em>exactly</em>
+the correct data-file (program), and nothing more.</li>
+</ul>
+<div class="section" id="disassembler">
+<h2>Disassembler<a class="headerlink" href="#disassembler" title="Permalink to this headline">¶</a></h2>
+<p>After interpreting the strings representing programs as a <code class="docutils literal"><span class="pre">WordStack</span></code>,
+it should be changed into an <code class="docutils literal"><span class="pre">OpCodes</span></code> for use by the EVM semantics.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#dasmOpCodes</span></code> interperets <code class="docutils literal"><span class="pre">WordStack</span></code> as an <code class="docutils literal"><span class="pre">OpCodes</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#dasmPUSH</span></code> handles the case of a <code class="docutils literal"><span class="pre">PushOp</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#dasmOpCode</span></code> interperets a <code class="docutils literal"><span class="pre">Int</span></code> as an <code class="docutils literal"><span class="pre">OpCode</span></code>.</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, The KEVM Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

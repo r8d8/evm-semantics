@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Ethereum Simulations &mdash; The EVM Jello Paper 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex/"/>
+        <link rel="search" title="Search" href="../search/"/>
+    <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../" class="icon icon-home"> The EVM Jello Paper
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Ethereum Simulations</a><ul>
+<li><a class="reference internal" href="#driving-execution">Driving Execution</a></li>
+<li><a class="reference internal" href="#running-tests">Running Tests</a><ul>
+<li><a class="reference internal" href="#state-manipulation">State Manipulation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#clearing-state">Clearing State</a></li>
+<li><a class="reference internal" href="#loading-state">Loading State</a></li>
+<li><a class="reference internal" href="#checking-state">Checking State</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">The EVM Jello Paper</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../">Docs</a> &raquo;</li>
+        
+      <li>Ethereum Simulations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/ethereum.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ethereum-simulations">
+<h1>Ethereum Simulations<a class="headerlink" href="#ethereum-simulations" title="Permalink to this headline">¶</a></h1>
+<p>Ethereum is using the EVM to drive updates over the world state. Actual
+execution of the EVM is defined in <a class="reference external" href="evm.md">the EVM file</a>.</p>
+<p>An Ethereum simulation is a list of Ethereum commands. Some Ethereum
+commands take an Ethereum specification (eg. for an account or
+transaction).</p>
+<p>For verification purposes, it’s much easier to specify a program in
+terms of its op-codes and not the hex-encoding that the tests use. To do
+so, we’ll extend sort <code class="docutils literal"><span class="pre">JSON</span></code> with some EVM specific syntax, and
+provide a “pretti-fication” to the nicer input form.</p>
+<div class="section" id="driving-execution">
+<h2>Driving Execution<a class="headerlink" href="#driving-execution" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">start</span></code> places <code class="docutils literal"><span class="pre">#next</span></code> on the <code class="docutils literal"><span class="pre">&lt;k&gt;</span></code> cell so that execution of
+the loaded state begin.</li>
+<li><code class="docutils literal"><span class="pre">flush</span></code> places <code class="docutils literal"><span class="pre">#finalize</span></code> on the <code class="docutils literal"><span class="pre">&lt;k&gt;</span></code> cell once it sees
+<code class="docutils literal"><span class="pre">#end</span></code> in the <code class="docutils literal"><span class="pre">&lt;k&gt;</span></code> cell, clearing any exceptions it finds.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">startTx</span></code> computes the sender of the transaction, and places loadTx
+on the <code class="docutils literal"><span class="pre">k</span></code> cell.</li>
+<li><code class="docutils literal"><span class="pre">loadTx(_)</span></code> loads the next transaction to be executed into the
+current state.</li>
+<li><code class="docutils literal"><span class="pre">finishTx</span></code> is a place-holder for performing necessary cleanup after
+a transaction.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#finalizeBlock</span></code> is used to signal that block finalization
+procedures should take place (after transactions have executed).</li>
+<li><code class="docutils literal"><span class="pre">#rewardOmmers(_)</span></code> pays out the reward to uncle blocks so that
+blocks are orphaned less often in Ethereum.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">exception</span></code> only clears from the <code class="docutils literal"><span class="pre">&lt;k&gt;</span></code> cell if there is an
+exception preceding it.</li>
+<li><code class="docutils literal"><span class="pre">failure_</span></code> holds the name of a test that failed if a test does
+fail.</li>
+</ul>
+</div>
+<div class="section" id="running-tests">
+<h2>Running Tests<a class="headerlink" href="#running-tests" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">run</span></code> runs a given set of Ethereum tests (from the test-set).</li>
+</ul>
+<p>Note that <code class="docutils literal"><span class="pre">TEST</span></code> is sorted here so that key <code class="docutils literal"><span class="pre">&quot;network&quot;</span></code> comes before
+key <code class="docutils literal"><span class="pre">&quot;pre&quot;</span></code>.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#loadKeys</span></code> are all the JSON nodes which should be considered as
+loads before execution.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#execKeys</span></code> are all the JSON nodes which should be considered for
+execution (between loading and checking).</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#postKeys</span></code> are a subset of <code class="docutils literal"><span class="pre">#checkKeys</span></code> which correspond to
+post-state account checks.</li>
+<li><code class="docutils literal"><span class="pre">#checkKeys</span></code> are all the JSON nodes which should be considered as
+checks after execution.</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#discardKeys</span></code> are all the JSON nodes in the tests which should
+just be ignored.</li>
+</ul>
+<div class="section" id="state-manipulation">
+<h3>State Manipulation<a class="headerlink" href="#state-manipulation" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="clearing-state">
+<h2>Clearing State<a class="headerlink" href="#clearing-state" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">clear</span></code> clears all the execution state of the machine.</li>
+<li><code class="docutils literal"><span class="pre">clearX</span></code> clears the substate <code class="docutils literal"><span class="pre">X</span></code>, for <code class="docutils literal"><span class="pre">TX</span></code>, <code class="docutils literal"><span class="pre">BLOCK</span></code>, and
+<code class="docutils literal"><span class="pre">NETWORK</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="loading-state">
+<h2>Loading State<a class="headerlink" href="#loading-state" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">mkAcct_</span></code> creates an account with the supplied ID (assuming it’s
+already been chopped to 160 bits).</li>
+</ul>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">load</span></code> loads an account or transaction into the world state.</li>
+</ul>
+<p>Here we perform pre-proccesing on account data which allows “pretty”
+specification of input.</p>
+<p>The individual fields of the accounts are dealt with here.</p>
+<p>Here we load the environmental information.</p>
+<p>The <code class="docutils literal"><span class="pre">&quot;network&quot;</span></code> key allows setting the fee schedule inside the test.</p>
+<p>The <code class="docutils literal"><span class="pre">&quot;rlp&quot;</span></code> key loads the block information.</p>
+</div>
+<div class="section" id="checking-state">
+<h2>Checking State<a class="headerlink" href="#checking-state" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">check_</span></code> checks if an account/transaction appears in the
+world-state as stated.</li>
+</ul>
+<p>Here we check the other post-conditions associated with an EVM test.</p>
+<p>TODO: case with nonzero ommers.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, The KEVM Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

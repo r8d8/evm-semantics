@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; The EVM Jello Paper 0.1 documentation</title>
+  <title>Cryptographic Primitives &mdash; The EVM Jello Paper 0.1 documentation</title>
   
 
   
@@ -34,7 +34,7 @@
   
         <link rel="index" title="Index"
               href="../genindex/"/>
-        <link rel="search" title="Search" href="#"/>
+        <link rel="search" title="Search" href="../search/"/>
     <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/> 
 
   
@@ -71,7 +71,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -88,23 +88,11 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../evm/">EVM Execution</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-programs">EVM Programs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#precompiled-contracts">Precompiled Contracts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#ethereum-gas-calculation">Ethereum Gas Calculation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-program-representations">EVM Program Representations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ethereum/">Ethereum Simulations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../verification/">KEVM Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data/">EVM Words</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data/#data-structures">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data/#parsing-unparsing">Parsing/Unparsing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data/#recursive-length-prefix-rlp">Recursive Length Prefix (RLP)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysis/">Analysis Tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../krypto/">Cryptographic Primitives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../issues/">EVM Design Issues</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Cryptographic Primitives</a></li>
 </ul>
-
+</div>
             
           
         </div>
@@ -147,10 +135,14 @@
     
       <li><a href="../">Docs</a> &raquo;</li>
         
-      <li>Search</li>
+      <li>Cryptographic Primitives</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/krypto.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -162,19 +154,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="cryptographic-primitives">
+<h1>Cryptographic Primitives<a class="headerlink" href="#cryptographic-primitives" title="Permalink to this headline">¶</a></h1>
+<p>Here we implement the various cryptographic primitives needed for KEVM.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">Keccak256</span></code> takes a string and returns a 64-character hex-encoded
+string of the 32-byte keccak256 hash of the string.</li>
+<li>`Sha256’ takes a String and returns a 64-character hex-encoded
+string of the 32-byte SHA2-256 hash of the string.</li>
+<li>`RipEmd160’ takes a String and returns a 40-character hex-encoded
+string of the 20-byte RIPEMD160 hash of the string.</li>
+<li><code class="docutils literal"><span class="pre">ECDSARecover</span></code> takes a 32-character byte string of a message, v, r,
+s of the signed message and returns the 64-character public key used
+to sign the message. See <a class="reference external" href="https://ethereum.stackexchange.com/questions/15766/what-does-v-r-s-in-eth-gettransactionbyhash-mean">this StackOverflow
+post</a>
+for some information about v, r, and s.</li>
+</ul>
+</div>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
            <div class="articleComments">
@@ -220,7 +217,6 @@
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="../_static/searchtools.js"></script>
 
   
 
@@ -236,14 +232,7 @@
           SphinxRtdTheme.StickyNav.enable();
       });
   </script>
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("../searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>
