@@ -4,7 +4,7 @@ TMP_DIR       =
 TARGET_DIR    =
 CFG_DIR       =
 
-htmldoc: ${TMP_DIR}/conf.py ${TMP_DIR}/index.rst \
+all: ${TMP_DIR}/conf.py ${TMP_DIR}/index.rst \
     ${TMP_DIR}/data.rst  ${TMP_DIR}/evm.rst  ${TMP_DIR}/ethereum.rst  ${TMP_DIR}/verification.rst  ${TMP_DIR}/analysis.rst  ${TMP_DIR}/krypto.rst  ${TMP_DIR}/issues.rst 
 	sphinx-build -b dirhtml "${TMP_DIR}" "${TARGET_DIR}"
 
