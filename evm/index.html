@@ -35,7 +35,9 @@
         <link rel="index" title="Index"
               href="../genindex/"/>
         <link rel="search" title="Search" href="../search/"/>
-    <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/> 
+    <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/>
+        <link rel="next" title="Ethereum Simulations" href="../ethereum/"/>
+        <link rel="prev" title="The EVM Jello Paper" href="../"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -88,66 +90,74 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">EVM Execution</a><ul>
-<li><a class="reference internal" href="#configuration">Configuration</a></li>
-<li><a class="reference internal" href="#modal-semantics">Modal Semantics</a></li>
-<li><a class="reference internal" href="#hardware">Hardware</a></li>
-<li><a class="reference internal" href="#opcode-execution-cycle">OpCode Execution Cycle</a><ul>
-<li><a class="reference internal" href="#exceptional-opcodes">Exceptional OpCodes</a></li>
-<li><a class="reference internal" href="#execution-step">Execution Step</a></li>
-<li><a class="reference internal" href="#program-counter">Program Counter</a></li>
-<li><a class="reference internal" href="#substate-log">Substate Log</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">EVM Execution</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modal-semantics">Modal Semantics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hardware">Hardware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#opcode-execution-cycle">OpCode Execution Cycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#exceptional-opcodes">Exceptional OpCodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#execution-step">Execution Step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#program-counter">Program Counter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#substate-log">Substate Log</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#evm-programs">EVM Programs</a><ul>
-<li><a class="reference internal" href="#evm-opcodes">EVM OpCodes</a><ul>
-<li><a class="reference internal" href="#internal-operations">Internal Operations</a></li>
-<li><a class="reference internal" href="#invalid-operator">Invalid Operator</a></li>
-<li><a class="reference internal" href="#stack-manipulations">Stack Manipulations</a></li>
-<li><a class="reference internal" href="#local-memory">Local Memory</a></li>
-<li><a class="reference internal" href="#expressions">Expressions</a></li>
-<li><a class="reference internal" href="#local-state">Local State</a></li>
-<li><a class="reference internal" href="#jump"><code class="docutils literal"><span class="pre">JUMP*</span></code></a></li>
-<li><a class="reference internal" href="#stop-and-return"><code class="docutils literal"><span class="pre">STOP</span></code> and <code class="docutils literal"><span class="pre">RETURN</span></code></a></li>
-<li><a class="reference internal" href="#call-data">Call Data</a></li>
-<li><a class="reference internal" href="#log-operations">Log Operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#evm-programs">EVM Programs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#evm-opcodes">EVM OpCodes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#internal-operations">Internal Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#invalid-operator">Invalid Operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stack-manipulations">Stack Manipulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#local-memory">Local Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#expressions">Expressions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#local-state">Local State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jump"><code class="docutils literal"><span class="pre">JUMP*</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stop-and-return"><code class="docutils literal"><span class="pre">STOP</span></code> and <code class="docutils literal"><span class="pre">RETURN</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#call-data">Call Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#log-operations">Log Operations</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#ethereum-network-opcodes">Ethereum Network OpCodes</a><ul>
-<li><a class="reference internal" href="#account-queries">Account Queries</a></li>
-<li><a class="reference internal" href="#account-storage-operations">Account Storage Operations</a></li>
-<li><a class="reference internal" href="#call-operations">Call Operations</a></li>
-<li><a class="reference internal" href="#account-creation-deletion">Account Creation/Deletion</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#precompiled-contracts">Precompiled Contracts</a></li>
-<li><a class="reference internal" href="#ethereum-gas-calculation">Ethereum Gas Calculation</a><ul>
-<li><a class="reference internal" href="#memory-consumption">Memory Consumption</a></li>
-<li><a class="reference internal" href="#execution-gas">Execution Gas</a></li>
-<li><a class="reference internal" href="#fee-schedule-from-c-implementation">Fee Schedule from C++ Implementation</a><ul>
-<li><a class="reference internal" href="#defualt-schedule">Defualt Schedule</a></li>
-<li><a class="reference internal" href="#frontier-schedule">Frontier Schedule</a></li>
-<li><a class="reference internal" href="#homestead-schedule">Homestead Schedule</a></li>
-<li><a class="reference internal" href="#eip150-schedule">EIP150 Schedule</a></li>
-<li><a class="reference internal" href="#eip158-schedule">EIP158 Schedule</a></li>
-<li><a class="reference internal" href="#byzantium-schedule">Byzantium Schedule</a></li>
-<li><a class="reference internal" href="#constantinople-schedule">Constantinople Schedule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ethereum-network-opcodes">Ethereum Network OpCodes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#account-queries">Account Queries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#account-storage-operations">Account Storage Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#call-operations">Call Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#account-creation-deletion">Account Creation/Deletion</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#evm-program-representations">EVM Program Representations</a><ul>
-<li><a class="reference internal" href="#disassembler">Disassembler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#precompiled-contracts">Precompiled Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#ethereum-gas-calculation">Ethereum Gas Calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#memory-consumption">Memory Consumption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#execution-gas">Execution Gas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fee-schedule-from-c-implementation">Fee Schedule from C++ Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#defualt-schedule">Defualt Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#frontier-schedule">Frontier Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homestead-schedule">Homestead Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#eip150-schedule">EIP150 Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#eip158-schedule">EIP158 Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#byzantium-schedule">Byzantium Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constantinople-schedule">Constantinople Schedule</a></li>
 </ul>
 </li>
 </ul>
-</div>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#evm-program-representations">EVM Program Representations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#disassembler">Disassembler</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ethereum/">Ethereum Simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verification/">KEVM Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/">EVM Words</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/#data-structures">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/#parsing-unparsing">Parsing/Unparsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data/#recursive-length-prefix-rlp">Recursive Length Prefix (RLP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysis/">Analysis Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../krypto/">Cryptographic Primitives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../issues/">EVM Design Issues</a></li>
+</ul>
+
             
           
         </div>
@@ -745,6 +755,15 @@ it should be changed into an <code class="docutils literal"><span class="pre">Op
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../ethereum/" class="btn btn-neutral float-right" title="Ethereum Simulations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../" class="btn btn-neutral" title="The EVM Jello Paper" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
