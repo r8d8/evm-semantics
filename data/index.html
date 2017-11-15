@@ -35,9 +35,7 @@
         <link rel="index" title="Index"
               href="../genindex/"/>
         <link rel="search" title="Search" href="../search/"/>
-    <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/>
-        <link rel="next" title="Analysis Tools" href="../analysis/"/>
-        <link rel="prev" title="KEVM Verification" href="../verification/"/> 
+    <link rel="top" title="The EVM Jello Paper 0.1 documentation" href="../"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -90,43 +88,38 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../evm/">EVM Execution</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-programs">EVM Programs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#precompiled-contracts">Precompiled Contracts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#ethereum-gas-calculation">Ethereum Gas Calculation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../evm/#evm-program-representations">EVM Program Representations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ethereum/">Ethereum Simulations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../verification/">KEVM Verification</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">EVM Words</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#primitives">Primitives</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#arithmetic">Arithmetic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#comparison-operators">Comparison Operators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bitwise-operators">Bitwise Operators</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">EVM Words</a><ul>
+<li><a class="reference internal" href="#primitives">Primitives</a><ul>
+<li><a class="reference internal" href="#empty-account">Empty Account</a></li>
+<li><a class="reference internal" href="#symbolic-words">Symbolic Words</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#data-structures">Data Structures</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#word-stack">Word Stack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#byte-arrays">Byte Arrays</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#addresses">Addresses</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#word-map">Word Map</a></li>
+<li><a class="reference internal" href="#arithmetic">Arithmetic</a></li>
+<li><a class="reference internal" href="#comparison-operators">Comparison Operators</a></li>
+<li><a class="reference internal" href="#bitwise-operators">Bitwise Operators</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#parsing-unparsing">Parsing/Unparsing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#parsing">Parsing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#unparsing">Unparsing</a></li>
+<li><a class="reference internal" href="#data-structures">Data Structures</a><ul>
+<li><a class="reference internal" href="#word-stack">Word Stack</a></li>
+<li><a class="reference internal" href="#byte-arrays">Byte Arrays</a></li>
+<li><a class="reference internal" href="#addresses">Addresses</a></li>
+<li><a class="reference internal" href="#word-map">Word Map</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#recursive-length-prefix-rlp">Recursive Length Prefix (RLP)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#encoding">Encoding</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#decoding">Decoding</a></li>
+<li><a class="reference internal" href="#parsing-unparsing">Parsing/Unparsing</a><ul>
+<li><a class="reference internal" href="#parsing">Parsing</a></li>
+<li><a class="reference internal" href="#unparsing">Unparsing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../analysis/">Analysis Tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../krypto/">Cryptographic Primitives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../issues/">EVM Design Issues</a></li>
+<li><a class="reference internal" href="#recursive-length-prefix-rlp">Recursive Length Prefix (RLP)</a><ul>
+<li><a class="reference internal" href="#encoding">Encoding</a></li>
+<li><a class="reference internal" href="#decoding">Decoding</a></li>
 </ul>
-
+</li>
+</ul>
+</div>
             
           
         </div>
@@ -175,7 +168,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/data.md.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/data.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -190,1025 +183,246 @@
             
   <div class="section" id="evm-words">
 <h1>EVM Words<a class="headerlink" href="#evm-words" title="Permalink to this headline">¶</a></h1>
-<p>EVM uses bounded 256 bit integer words, and sometimes also bytes (8 bit words).
-Here we provide the arithmetic of these words, as well as some data-structures over them.
-Both are implemented using K’s <cite>Int</cite>.</p>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>{.k .uiuck .rvk}
-requires “krypto.k”
-requires “domains.k”</p>
-<dl class="docutils">
-<dt>module EVM-DATA</dt>
-<dd><p class="first">imports KRYPTO
-imports STRING-BUFFER</p>
-<p class="last">syntax KResult ::= Int</p>
-</dd>
-</dl>
-<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>EVM uses bounded 256 bit integer words, and sometimes also bytes (8 bit
+words). Here we provide the arithmetic of these words, as well as some
+data-structures over them. Both are implemented using K’s <code class="docutils literal"><span class="pre">Int</span></code>.</p>
 <p>Some important numbers that are referred to often during execution:</p>
-<dl class="docutils">
-<dt><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= “pow256” [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">“pow255” [function]</div>
-<div class="line">“pow16”  [function]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ———————————-</dt>
-<dd>rule pow256 =&gt; 2 ^Int 256
-rule pow255 =&gt; 2 ^Int 255
-rule pow16  =&gt; 2 ^Int 16</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
-<p>The JSON format is used extensively for communication in the Ethereum circles.
-Writing a JSON-ish parser in K takes 6 lines.</p>
-<dl class="docutils">
-<dt><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><p>syntax JSONList ::= List{JSON,”,”}
-syntax JSONKey  ::= String | Int
-syntax JSON     ::= String</p>
-<blockquote>
-<div><div class="line-block">
-<div class="line">JSONKey “:” JSON</div>
-<div class="line">“{” JSONList “}”</div>
-<div class="line">“[” JSONList “]”</div>
-</div>
-</div></blockquote>
-</div></blockquote>
-<p class="last">// ————————————</p>
-</dd>
-</dl>
-<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+<p>The JSON format is used extensively for communication in the Ethereum
+circles. Writing a JSON-ish parser in K takes 6 lines.</p>
 <div class="section" id="primitives">
 <h2>Primitives<a class="headerlink" href="#primitives" title="Permalink to this headline">¶</a></h2>
-<p>Primitives provide the basic conversion from K’s sorts <cite>Int</cite> and <cite>Bool</cite> to EVM’s words.</p>
+<p>Primitives provide the basic conversion from K’s sorts <code class="docutils literal"><span class="pre">Int</span></code> and
+<code class="docutils literal"><span class="pre">Bool</span></code> to EVM’s words.</p>
 <ul class="simple">
-<li><cite>chop</cite> interperets an integers modulo $2^256$.</li>
+<li><code class="docutils literal"><span class="pre">chop</span></code> interperets an integers modulo .</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= chop ( Int ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ————————————–</dt>
-<dd>rule chop ( I:Int ) =&gt; I %Int pow256 requires I &lt;Int 0  orBool I &gt;=Int pow256
-rule chop ( I:Int ) =&gt; I             requires I &gt;=Int 0 andBool I &lt;Int pow256</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a></p>
 <ul class="simple">
-<li><cite>bool2Word</cite> interperets a <cite>Bool</cite> as a <cite>Int</cite>.</li>
-<li><cite>word2Bool</cite> interperets a <cite>Int</cite> as a <cite>Bool</cite>.</li>
+<li><code class="docutils literal"><span class="pre">bool2Word</span></code> interperets a <code class="docutils literal"><span class="pre">Bool</span></code> as a <code class="docutils literal"><span class="pre">Int</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">word2Bool</span></code> interperets a <code class="docutils literal"><span class="pre">Int</span></code> as a <code class="docutils literal"><span class="pre">Bool</span></code>.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= bool2Word ( Bool ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————–</dt>
-<dd><p class="first">rule bool2Word(true)  =&gt; 1
-rule bool2Word(false) =&gt; 0</p>
-<p class="last">syntax Bool ::= word2Bool ( Int ) [function]</p>
-</dd>
-<dt>// ——————————————–</dt>
-<dd>rule word2Bool( 0 ) =&gt; false
-rule word2Bool( W ) =&gt; true  requires W =/=K 0</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a></p>
 <ul class="simple">
-<li><cite>#ifInt_#then_#else_#fi</cite> provides a conditional in <cite>Int</cite> expressions.</li>
-<li><cite>#ifSet_#then_#else_#fi</cite> provides a conditional in <cite>Set</cite> expressions.</li>
+<li><code class="docutils literal"><span class="pre">#ifInt_#then_#else_#fi</span></code> provides a conditional in <code class="docutils literal"><span class="pre">Int</span></code>
+expressions.</li>
+<li><code class="docutils literal"><span class="pre">#ifSet_#then_#else_#fi</span></code> provides a conditional in <code class="docutils literal"><span class="pre">Set</span></code>
+expressions.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= “#ifInt” Bool “#then” Int “#else” Int “#fi” [function, smtlib(ite)]
-syntax Set ::= “#ifSet” Bool “#then” Set “#else” Set “#fi” [function]</div></blockquote>
-<p class="last">// ———————————————————————</p>
-</dd>
-</dl>
-<p><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a></p>
-<p>If we don’t place the <cite>Bool</cite> condition as a side-condition for UIUC-K, it will attempt to only do an “implies-check” instead of full unification (which is problematic when <cite>B</cite> is symbolic during proving).</p>
-<dl class="docutils">
-<dt><a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a>{.k .uiuck}</dt>
-<dd><p class="first">rule #ifInt B #then W #else _ #fi =&gt; W requires B
-rule #ifInt B #then _ #else W #fi =&gt; W requires notBool B</p>
-<p class="last">rule #ifSet B #then W #else _ #fi =&gt; W requires B
-rule #ifSet B #then _ #else W #fi =&gt; W requires notBool B</p>
-</dd>
-</dl>
-<p><a href="#id53"><span class="problematic" id="id54">``</span></a><a href="#id55"><span class="problematic" id="id56">`</span></a></p>
-<dl class="docutils">
-<dt><a href="#id57"><span class="problematic" id="id58">``</span></a><a href="#id59"><span class="problematic" id="id60">`</span></a>{.k .rvk}</dt>
-<dd>rule #ifInt A #then B #else C #fi =&gt; #if A #then B #else C #fi [macro]
-rule #ifSet A #then B #else C #fi =&gt; #if A #then B #else C #fi [macro]</dd>
-</dl>
-<p><a href="#id61"><span class="problematic" id="id62">``</span></a><a href="#id63"><span class="problematic" id="id64">`</span></a></p>
+<p>If we don’t place the <code class="docutils literal"><span class="pre">Bool</span></code> condition as a side-condition for UIUC-K,
+it will attempt to only do an “implies-check” instead of full
+unification (which is problematic when <code class="docutils literal"><span class="pre">B</span></code> is symbolic during
+proving).</p>
 <ul class="simple">
-<li><cite>sgn</cite> gives the twos-complement interperetation of the sign of a word.</li>
-<li><cite>abs</cite> gives the twos-complement interperetation of the magnitude of a word.</li>
+<li><code class="docutils literal"><span class="pre">sgn</span></code> gives the twos-complement interperetation of the sign of a
+word.</li>
+<li><code class="docutils literal"><span class="pre">abs</span></code> gives the twos-complement interperetation of the magnitude of
+a word.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= sgn ( Int ) [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">abs ( Int ) [function]</div>
+<div class="section" id="empty-account">
+<h3>Empty Account<a class="headerlink" href="#empty-account" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">.Account</span></code> represents the case when an account ID is referenced in
+the yellowpaper, but the actual value of the account ID is the empty
+set. This is used, for example, when referring to the destination of
+a message which creates a new contract.</li>
+</ul>
 </div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ————————————-</dt>
-<dd><p class="first">rule sgn(I) =&gt; -1 requires I &gt;=Int pow255
-rule sgn(I) =&gt; 1  requires I &lt;Int pow255</p>
-<p class="last">rule abs(I) =&gt; 0 -Word I requires sgn(I) ==K -1
-rule abs(I) =&gt; I         requires sgn(I) ==K 1</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id69"><span class="problematic" id="id70">``</span></a><a href="#id71"><span class="problematic" id="id72">`</span></a></p>
-<p>### Empty Account</p>
+<div class="section" id="symbolic-words">
+<h3>Symbolic Words<a class="headerlink" href="#symbolic-words" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><cite>.Account</cite> represents the case when an account ID is referenced in the yellowpaper, but
-the actual value of the account ID is the empty set. This is used, for example, when
-referring to the destination of a message which creates a new contract.</li>
+<li><code class="docutils literal"><span class="pre">#symbolicWord</span></code> generates a fresh existentially-bound symbolic
+word.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id73"><span class="problematic" id="id74">``</span></a><a href="#id75"><span class="problematic" id="id76">`</span></a>{.k .uiuck .rvk}</dt>
-<dd>syntax Account ::= “.Account” | Int</dd>
-</dl>
-<p><a href="#id77"><span class="problematic" id="id78">``</span></a><a href="#id79"><span class="problematic" id="id80">`</span></a></p>
-<p>### Symbolic Words</p>
-<ul class="simple">
-<li><cite>#symbolicWord</cite> generates a fresh existentially-bound symbolic word.</li>
-</ul>
-<p>Note: Comment out this block (remove the <cite>k</cite> tag) if using RV K.</p>
-<dl class="docutils">
-<dt><a href="#id81"><span class="problematic" id="id82">``</span></a><a href="#id83"><span class="problematic" id="id84">`</span></a>{.k .uiuck}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= “#symbolicWord” [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// —————————————–</dt>
-<dd>rule #symbolicWord =&gt; ?X:Int requires ?X &gt;=Int 0 andBool ?X &lt;=Int pow256</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a></p>
+<p>Note: Comment out this block (remove the <code class="docutils literal"><span class="pre">k</span></code> tag) if using RV K.</p>
+</div>
 </div>
 <div class="section" id="arithmetic">
 <h2>Arithmetic<a class="headerlink" href="#arithmetic" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><cite>up/Int</cite> performs integer division but rounds up instead of down.</li>
+<li><code class="docutils literal"><span class="pre">up/Int</span></code> performs integer division but rounds up instead of down.</li>
 </ul>
-<p>NOTE: Here, we choose to add <cite>I2 -Int 1</cite> to the numerator beforing doing the division to mimic the C++ implementation.
-You could alternatively calculate <cite>I1 %Int I2</cite>, then add one to the normal integer division afterward depending on the result.</p>
-<dl class="docutils">
-<dt><a href="#id89"><span class="problematic" id="id90">``</span></a><a href="#id91"><span class="problematic" id="id92">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= Int “up/Int” Int [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————</dt>
-<dd>rule I1 up/Int 0  =&gt; 0
-rule I1 up/Int 1  =&gt; I1
-rule I1 up/Int I2 =&gt; (I1 +Int (I2 -Int 1)) /Int I2 requires I2 &gt;Int 1</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id93"><span class="problematic" id="id94">``</span></a><a href="#id95"><span class="problematic" id="id96">`</span></a></p>
+<p>NOTE: Here, we choose to add <code class="docutils literal"><span class="pre">I2</span> <span class="pre">-Int</span> <span class="pre">1</span></code> to the numerator beforing
+doing the division to mimic the C++ implementation. You could
+alternatively calculate <code class="docutils literal"><span class="pre">I1</span> <span class="pre">%Int</span> <span class="pre">I2</span></code>, then add one to the normal
+integer division afterward depending on the result.</p>
 <ul class="simple">
-<li><cite>logNInt</cite> returns the log base N (floored) of an integer.</li>
+<li><code class="docutils literal"><span class="pre">logNInt</span></code> returns the log base N (floored) of an integer.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id97"><span class="problematic" id="id98">``</span></a><a href="#id99"><span class="problematic" id="id100">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= log2Int ( Int ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// —————————————–</dt>
-<dd><p class="first">rule log2Int(1) =&gt; 0
-rule log2Int(W) =&gt; 1 +Int log2Int(W &gt;&gt;Int 1) requires W &gt;Int 1</p>
-<p class="last">syntax Int ::= log256Int ( Int ) [function]</p>
-</dd>
-<dt>// ——————————————-</dt>
-<dd>rule log256Int(N) =&gt; log2Int(N) /Int 8</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id101"><span class="problematic" id="id102">``</span></a><a href="#id103"><span class="problematic" id="id104">`</span></a></p>
-<p>The corresponding <cite>&lt;op&gt;Word</cite> operations automatically perform the correct modulus for EVM words.</p>
-<dl class="docutils">
-<dt><a href="#id105"><span class="problematic" id="id106">``</span></a><a href="#id107"><span class="problematic" id="id108">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= Int “+Word” Int [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">Int “<a href="#id109"><span class="problematic" id="id110">*</span></a>Word” Int [function]</div>
-<div class="line">Int “-Word” Int [function]</div>
-<div class="line">Int “/Word” Int [function]</div>
-<div class="line">Int “%Word” Int [function]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// —————————————–</dt>
-<dd>rule W0 +Word W1 =&gt; chop( W0 +Int W1 )
-rule W0 -Word W1 =&gt; chop( W0 -Int W1 ) requires W0 &gt;=Int W1
-rule W0 -Word W1 =&gt; chop( (W0 +Int pow256) -Int W1 ) requires W0 &lt;Int W1
-rule W0 <a href="#id111"><span class="problematic" id="id112">*</span></a>Word W1 =&gt; chop( W0 <a href="#id113"><span class="problematic" id="id114">*</span></a>Int W1 )
-rule W0 /Word 0  =&gt; 0
-rule W0 /Word W1 =&gt; chop( W0 /Int W1 ) requires W1 =/=K 0
-rule W0 %Word 0  =&gt; 0
-rule W0 %Word W1 =&gt; chop( W0 %Int W1 ) requires W1 =/=K 0</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id115"><span class="problematic" id="id116">``</span></a><a href="#id117"><span class="problematic" id="id118">`</span></a></p>
-<p>Care is needed for <cite>^Word</cite> to avoid big exponentiation.</p>
-<dl class="docutils">
-<dt><a href="#id119"><span class="problematic" id="id120">``</span></a><a href="#id121"><span class="problematic" id="id122">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= Int “^Word” Int [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// —————————————–</dt>
-<dd>rule W0 ^Word W1 =&gt; (W0 ^Word (W1 /Int 2)) ^Word 2  requires W1 &gt;=Int pow16 andBool W1 %Int 2 ==Int 0
-rule W0 ^Word W1 =&gt; (W0 ^Word (W1 -Int 1)) <a href="#id123"><span class="problematic" id="id124">*</span></a>Word W0 requires W1 &gt;=Int pow16 andBool W1 %Int 2 ==Int 1</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id125"><span class="problematic" id="id126">``</span></a><a href="#id127"><span class="problematic" id="id128">`</span></a></p>
+<p>The corresponding <code class="docutils literal"><span class="pre">&lt;op&gt;Word</span></code> operations automatically perform the
+correct modulus for EVM words.</p>
+<p>Care is needed for <code class="docutils literal"><span class="pre">^Word</span></code> to avoid big exponentiation.</p>
 <p>RV-K has a more efficient power-modulus operator.</p>
-<dl class="docutils">
-<dt><a href="#id129"><span class="problematic" id="id130">``</span></a><a href="#id131"><span class="problematic" id="id132">`</span></a>{.k .uiuck}</dt>
-<dd>rule W0 ^Word W1 =&gt; (W0 ^Int W1) %Int pow256 requires W1 &lt;Int pow16</dd>
-</dl>
-<p><a href="#id133"><span class="problematic" id="id134">``</span></a><a href="#id135"><span class="problematic" id="id136">`</span></a></p>
-<dl class="docutils">
-<dt><a href="#id137"><span class="problematic" id="id138">``</span></a><a href="#id139"><span class="problematic" id="id140">`</span></a>{.k .rvk}</dt>
-<dd>rule W0 ^Word W1 =&gt; W0 ^%Int W1 pow256 requires W1 &lt;Int pow16</dd>
-</dl>
-<p><a href="#id141"><span class="problematic" id="id142">``</span></a><a href="#id143"><span class="problematic" id="id144">`</span></a></p>
-<p><cite>/sWord</cite> and <cite>%sWord</cite> give the signed interperetations of <cite>/Word</cite> and <cite>%Word</cite>.</p>
-<dl class="docutils">
-<dt><a href="#id145"><span class="problematic" id="id146">``</span></a><a href="#id147"><span class="problematic" id="id148">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= Int “/sWord” Int [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">Int “%sWord” Int [function]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————</dt>
-<dd><p class="first">rule W0 /sWord W1 =&gt; #sgnInterp(sgn(W0) <a href="#id149"><span class="problematic" id="id150">*</span></a>Int sgn(W1) , abs(W0) /Word abs(W1))
-rule W0 %sWord W1 =&gt; #sgnInterp(sgn(W0)              , abs(W0) %Word abs(W1))</p>
-<p class="last">syntax Int ::= #sgnInterp ( Int , Int ) [function]</p>
-</dd>
-<dt>// ————————————————–</dt>
-<dd>rule #sgnInterp( 0  , W1 ) =&gt; 0
-rule #sgnInterp( W0 , W1 ) =&gt; W1         requires W0 &gt;Int 0
-rule #sgnInterp( W0 , W1 ) =&gt; 0 -Word W1 requires W0 &lt;Int 0</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id151"><span class="problematic" id="id152">``</span></a><a href="#id153"><span class="problematic" id="id154">`</span></a></p>
+<p><code class="docutils literal"><span class="pre">/sWord</span></code> and <code class="docutils literal"><span class="pre">%sWord</span></code> give the signed interperetations of <code class="docutils literal"><span class="pre">/Word</span></code>
+and <code class="docutils literal"><span class="pre">%Word</span></code>.</p>
 </div>
 <div class="section" id="comparison-operators">
 <h2>Comparison Operators<a class="headerlink" href="#comparison-operators" title="Permalink to this headline">¶</a></h2>
-<p>The <cite>&lt;op&gt;Word</cite> comparison operators automatically interperet the <cite>Bool</cite> as a <cite>Word</cite>.</p>
-<dl class="docutils">
-<dt><a href="#id155"><span class="problematic" id="id156">``</span></a><a href="#id157"><span class="problematic" id="id158">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= Int “&lt;Word”  Int [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">Int “&gt;Word”  Int [function]</div>
-<div class="line">Int “&lt;=Word” Int [function]</div>
-<div class="line">Int “&gt;=Word” Int [function]</div>
-<div class="line">Int “==Word” Int [function]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————</dt>
-<dd>rule W0 &lt;Word  W1 =&gt; 1 requires W0 &lt;Int   W1
-rule W0 &lt;Word  W1 =&gt; 0 requires W0 &gt;=Int  W1
-rule W0 &gt;Word  W1 =&gt; 1 requires W0 &gt;Int   W1
-rule W0 &gt;Word  W1 =&gt; 0 requires W0 &lt;=Int  W1
-rule W0 &lt;=Word W1 =&gt; 1 requires W0 &lt;=Int  W1
-rule W0 &lt;=Word W1 =&gt; 0 requires W0 &gt;Int   W1
-rule W0 &gt;=Word W1 =&gt; 1 requires W0 &gt;=Int  W1
-rule W0 &gt;=Word W1 =&gt; 0 requires W0 &lt;Int   W1
-rule W0 ==Word W1 =&gt; 1 requires W0 ==Int  W1
-rule W0 ==Word W1 =&gt; 0 requires W0 =/=Int W1</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id159"><span class="problematic" id="id160">``</span></a><a href="#id161"><span class="problematic" id="id162">`</span></a></p>
+<p>The <code class="docutils literal"><span class="pre">&lt;op&gt;Word</span></code> comparison operators automatically interperet the
+<code class="docutils literal"><span class="pre">Bool</span></code> as a <code class="docutils literal"><span class="pre">Word</span></code>.</p>
 <ul class="simple">
-<li><cite>s&lt;Word</cite> implements a less-than for <cite>Word</cite> (with signed interperetation).</li>
+<li><code class="docutils literal"><span class="pre">s&lt;Word</span></code> implements a less-than for <code class="docutils literal"><span class="pre">Word</span></code> (with signed
+interperetation).</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id163"><span class="problematic" id="id164">``</span></a><a href="#id165"><span class="problematic" id="id166">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= Int “s&lt;Word” Int [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————</dt>
-<dd>rule W0 s&lt;Word W1 =&gt; W0 &lt;Word W1           requires sgn(W0) ==K 1  andBool sgn(W1) ==K 1
-rule W0 s&lt;Word W1 =&gt; bool2Word(false)      requires sgn(W0) ==K 1  andBool sgn(W1) ==K -1
-rule W0 s&lt;Word W1 =&gt; bool2Word(true)       requires sgn(W0) ==K -1 andBool sgn(W1) ==K 1
-rule W0 s&lt;Word W1 =&gt; abs(W1) &lt;Word abs(W0) requires sgn(W0) ==K -1 andBool sgn(W1) ==K -1</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id167"><span class="problematic" id="id168">``</span></a><a href="#id169"><span class="problematic" id="id170">`</span></a></p>
 </div>
 <div class="section" id="bitwise-operators">
 <h2>Bitwise Operators<a class="headerlink" href="#bitwise-operators" title="Permalink to this headline">¶</a></h2>
 <p>Bitwise logical operators are lifted from the integer versions.</p>
-<dl class="docutils">
-<dt><a href="#id171"><span class="problematic" id="id172">``</span></a><a href="#id173"><span class="problematic" id="id174">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= “~Word” Int       [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">Int “<a href="#id175"><span class="problematic" id="id176">|</span></a>Word”   Int [function]</div>
-<div class="line">Int “&amp;Word”   Int [function]</div>
-<div class="line">Int “xorWord” Int [function]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————-</dt>
-<dd>rule ~Word W       =&gt; chop( W xorInt (pow256 -Int 1) )
-rule W0 <a href="#id177"><span class="problematic" id="id178">|</span></a>Word   W1 =&gt; chop( W0 <a href="#id179"><span class="problematic" id="id180">|</span></a>Int W1 )
-rule W0 &amp;Word   W1 =&gt; chop( W0 &amp;Int W1 )
-rule W0 xorWord W1 =&gt; chop( W0 xorInt W1 )</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id181"><span class="problematic" id="id182">``</span></a><a href="#id183"><span class="problematic" id="id184">`</span></a></p>
 <ul class="simple">
-<li><cite>bit</cite> gets bit $N$ (0 being MSB).</li>
-<li><cite>byte</cite> gets byte $N$ (0 being the MSB).</li>
+<li><code class="docutils literal"><span class="pre">bit</span></code> gets bit  (0 being MSB).</li>
+<li><code class="docutils literal"><span class="pre">byte</span></code> gets byte  (0 being the MSB).</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id185"><span class="problematic" id="id186">``</span></a><a href="#id187"><span class="problematic" id="id188">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= bit  ( Int , Int ) [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">byte ( Int , Int ) [function]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————–</dt>
-<dd><p class="first">rule bit(N, _)  =&gt; 0 requires N &lt;Int 0 orBool N &gt;=Int 256
-rule byte(N, _) =&gt; 0 requires N &lt;Int 0 orBool N &gt;=Int 32</p>
-<p class="last">rule bit(N, W)  =&gt; (W &gt;&gt;Int (255 -Int N)) %Int 2                     requires N &gt;=Int 0 andBool N &lt;Int 256
-rule byte(N, W) =&gt; (W &gt;&gt;Int (256 -Int (8 <a href="#id189"><span class="problematic" id="id190">*</span></a>Int (N +Int 1)))) %Int 256 requires N &gt;=Int 0 andBool N &lt;Int 32</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id191"><span class="problematic" id="id192">``</span></a><a href="#id193"><span class="problematic" id="id194">`</span></a></p>
 <ul class="simple">
-<li><cite>#nBits</cite> shifts in $N$ ones from the right.</li>
-<li><cite>#nBytes</cite> shifts in $N$ bytes of ones from the right.</li>
-<li><cite>_&lt;&lt;Byte_</cite> shifts an integer 8 bits to the left.</li>
+<li><code class="docutils literal"><span class="pre">#nBits</span></code> shifts in  ones from the right.</li>
+<li><code class="docutils literal"><span class="pre">#nBytes</span></code> shifts in  bytes of ones from the right.</li>
+<li><code class="docutils literal"><span class="pre">_&lt;&lt;Byte_</span></code> shifts an integer 8 bits to the left.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id195"><span class="problematic" id="id196">``</span></a><a href="#id197"><span class="problematic" id="id198">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= #nBits  ( Int )  [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#nBytes ( Int )  [function]</div>
-<div class="line">Int “&lt;&lt;Byte” Int [function]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————</dt>
-<dd>rule #nBits(N)  =&gt; (1 &lt;&lt;Int N) -Int 1  requires N &gt;=Int 0
-rule #nBytes(N) =&gt; #nBits(N <a href="#id199"><span class="problematic" id="id200">*</span></a>Int 8)   requires N &gt;=Int 0
-rule N &lt;&lt;Byte M =&gt; N &lt;&lt;Int (8 <a href="#id201"><span class="problematic" id="id202">*</span></a>Int M)</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id203"><span class="problematic" id="id204">``</span></a><a href="#id205"><span class="problematic" id="id206">`</span></a></p>
 <ul class="simple">
-<li><cite>signextend(N, W)</cite> sign-extends from byte $N$ of $W$ (0 being MSB).</li>
+<li><code class="docutils literal"><span class="pre">signextend(N,</span> <span class="pre">W)</span></code> sign-extends from byte  of  (0
+being MSB).</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id207"><span class="problematic" id="id208">``</span></a><a href="#id209"><span class="problematic" id="id210">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= signextend( Int , Int ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ————————————————-</dt>
-<dd>rule signextend(N, W) =&gt; W requires N &gt;=Int 32 orBool N &lt;Int 0
-rule signextend(N, W) =&gt; chop( (#nBytes(31 -Int N) &lt;&lt;Byte (N +Int 1)) <a href="#id211"><span class="problematic" id="id212">|</span></a>Int W ) requires N &lt;Int 32 andBool N &gt;=Int 0 andBool         word2Bool(bit(256 -Int (8 <a href="#id213"><span class="problematic" id="id214">*</span></a>Int (N +Int 1)), W))
-rule signextend(N, W) =&gt; chop( #nBytes(N +Int 1)                      &amp;Int W ) requires N &lt;Int 32 andBool N &gt;=Int 0 andBool notBool word2Bool(bit(256 -Int (8 <a href="#id215"><span class="problematic" id="id216">*</span></a>Int (N +Int 1)), W))</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id217"><span class="problematic" id="id218">``</span></a><a href="#id219"><span class="problematic" id="id220">`</span></a></p>
 <ul class="simple">
-<li><cite>keccak</cite> serves as a wrapper around the <cite>Keccak256</cite> in <cite>KRYPTO</cite>.</li>
+<li><code class="docutils literal"><span class="pre">keccak</span></code> serves as a wrapper around the <code class="docutils literal"><span class="pre">Keccak256</span></code> in
+<code class="docutils literal"><span class="pre">KRYPTO</span></code>.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id221"><span class="problematic" id="id222">``</span></a><a href="#id223"><span class="problematic" id="id224">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= keccak ( WordStack ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ———————————————-</dt>
-<dd>rule keccak(WS) =&gt; #parseHexWord(Keccak256(#unparseByteStack(WS)))</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id225"><span class="problematic" id="id226">``</span></a><a href="#id227"><span class="problematic" id="id228">`</span></a></p>
 </div>
 </div>
 <div class="section" id="data-structures">
 <h1>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this headline">¶</a></h1>
-<p>Several data-structures and operations over <cite>Int</cite> are useful to have around.</p>
+<p>Several data-structures and operations over <code class="docutils literal"><span class="pre">Int</span></code> are useful to have
+around.</p>
 <div class="section" id="word-stack">
 <h2>Word Stack<a class="headerlink" href="#word-stack" title="Permalink to this headline">¶</a></h2>
-<p>EVM is a stack machine, and so needs a stack of words to operate on.
-The stack and some standard operations over it are provided here.
-This stack also serves as a cons-list, so we provide some standard cons-list manipulation tools.</p>
-<dl class="docutils">
-<dt><a href="#id229"><span class="problematic" id="id230">``</span></a><a href="#id231"><span class="problematic" id="id232">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax WordStack [flatPredicate]
-syntax WordStack ::= “.WordStack” | Int “:” WordStack</div></blockquote>
-<p class="last">// —————————————————–</p>
-</dd>
-</dl>
-<p><a href="#id233"><span class="problematic" id="id234">``</span></a><a href="#id235"><span class="problematic" id="id236">`</span></a></p>
+<p>EVM is a stack machine, and so needs a stack of words to operate on. The
+stack and some standard operations over it are provided here. This stack
+also serves as a cons-list, so we provide some standard cons-list
+manipulation tools.</p>
 <ul class="simple">
-<li><cite>_++_</cite> acts as <cite>WordStack</cite> append.</li>
-<li><cite>#take(N , WS)</cite> keeps the first $N$ elements of a <cite>WordStack</cite> (passing with zeros as needed).</li>
-<li><cite>#drop(N , WS)</cite> removes the first $N$ elements of a <cite>WordStack</cite>.</li>
-<li><cite>WS [ N .. W ]</cite> access the range of <cite>WS</cite> beginning with <cite>N</cite> of width <cite>W</cite>.</li>
+<li><code class="docutils literal"><span class="pre">_++_</span></code> acts as <code class="docutils literal"><span class="pre">WordStack</span></code> append.</li>
+<li><code class="docutils literal"><span class="pre">#take(N</span> <span class="pre">,</span> <span class="pre">WS)</span></code> keeps the first  elements of a
+<code class="docutils literal"><span class="pre">WordStack</span></code> (passing with zeros as needed).</li>
+<li><code class="docutils literal"><span class="pre">#drop(N</span> <span class="pre">,</span> <span class="pre">WS)</span></code> removes the first  elements of a
+<code class="docutils literal"><span class="pre">WordStack</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">WS</span> <span class="pre">[</span> <span class="pre">N</span> <span class="pre">..</span> <span class="pre">W</span> <span class="pre">]</span></code> access the range of <code class="docutils literal"><span class="pre">WS</span></code> beginning with <code class="docutils literal"><span class="pre">N</span></code> of
+width <code class="docutils literal"><span class="pre">W</span></code>.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id237"><span class="problematic" id="id238">``</span></a><a href="#id239"><span class="problematic" id="id240">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax WordStack ::= WordStack “++” WordStack [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————————–</dt>
-<dd><p class="first">rule .WordStack ++ WS’ =&gt; WS’
-rule (W : WS)   ++ WS’ =&gt; W : (WS ++ WS’)</p>
-<p class="last">syntax WordStack ::= #take ( Int , WordStack ) [function]</p>
-</dd>
-<dt>// ———————————————————</dt>
-<dd><p class="first">rule #take(0, WS)         =&gt; .WordStack
-rule #take(N, .WordStack) =&gt; 0 : #take(N -Int 1, .WordStack) requires N &gt;Int 0
-rule #take(N, (W : WS))   =&gt; W : #take(N -Int 1, WS)         requires N &gt;Int 0</p>
-<p class="last">syntax WordStack ::= #drop ( Int , WordStack ) [function]</p>
-</dd>
-<dt>// ———————————————————</dt>
-<dd><p class="first">rule #drop(0, WS)         =&gt; WS
-rule #drop(N, .WordStack) =&gt; .WordStack
-rule #drop(N, (W : WS))   =&gt; #drop(N -Int 1, WS) requires N &gt;Int 0</p>
-<p class="last">syntax WordStack ::= WordStack “[” Int “..” Int “]” [function]</p>
-</dd>
-<dt>// ————————————————————–</dt>
-<dd>rule WS [ START .. WIDTH ] =&gt; #take(WIDTH, #drop(START, WS))</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id241"><span class="problematic" id="id242">``</span></a><a href="#id243"><span class="problematic" id="id244">`</span></a></p>
 <ul class="simple">
-<li><cite>WS [ N ]</cite> accesses element $N$ of $WS$.</li>
-<li><cite>WS [ N := W ]</cite> sets element $N$ of $WS$ to $W$ (padding with zeros as needed).</li>
+<li><code class="docutils literal"><span class="pre">WS</span> <span class="pre">[</span> <span class="pre">N</span> <span class="pre">]</span></code> accesses element  of .</li>
+<li><code class="docutils literal"><span class="pre">WS</span> <span class="pre">[</span> <span class="pre">N</span> <span class="pre">:=</span> <span class="pre">W</span> <span class="pre">]</span></code> sets element  of  to 
+(padding with zeros as needed).</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id245"><span class="problematic" id="id246">``</span></a><a href="#id247"><span class="problematic" id="id248">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= WordStack “[” Int “]” [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ———————————————–</dt>
-<dd><p class="first">rule (W0 : WS)   [0] =&gt; W0
-rule (.WordStack)[N] =&gt; 0            requires N &gt;Int 0
-rule (W0 : WS)   [N] =&gt; WS[N -Int 1] requires N &gt;Int 0</p>
-<p class="last">syntax WordStack ::= WordStack “[” Int “:=” Int “]” [function]</p>
-</dd>
-<dt>// ————————————————————–</dt>
-<dd>rule (W0 : WS)  [ 0 := W ] =&gt; W  : WS
-rule .WordStack [ N := W ] =&gt; 0  : (.WordStack [ N -Int 1 := W ]) requires N &gt;Int 0
-rule (W0 : WS)  [ N := W ] =&gt; W0 : (WS [ N -Int 1 := W ])         requires N &gt;Int 0</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id249"><span class="problematic" id="id250">``</span></a><a href="#id251"><span class="problematic" id="id252">`</span></a></p>
 <ul class="simple">
-<li><cite>#sizeWordStack</cite> calculates the size of a <cite>WordStack</cite>.</li>
-<li><cite>_in_</cite> determines if a <cite>Int</cite> occurs in a <cite>WordStack</cite>.</li>
+<li><code class="docutils literal"><span class="pre">#sizeWordStack</span></code> calculates the size of a <code class="docutils literal"><span class="pre">WordStack</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">_in_</span></code> determines if a <code class="docutils literal"><span class="pre">Int</span></code> occurs in a <code class="docutils literal"><span class="pre">WordStack</span></code>.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id253"><span class="problematic" id="id254">``</span></a><a href="#id255"><span class="problematic" id="id256">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= #sizeWordStack ( WordStack )       [function, smtlib(sizeWordStack)]</dt>
-<dd><div class="first last line-block">
-<div class="line">#sizeWordStack ( WordStack , Int ) [function, klabel(sizeWordStackAux), smtlib(sizeWordStackAux)]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// —————————————————————————————————————-</dt>
-<dd><p class="first">rule #sizeWordStack ( WS ) =&gt; #sizeWordStack(WS, 0)
-rule #sizeWordStack ( .WordStack, SIZE ) =&gt; SIZE
-rule #sizeWordStack ( W : WS, SIZE )     =&gt; #sizeWordStack(WS, SIZE +Int 1)</p>
-<p class="last">syntax Bool ::= Int “in” WordStack [function]</p>
-</dd>
-<dt>// ———————————————</dt>
-<dd>rule W in .WordStack =&gt; false
-rule W in (W’ : WS)  =&gt; (W ==K W’) orElseBool (W in WS)</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id257"><span class="problematic" id="id258">``</span></a><a href="#id259"><span class="problematic" id="id260">`</span></a></p>
 <ul class="simple">
-<li><cite>#padToWidth(N, WS)</cite> makes sure that a <cite>WordStack</cite> is the correct size.</li>
+<li><code class="docutils literal"><span class="pre">#padToWidth(N,</span> <span class="pre">WS)</span></code> makes sure that a <code class="docutils literal"><span class="pre">WordStack</span></code> is the correct
+size.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id261"><span class="problematic" id="id262">``</span></a><a href="#id263"><span class="problematic" id="id264">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax WordStack ::= #padToWidth ( Int , WordStack ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// —————————————————————</dt>
-<dd>rule #padToWidth(N, WS) =&gt; WS                     requires notBool #sizeWordStack(WS) &lt;Int N
-rule #padToWidth(N, WS) =&gt; #padToWidth(N, 0 : WS) requires #sizeWordStack(WS) &lt;Int N</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id265"><span class="problematic" id="id266">``</span></a><a href="#id267"><span class="problematic" id="id268">`</span></a></p>
 </div>
 <div class="section" id="byte-arrays">
 <h2>Byte Arrays<a class="headerlink" href="#byte-arrays" title="Permalink to this headline">¶</a></h2>
 <p>The local memory of execution is a byte-array (instead of a word-array).</p>
 <ul class="simple">
-<li><cite>#asWord</cite> will interperet a stack of bytes as a single word (with MSB first).</li>
-<li><cite>#asAccount</cite> will interpret a stack of bytes as a single account id (with MSB first).
-Differs from <cite>#asWord</cite> only in that an empty stack represents the empty account, not account zero.</li>
-<li><cite>#asByteStack</cite> will split a single word up into a <cite>WordStack</cite> where each word is a byte wide.</li>
+<li><code class="docutils literal"><span class="pre">#asWord</span></code> will interperet a stack of bytes as a single word (with
+MSB first).</li>
+<li><code class="docutils literal"><span class="pre">#asAccount</span></code> will interpret a stack of bytes as a single account id
+(with MSB first). Differs from <code class="docutils literal"><span class="pre">#asWord</span></code> only in that an empty
+stack represents the empty account, not account zero.</li>
+<li><code class="docutils literal"><span class="pre">#asByteStack</span></code> will split a single word up into a <code class="docutils literal"><span class="pre">WordStack</span></code>
+where each word is a byte wide.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id269"><span class="problematic" id="id270">``</span></a><a href="#id271"><span class="problematic" id="id272">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= #asWord ( WordStack ) [function, smtlib(asWord)]</div></blockquote>
-<dl class="last docutils">
-<dt>// —————————————————————</dt>
-<dd><p class="first">rule #asWord( .WordStack )    =&gt; 0
-rule #asWord( W : .WordStack) =&gt; W
-rule #asWord( W0 : W1 : WS )  =&gt; #asWord(((W0 <a href="#id273"><span class="problematic" id="id274">*</span></a>Word 256) +Word W1) : WS)</p>
-<p class="last">syntax Account ::= #asAccount ( WordStack ) [function]</p>
-</dd>
-<dt>// ——————————————————</dt>
-<dd><p class="first">rule #asAccount( .WordStack ) =&gt; .Account
-rule #asAccount( W : WS )     =&gt; #asWord(W : WS)</p>
-<dl class="last docutils">
-<dt>syntax WordStack ::= #asByteStack ( Int )             [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#asByteStack ( Int , WordStack ) [function, klabel(#asByteStackAux), smtlib(asByteStack)]</div>
-</div>
-</dd>
-</dl>
-</dd>
-<dt>// ————————————————————————————————————–</dt>
-<dd>rule #asByteStack( W ) =&gt; #asByteStack( W , .WordStack )
-rule #asByteStack( 0 , WS ) =&gt; WS
-rule #asByteStack( W , WS ) =&gt; #asByteStack( W /Int 256 , W %Int 256 : WS ) requires W =/=K 0</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id275"><span class="problematic" id="id276">``</span></a><a href="#id277"><span class="problematic" id="id278">`</span></a></p>
 </div>
 <div class="section" id="addresses">
 <h2>Addresses<a class="headerlink" href="#addresses" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><cite>#addr</cite> turns an Ethereum word into the corresponding Ethereum address (160 LSB).</li>
+<li><code class="docutils literal"><span class="pre">#addr</span></code> turns an Ethereum word into the corresponding Ethereum
+address (160 LSB).</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id279"><span class="problematic" id="id280">``</span></a><a href="#id281"><span class="problematic" id="id282">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= #addr ( Int ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// —————————————</dt>
-<dd>rule #addr(W) =&gt; W %Word (2 ^Word 160)</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id283"><span class="problematic" id="id284">``</span></a><a href="#id285"><span class="problematic" id="id286">`</span></a></p>
 <ul class="simple">
-<li><cite>#newAddr</cite> computes the address of a new account given the address and nonce of the creating account.</li>
-<li><cite>#sender</cite> computes the sender of the transaction from its data and signature.</li>
+<li><code class="docutils literal"><span class="pre">#newAddr</span></code> computes the address of a new account given the address
+and nonce of the creating account.</li>
+<li><code class="docutils literal"><span class="pre">#sender</span></code> computes the sender of the transaction from its data and
+signature.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id287"><span class="problematic" id="id288">``</span></a><a href="#id289"><span class="problematic" id="id290">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= #newAddr ( Int , Int ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ————————————————</dt>
-<dd><p class="first">rule #newAddr(ACCT, NONCE) =&gt; #addr(#parseHexWord(Keccak256(#rlpEncodeLength(#rlpEncodeBytes(ACCT, 20) +String #rlpEncodeWord(NONCE), 192))))</p>
-<dl class="last docutils">
-<dt>syntax Int ::= #sender ( Int , Int , Int , Account , Int , String , Int , WordStack , WordStack ) [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#sender ( String , Int , String , String )                                         [function, klabel(#senderAux)]</div>
-<div class="line">#sender ( String )                                                                 [function, klabel(#senderAux2)]</div>
-</div>
-</dd>
-</dl>
-</dd>
-<dt>// ———————————————————————————————————————————</dt>
-<dd><dl class="first docutils">
-<dt>rule #sender(TN, TP, TG, TT, TV, DATA, TW, TR, TS)</dt>
-<dd>=&gt; #sender(#unparseByteStack(#parseHexBytes(Keccak256(#rlpEncodeLength(#rlpEncodeWordStack(TN : TP : TG : .WordStack) +String #rlpEncodeAccount(TT) +String #rlpEncodeWord(TV) +String #rlpEncodeString(DATA), 192)))), TW, #unparseByteStack(TR), #unparseByteStack(TS))</dd>
-</dl>
-<p>rule #sender(HT, TW, TR, TS) =&gt; #sender(ECDSARecover(HT, TW, TR, TS))</p>
-<p class="last">rule #sender(“”)  =&gt; .Account
-rule #sender(STR) =&gt; #addr(#parseHexWord(Keccak256(STR))) requires STR =/=String “”</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id291"><span class="problematic" id="id292">``</span></a><a href="#id293"><span class="problematic" id="id294">`</span></a></p>
 <ul class="simple">
-<li><cite>#blockHeaderHash</cite> computes the hash of a block header given all the block data.</li>
+<li><code class="docutils literal"><span class="pre">#blockHeaderHash</span></code> computes the hash of a block header given all
+the block data.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id295"><span class="problematic" id="id296">``</span></a><a href="#id297"><span class="problematic" id="id298">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= #blockHeaderHash( Int , Int , Int , Int , Int , Int , WordStack , Int , Int , Int , Int , Int , WordStack , Int , Int ) [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#blockHeaderHash(String, String, String, String, String, String, String, String, String, String, String, String, String, String, String) [function, klabel(#blockHashHeaderStr)]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ———————————————————————————————————————————————————————————————–</dt>
-<dd><dl class="first last docutils">
-<dt>rule #blockHeaderHash(HP, HO, HC, HR, HT, HE, HB, HD, HI, HL, HG, HS, HX, HM, HN)</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>=&gt; #blockHeaderHash(#asWord(#parseByteStackRaw(HP)),</dt>
-<dd><p class="first">#asWord(#parseByteStackRaw(HO)),
-#asWord(#parseByteStackRaw(HC)),
-#asWord(#parseByteStackRaw(HR)),
-#asWord(#parseByteStackRaw(HT)),
-#asWord(#parseByteStackRaw(HE)),</p>
-<blockquote>
-<div>#parseByteStackRaw(HB) ,</div></blockquote>
-<p>#asWord(#parseByteStackRaw(HD)),
-#asWord(#parseByteStackRaw(HI)),
-#asWord(#parseByteStackRaw(HL)),
-#asWord(#parseByteStackRaw(HG)),
-#asWord(#parseByteStackRaw(HS)),</p>
-<blockquote>
-<div>#parseByteStackRaw(HX) ,</div></blockquote>
-<p class="last">#asWord(#parseByteStackRaw(HM)),
-#asWord(#parseByteStackRaw(HN)))</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>rule #blockHeaderHash(HP, HO, HC, HR, HT, HE, HB, HD, HI, HL, HG, HS, HX, HM, HN)</dt>
-<dd><dl class="first last docutils">
-<dt>=&gt; #parseHexWord(Keccak256(#rlpEncodeLength(         #rlpEncodeBytes(HP, 32)</dt>
-<dd><blockquote class="first">
-<div>+String #rlpEncodeBytes(HO, 32)
-+String #rlpEncodeBytes(HC, 20)
-+String #rlpEncodeBytes(HR, 32)
-+String #rlpEncodeBytes(HT, 32)
-+String #rlpEncodeBytes(HE, 32)
-+String #rlpEncodeString(#unparseByteStack(HB))
-+String #rlpEncodeWordStack(HD : HI : HL : HG : HS : .WordStack)
-+String #rlpEncodeString(#unparseByteStack(HX))
-+String #rlpEncodeBytes(HM, 32)
-+String #rlpEncodeBytes(HN, 8),</div></blockquote>
-<p class="last">192)))</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id299"><span class="problematic" id="id300">``</span></a><a href="#id301"><span class="problematic" id="id302">`</span></a></p>
 </div>
 <div class="section" id="word-map">
 <h2>Word Map<a class="headerlink" href="#word-map" title="Permalink to this headline">¶</a></h2>
-<p>Most of EVM data is held in finite maps.
-We are using the polymorphic <cite>Map</cite> sort for these word maps.</p>
+<p>Most of EVM data is held in finite maps. We are using the polymorphic
+<code class="docutils literal"><span class="pre">Map</span></code> sort for these word maps.</p>
 <ul class="simple">
-<li><cite>WM [ N := WS ]</cite> assigns a contiguous chunk of $WM$ to $WS$ starting at position $W$.</li>
-<li><cite>#asMapWordStack</cite> converts a <cite>WordStack</cite> to a <cite>Map</cite>.</li>
-<li><cite>#range(M, START, WIDTH)</cite> reads off $WIDTH$ elements from $WM$ beginning at position $START$ (padding with zeros as needed).</li>
+<li><code class="docutils literal"><span class="pre">WM</span> <span class="pre">[</span> <span class="pre">N</span> <span class="pre">:=</span> <span class="pre">WS</span> <span class="pre">]</span></code> assigns a contiguous chunk of  to
+ starting at position .</li>
+<li><code class="docutils literal"><span class="pre">#asMapWordStack</span></code> converts a <code class="docutils literal"><span class="pre">WordStack</span></code> to a <code class="docutils literal"><span class="pre">Map</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#range(M,</span> <span class="pre">START,</span> <span class="pre">WIDTH)</span></code> reads off  elements from
+ beginning at position  (padding with zeros as
+needed).</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id303"><span class="problematic" id="id304">``</span></a><a href="#id305"><span class="problematic" id="id306">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Map ::= Map “[” Int “:=” WordStack “]” [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ——————————————————–</dt>
-<dd><p class="first">rule WM[ N := .WordStack ] =&gt; WM
-rule WM[ N := W : WS     ] =&gt; (WM[N &lt;- W])[N +Int 1 := WS]</p>
-<p class="last">syntax Map ::= #asMapWordStack ( WordStack ) [function]</p>
-</dd>
-<dt>// ——————————————————-</dt>
-<dd><p class="first">rule #asMapWordStack(WS:WordStack) =&gt; .Map [ 0 := WS ]</p>
-<p class="last">syntax WordStack ::= #range ( Map , Int , Int )            [function]
-syntax WordStack ::= #range ( Map , Int , Int , WordStack) [function, klabel(#rangeAux)]</p>
-</dd>
-<dt>// —————————————————————————————-</dt>
-<dd><p class="first">rule #range(WM, START, WIDTH) =&gt; #range(WM, START +Int WIDTH -Int 1, WIDTH, .WordStack)</p>
-<p class="last">rule #range(WM,           END, 0,     WS) =&gt; WS
-rule #range(WM,           END, WIDTH, WS) =&gt; #range(WM, END -Int 1, WIDTH -Int 1, 0 : WS) requires (WIDTH &gt;Int 0) andBool notBool END in_keys(WM)
-rule #range(END <a href="#id307"><span class="problematic" id="id308">|</span></a>-&gt; W WM, END, WIDTH, WS) =&gt; #range(WM, END -Int 1, WIDTH -Int 1, W : WS) requires (WIDTH &gt;Int 0)</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id309"><span class="problematic" id="id310">``</span></a><a href="#id311"><span class="problematic" id="id312">`</span></a></p>
 <ul class="simple">
-<li><cite>#removeZeros</cite> removes any entries in a map with zero values.</li>
+<li><code class="docutils literal"><span class="pre">#removeZeros</span></code> removes any entries in a map with zero values.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id313"><span class="problematic" id="id314">``</span></a><a href="#id315"><span class="problematic" id="id316">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Map ::= #removeZeros ( Map ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ———————————————-</dt>
-<dd>rule #removeZeros( .Map )               =&gt; .Map
-rule #removeZeros( KEY <a href="#id317"><span class="problematic" id="id318">|</span></a>-&gt; 0     REST ) =&gt; #removeZeros(REST)
-rule #removeZeros( KEY <a href="#id319"><span class="problematic" id="id320">|</span></a>-&gt; VALUE REST ) =&gt; KEY <a href="#id321"><span class="problematic" id="id322">|</span></a>-&gt; VALUE #removeZeros(REST) requires VALUE =/=K 0</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id323"><span class="problematic" id="id324">``</span></a><a href="#id325"><span class="problematic" id="id326">`</span></a></p>
 <ul class="simple">
-<li><cite>#lookup</cite> looks up a key in a map and returns 0 if the key doesn’t exist, otherwise returning its value.</li>
+<li><code class="docutils literal"><span class="pre">#lookup</span></code> looks up a key in a map and returns 0 if the key doesn’t
+exist, otherwise returning its value.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id327"><span class="problematic" id="id328">``</span></a><a href="#id329"><span class="problematic" id="id330">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div>syntax Int ::= #lookup ( Map , Int ) [function]</div></blockquote>
-<dl class="last docutils">
-<dt>// ———————————————–</dt>
-<dd>rule #lookup( (KEY <a href="#id331"><span class="problematic" id="id332">|</span></a>-&gt; VAL) M, KEY ) =&gt; VAL
-rule #lookup(               M, KEY ) =&gt; 0 requires notBool KEY in_keys(M)</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id333"><span class="problematic" id="id334">``</span></a><a href="#id335"><span class="problematic" id="id336">`</span></a></p>
 </div>
 </div>
 <div class="section" id="parsing-unparsing">
 <h1>Parsing/Unparsing<a class="headerlink" href="#parsing-unparsing" title="Permalink to this headline">¶</a></h1>
-<p>The EVM test-sets are represented in JSON format with hex-encoding of the data and programs.
-Here we provide some standard parser/unparser functions for that format.</p>
+<p>The EVM test-sets are represented in JSON format with hex-encoding of
+the data and programs. Here we provide some standard parser/unparser
+functions for that format.</p>
 <div class="section" id="parsing">
 <h2>Parsing<a class="headerlink" href="#parsing" title="Permalink to this headline">¶</a></h2>
-<p>These parsers can interperet hex-encoded strings as <a href="#id337"><span class="problematic" id="id338">`</span></a>Int`s, <a href="#id339"><span class="problematic" id="id340">`</span></a>WordStack`s, and <a href="#id341"><span class="problematic" id="id342">`</span></a>Map`s.</p>
+<p>These parsers can interperet hex-encoded strings as <code class="docutils literal"><span class="pre">Int</span></code>s,
+<code class="docutils literal"><span class="pre">WordStack</span></code>s, and <code class="docutils literal"><span class="pre">Map</span></code>s.</p>
 <ul class="simple">
-<li><cite>#parseHexWord</cite> interperets a string as a single hex-encoded <cite>Word</cite>.</li>
-<li><cite>#parseHexBytes</cite> interperets a string as a hex-encoded stack of bytes.</li>
-<li><cite>#parseByteStack</cite> interperets a string as a hex-encoded stack of bytes, but makes sure to remove the leading “0x”.</li>
-<li><cite>#parseByteStackRaw</cite> inteprets a string as a stack of bytes.</li>
-<li><cite>#parseWordStack</cite> interperets a JSON list as a stack of <cite>Word</cite>.</li>
-<li><cite>#parseMap</cite> interperets a JSON key/value object as a map from <cite>Word</cite> to <cite>Word</cite>.</li>
-<li><cite>#parseAddr</cite> interperets a string as a 160 bit hex-endcoded address.</li>
+<li><code class="docutils literal"><span class="pre">#parseHexWord</span></code> interperets a string as a single hex-encoded
+<code class="docutils literal"><span class="pre">Word</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#parseHexBytes</span></code> interperets a string as a hex-encoded stack of
+bytes.</li>
+<li><code class="docutils literal"><span class="pre">#parseByteStack</span></code> interperets a string as a hex-encoded stack of
+bytes, but makes sure to remove the leading “0x”.</li>
+<li><code class="docutils literal"><span class="pre">#parseByteStackRaw</span></code> inteprets a string as a stack of bytes.</li>
+<li><code class="docutils literal"><span class="pre">#parseWordStack</span></code> interperets a JSON list as a stack of <code class="docutils literal"><span class="pre">Word</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#parseMap</span></code> interperets a JSON key/value object as a map from
+<code class="docutils literal"><span class="pre">Word</span></code> to <code class="docutils literal"><span class="pre">Word</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#parseAddr</span></code> interperets a string as a 160 bit hex-endcoded
+address.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id343"><span class="problematic" id="id344">``</span></a><a href="#id345"><span class="problematic" id="id346">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax Int ::= #parseHexWord ( String ) [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#parseWord    ( String ) [function]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ————————————————–</dt>
-<dd><p class="first">rule #parseHexWord(“”)   =&gt; 0
-rule #parseHexWord(“0x”) =&gt; 0
-rule #parseHexWord(S)    =&gt; String2Base(replaceAll(S, “0x”, “”), 16) requires (S =/=String “”) andBool (S =/=String “0x”)</p>
-<p>rule #parseWord(“”) =&gt; 0
-rule #parseWord(S)  =&gt; #parseHexWord(S) requires lengthString(S) &gt;=Int 2 andBool substrString(S, 0, 2) ==String “0x”
-rule #parseWord(S)  =&gt; String2Int(S) [owise]</p>
-<dl class="last docutils">
-<dt>syntax WordStack ::= #parseHexBytes  ( String ) [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#parseByteStack ( String ) [function]</div>
-<div class="line">#parseByteStackRaw ( String ) [function]</div>
-</div>
-</dd>
-</dl>
-</dd>
-<dt>// ———————————————————-</dt>
-<dd><p class="first">rule #parseByteStack(S) =&gt; #parseHexBytes(replaceAll(S, “0x”, “”))
-rule #parseHexBytes(“”) =&gt; .WordStack
-rule #parseHexBytes(S)  =&gt; #parseHexWord(substrString(S, 0, 2)) : #parseHexBytes(substrString(S, 2, lengthString(S))) requires lengthString(S) &gt;=Int 2</p>
-<p>rule #parseByteStackRaw(S) =&gt; ordChar(substrString(S, 0, 1)) : #parseByteStackRaw(substrString(S, 1, lengthString(S))) requires lengthString(S) &gt;=Int 1
-rule #parseByteStackRaw(“”) =&gt; .WordStack</p>
-<p class="last">syntax WordStack ::= #parseWordStack ( JSON ) [function]</p>
-</dd>
-<dt>// ——————————————————–</dt>
-<dd><p class="first">rule #parseWordStack( [ .JSONList ] )            =&gt; .WordStack
-rule #parseWordStack( [ (WORD:String) , REST ] ) =&gt; #parseHexWord(WORD) : #parseWordStack( [ REST ] )</p>
-<p class="last">syntax Map ::= #parseMap ( JSON ) [function]</p>
-</dd>
-<dt>// ——————————————–</dt>
-<dd><p class="first">rule #parseMap( { .JSONList                   } ) =&gt; .Map
-rule #parseMap( { _   : (VALUE:String) , REST } ) =&gt; #parseMap({ REST })                                                requires #parseHexWord(VALUE) ==K 0
-rule #parseMap( { KEY : (VALUE:String) , REST } ) =&gt; #parseMap({ REST }) [ #parseHexWord(KEY) &lt;- #parseHexWord(VALUE) ] requires #parseHexWord(VALUE) =/=K 0</p>
-<p class="last">syntax Int ::= #parseAddr ( String ) [function]</p>
-</dd>
-<dt>// ———————————————–</dt>
-<dd>rule #parseAddr(S) =&gt; #addr(#parseHexWord(S))</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id347"><span class="problematic" id="id348">``</span></a><a href="#id349"><span class="problematic" id="id350">`</span></a></p>
 </div>
 <div class="section" id="unparsing">
 <h2>Unparsing<a class="headerlink" href="#unparsing" title="Permalink to this headline">¶</a></h2>
-<p>We need to interperet a <cite>WordStack</cite> as a <cite>String</cite> again so that we can call <cite>Keccak256</cite> on it from <cite>KRYPTO</cite>.</p>
+<p>We need to interperet a <code class="docutils literal"><span class="pre">WordStack</span></code> as a <code class="docutils literal"><span class="pre">String</span></code> again so that we
+can call <code class="docutils literal"><span class="pre">Keccak256</span></code> on it from <code class="docutils literal"><span class="pre">KRYPTO</span></code>.</p>
 <ul class="simple">
-<li><cite>#unparseByteStack</cite> turns a stack of bytes (as a <cite>WordStack</cite>) into a <cite>String</cite>.</li>
-<li><cite>#padByte</cite> ensures that the <cite>String</cite> interperetation of a <cite>Int</cite> is wide enough.</li>
+<li><code class="docutils literal"><span class="pre">#unparseByteStack</span></code> turns a stack of bytes (as a <code class="docutils literal"><span class="pre">WordStack</span></code>)
+into a <code class="docutils literal"><span class="pre">String</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#padByte</span></code> ensures that the <code class="docutils literal"><span class="pre">String</span></code> interperetation of a <code class="docutils literal"><span class="pre">Int</span></code>
+is wide enough.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id351"><span class="problematic" id="id352">``</span></a><a href="#id353"><span class="problematic" id="id354">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax String ::= #unparseByteStack ( WordStack )                [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#unparseByteStack ( WordStack , StringBuffer ) [function, klabel(#unparseByteStackAux)]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ———————————————————————————————————</dt>
-<dd><p class="first">rule #unparseByteStack ( WS ) =&gt; #unparseByteStack(WS, .StringBuffer)</p>
-<p>rule #unparseByteStack( .WordStack, BUFFER ) =&gt; StringBuffer2String(BUFFER)
-rule #unparseByteStack( W : WS, BUFFER )     =&gt; #unparseByteStack(WS, BUFFER +String chrChar(W %Int (2 ^Int 8)))</p>
-<p class="last">syntax String ::= #padByte( String ) [function]</p>
-</dd>
-<dt>// ———————————————–</dt>
-<dd>rule #padByte( S ) =&gt; S             requires lengthString(S) ==K 2
-rule #padByte( S ) =&gt; “0” +String S requires lengthString(S) ==K 1</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id355"><span class="problematic" id="id356">``</span></a><a href="#id357"><span class="problematic" id="id358">`</span></a></p>
 </div>
 </div>
 <div class="section" id="recursive-length-prefix-rlp">
 <h1>Recursive Length Prefix (RLP)<a class="headerlink" href="#recursive-length-prefix-rlp" title="Permalink to this headline">¶</a></h1>
-<p>RLP encoding is used extensively for executing the blocks of a transaction.
-For details about RLP encoding, see the [YellowPaper Appendix B](<a class="reference external" href="http://gavwood.com/paper.pdf">http://gavwood.com/paper.pdf</a>).</p>
+<p>RLP encoding is used extensively for executing the blocks of a
+transaction. For details about RLP encoding, see the <a class="reference external" href="http://gavwood.com/paper.pdf">YellowPaper
+Appendix B</a>.</p>
 <div class="section" id="encoding">
 <h2>Encoding<a class="headerlink" href="#encoding" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><cite>#rlpEncodeWord</cite> RLP encodes a single EVM word.</li>
-<li><cite>#rlpEncodeString</cite> RLP encodes a single <cite>String</cite>.</li>
+<li><code class="docutils literal"><span class="pre">#rlpEncodeWord</span></code> RLP encodes a single EVM word.</li>
+<li><code class="docutils literal"><span class="pre">#rlpEncodeString</span></code> RLP encodes a single <code class="docutils literal"><span class="pre">String</span></code>.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id359"><span class="problematic" id="id360">``</span></a><a href="#id361"><span class="problematic" id="id362">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax String ::= #rlpEncodeWord ( Int )            [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#rlpEncodeBytes ( Int , Int )     [function]</div>
-<div class="line">#rlpEncodeWordStack ( WordStack ) [function]</div>
-<div class="line">#rlpEncodeString ( String )       [function]</div>
-<div class="line">#rlpEncodeAccount ( Account )     [function]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ————————————————————–</dt>
-<dd><p class="first">rule #rlpEncodeWord(0) =&gt; “x80”
-rule #rlpEncodeWord(WORD) =&gt; chrChar(WORD) requires WORD &gt;Int 0 andBool WORD &lt;Int 128
-rule #rlpEncodeWord(WORD) =&gt; #rlpEncodeLength(#unparseByteStack(#asByteStack(WORD)), 128) requires WORD &gt;=Int 128</p>
-<p>rule #rlpEncodeBytes(WORD, LEN) =&gt; #rlpEncodeString(#unparseByteStack(#padToWidth(LEN, #asByteStack(WORD))))</p>
-<p>rule #rlpEncodeWordStack(.WordStack) =&gt; “”
-rule #rlpEncodeWordStack(W : WS)     =&gt; #rlpEncodeWord(W) +String #rlpEncodeWordStack(WS)</p>
-<p>rule #rlpEncodeString(STR) =&gt; STR                        requires lengthString(STR) ==Int 1 andBool ordChar(STR) &lt;Int 128
-rule #rlpEncodeString(STR) =&gt; #rlpEncodeLength(STR, 128) [owise]</p>
-<p>rule #rlpEncodeAccount(.Account) =&gt; “x80”
-rule #rlpEncodeAccount(ACCT)     =&gt; #rlpEncodeBytes(ACCT, 20) requires ACCT =/=K .Account</p>
-<dl class="last docutils">
-<dt>syntax String ::= #rlpEncodeLength ( String , Int )          [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#rlpEncodeLength ( String , Int , String ) [function, klabel(#rlpEncodeLengthAux)]</div>
-</div>
-</dd>
-</dl>
-</dd>
-<dt>// —————————————————————————————————-</dt>
-<dd>rule #rlpEncodeLength(STR, OFFSET) =&gt; chrChar(lengthString(STR) +Int OFFSET) +String STR requires lengthString(STR) &lt;Int 56
-rule #rlpEncodeLength(STR, OFFSET) =&gt; #rlpEncodeLength(STR, OFFSET, #unparseByteStack(#asByteStack(lengthString(STR)))) requires lengthString(STR) &gt;=Int 56
-rule #rlpEncodeLength(STR, OFFSET, BL) =&gt; chrChar(lengthString(BL) +Int OFFSET +Int 55) +String BL +String STR</dd>
-</dl>
-</dd>
-</dl>
-<p><a href="#id363"><span class="problematic" id="id364">``</span></a><a href="#id365"><span class="problematic" id="id366">`</span></a></p>
 </div>
 <div class="section" id="decoding">
 <h2>Decoding<a class="headerlink" href="#decoding" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><cite>#rlpDecode</cite> RLP decodes a single <cite>String</cite> into a <cite>JSON</cite>.</li>
-<li><cite>#rlpDecodeList</cite> RLP decodes a single <cite>String</cite> into a <cite>JSONList</cite>, interpereting the string as the RLP encoding of a list.</li>
+<li><code class="docutils literal"><span class="pre">#rlpDecode</span></code> RLP decodes a single <code class="docutils literal"><span class="pre">String</span></code> into a <code class="docutils literal"><span class="pre">JSON</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">#rlpDecodeList</span></code> RLP decodes a single <code class="docutils literal"><span class="pre">String</span></code> into a
+<code class="docutils literal"><span class="pre">JSONList</span></code>, interpereting the string as the RLP encoding of a list.</li>
 </ul>
-<dl class="docutils">
-<dt><a href="#id367"><span class="problematic" id="id368">``</span></a><a href="#id369"><span class="problematic" id="id370">`</span></a>{.k .uiuck .rvk}</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>syntax JSON ::= #rlpDecode(String)               [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#rlpDecode(String, LengthPrefix) [function, klabel(#rlpDecodeAux)]</div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>// ———————————————————————————-</dt>
-<dd><p class="first">rule #rlpDecode(STR) =&gt; #rlpDecode(STR, #decodeLengthPrefix(STR, 0))
-rule #rlpDecode(STR, #str(LEN, POS))  =&gt; substrString(STR, POS, POS +Int LEN)
-rule #rlpDecode(STR, #list(LEN, POS)) =&gt; [#rlpDecodeList(STR, POS)]</p>
-<dl class="last docutils">
-<dt>syntax JSONList ::= #rlpDecodeList(String, Int)               [function]</dt>
-<dd><div class="first last line-block">
-<div class="line">#rlpDecodeList(String, Int, LengthPrefix) [function, klabel(#rlpDecodeListAux)]</div>
-</div>
-</dd>
-</dl>
-</dd>
-<dt>// —————————————————————————————————</dt>
-<dd><p class="first">rule #rlpDecodeList(STR, POS) =&gt; #rlpDecodeList(STR, POS, #decodeLengthPrefix(STR, POS)) requires POS &lt;Int lengthString(STR)
-rule #rlpDecodeList(STR, POS) =&gt; .JSONList [owise]
-rule #rlpDecodeList(STR, POS, _:LengthPrefixType(L, P)) =&gt; #rlpDecode(substrString(STR, POS, L +Int P)) , #rlpDecodeList(STR, L +Int P)</p>
-<p>syntax LengthPrefixType ::= “#str” | “#list”
-syntax LengthPrefix ::= LengthPrefixType “(” Int “,” Int “)”</p>
-<blockquote class="last">
-<div><div class="line-block">
-<div class="line">#decodeLengthPrefix ( String , Int )                                [function]</div>
-<div class="line">#decodeLengthPrefix ( String , Int , Int )                          [function, klabel(#decodeLengthPrefixAux)]</div>
-<div class="line">#decodeLengthPrefixLength ( LengthPrefixType , String , Int , Int ) [function]</div>
-<div class="line">#decodeLengthPrefixLength ( LengthPrefixType , Int    , Int , Int ) [function, klabel(#decodeLengthPrefixLengthAux)]</div>
-</div>
-</div></blockquote>
-</dd>
-<dt>// ——————————————————————————————————————————————–</dt>
-<dd><p class="first">rule #decodeLengthPrefix(STR, START) =&gt; #decodeLengthPrefix(STR, START, ordChar(substrString(STR, START, START +Int 1)))</p>
-<p>rule #decodeLengthPrefix(STR, START, B0) =&gt; #str(1, START)                                   requires B0 &lt;Int 128
-rule #decodeLengthPrefix(STR, START, B0) =&gt; #str(B0 -Int 128, START +Int 1)                  requires B0 &gt;=Int 128 andBool B0 &lt;Int (128 +Int 56)
-rule #decodeLengthPrefix(STR, START, B0) =&gt; #decodeLengthPrefixLength(#str, STR, START, B0)  requires B0 &gt;=Int (128 +Int 56) andBool B0 &lt;Int 192
-rule #decodeLengthPrefix(STR, START, B0) =&gt; #list(B0 -Int 192, START +Int 1)                 requires B0 &gt;=Int 192 andBool B0 &lt;Int 192 +Int 56
-rule #decodeLengthPrefix(STR, START, B0) =&gt; #decodeLengthPrefixLength(#list, STR, START, B0) [owise]</p>
-<p class="last">rule #decodeLengthPrefixLength(#str,  STR, START, B0) =&gt; #decodeLengthPrefixLength(#str,  START, B0 -Int 128 -Int 56 +Int 1, #asWord(#parseByteStackRaw(substrString(STR, START +Int 1, START +Int 1 +Int (B0 -Int 128 -Int 56 +Int 1)))))
-rule #decodeLengthPrefixLength(#list, STR, START, B0) =&gt; #decodeLengthPrefixLength(#list, START, B0 -Int 192 -Int 56 +Int 1, #asWord(#parseByteStackRaw(substrString(STR, START +Int 1, START +Int 1 +Int (B0 -Int 192 -Int 56 +Int 1)))))
-rule #decodeLengthPrefixLength(TYPE, START, LL, L) =&gt; TYPE(L, START +Int 1 +Int LL)</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p>endmodule
-<a href="#id371"><span class="problematic" id="id372">``</span></a><a href="#id373"><span class="problematic" id="id374">`</span></a></p>
 </div>
 </div>
 
@@ -1219,15 +433,6 @@ rule #decodeLengthPrefixLength(TYPE, START, LL, L) =&gt; TYPE(L, START +Int 1 +I
            </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../analysis/" class="btn btn-neutral float-right" title="Analysis Tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../verification/" class="btn btn-neutral" title="KEVM Verification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
