@@ -312,7 +312,7 @@ module EVM-DATA
 // -   `WS [ N .. W ]` access the range of `WS` beginning with `N` of width `W`.
 
 
-    syntax WordStack ::= WordStack "++" WordStack [function, smtlib(appWordStack)]
+    syntax WordStack ::= WordStack "++" WordStack [function, left, smtlib(appWordStack)]
  // --------------------------------------------------------
     rule .WordStack ++ WS' => WS'
     rule (W : WS)   ++ WS' => W : (WS ++ WS')
