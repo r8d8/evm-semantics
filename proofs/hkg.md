@@ -237,28 +237,29 @@ Here we provide a specification file containing a reachability rule for the veri
 module TOKEN-SPEC
 imports ETHEREUM-SIMULATION
 
-    rule <k> #execute ... </k>
-         <exit-code> 1       </exit-code>
-         <mode>      NORMAL  </mode>
-         <schedule>  DEFAULT </schedule>
+    rule <k>         #execute => (RETURN _ _  ~> _) </k>
+         <exit-code> 1                              </exit-code>
+         <mode>      NORMAL                         </mode>
+         <schedule>  DEFAULT                        </schedule>
 
-         <output>        .WordStack </output>
-         <memoryUsed>    3          </memoryUsed>
-         <callDepth>     0          </callDepth>
-         <callStack>     .List      </callStack>
-         <interimStates> .List      </interimStates>
-         <callLog>       .Set       </callLog>
+         <output>        .WordStack => _    </output>
+         <memoryUsed>    0          => _    </memoryUsed>
+         <callDepth>     0                  </callDepth>
+         <callStack>     .List      => _    </callStack>
+         <interimStates> .List              </interimStates>
+         <callLog>       .Set               </callLog>
 
          <program>     %HKG_Program          </program>
          <id>          %ACCT_ID              </id>
          <caller>      %CALLER_ID            </caller>
-         <callData>    .WordStack            </callData>
+         <callData>    #abiCallData("allowance", #address(%ORIGIN_ID), #address(%CALLER_ID))
+         </callData>
          <callValue>   0                     </callValue>
-         <wordStack>   WS   => WS1:WordStack </wordStack>
-         <localMem>    .Map => ?B:Map        </localMem>
-         <pc>          469  => 573           </pc>
-         <gas>         G    => G -Int 415    </gas>
-         <previousGas> _    => _             </previousGas>
+         <wordStack>   .WordStack   => _     </wordStack>
+         <localMem>    .Map  => ?B:Map        </localMem>
+         <pc>          0     => _             </pc>
+         <gas>         10000 => _             </gas>
+         <previousGas> _     => _             </previousGas>
 
          <selfDestruct> .Set   </selfDestruct>
          <log>          .Set   </log>
@@ -290,7 +291,6 @@ imports ETHEREUM-SIMULATION
            </account>
          </accounts>
 
-      requires G >=Int 415  andBool #sizeWordStack(WS) <Int 1017
 endmodule
 ```
 
