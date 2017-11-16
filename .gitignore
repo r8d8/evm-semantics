@@ -23,6 +23,9 @@
 # Directory for storing temporary files like logs, snippets and TODO lists.
 /tmp
 
+# python compiled files
+*.pyc
+
 # TODO: The RVK make recipie should be putting these in .build
 /KRYPTO.cmi
 /KRYPTO.cmx

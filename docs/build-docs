@@ -26,7 +26,9 @@ install_python_packages() {
 }
 
 build_sphinx() {
-    make BASE_DIR="$base_dir" TARGET_DIR="$target_dir" TMP_DIR="$tmp_dir" CFG_DIR="$base_dir/docs/src/"
+    PYTHONPATH="$PYTHONPATH:${docs_dir}" \
+        make BASE_DIR="$base_dir" TARGET_DIR="$target_dir" \
+             TMP_DIR="$tmp_dir"   CFG_DIR="$docs_dir/src/"
 }
 
 disable_jekyll() {
