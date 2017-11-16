@@ -5,6 +5,7 @@ set -e
 base_dir="$(cd "$(dirname $0)/.."; pwd)"
 build_dir="$base_dir/.build"
 virtualenv_dir="$build_dir/docs/virtualenv" 
+tmp_dir="$build_dir/docs/tmp"
 target_dir="$build_dir/docs/www"
 docs_dir="$base_dir/docs/"
 
@@ -24,6 +25,10 @@ install_python_packages() {
     pip install sphinx_rtd_theme
 }
 
+build_sphinx() {
+    make BASE_DIR="$base_dir" TARGET_DIR="$target_dir" TMP_DIR="$tmp_dir" CFG_DIR="$base_dir/docs/src/"
+}
+
 disable_jekyll() {
     touch "$target_dir/.nojekyll"
 }
@@ -35,7 +40,7 @@ cd "$docs_dir"
 have_dependencies
 setup_virtual_env
 install_python_packages
-sphinx-build -b dirhtml ./src "$target_dir"
+build_sphinx
 disable_jekyll
 
 [[ "$1" == "--commit" ]] && ./git-commit-filetree gh-pages "$target_dir"
