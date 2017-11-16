@@ -36,7 +36,12 @@ proof_files=${proof_dir}/sum-to-n-spec.k \
 			${proof_dir}/hkg/balanceOf-spec.k \
 			${proof_dir}/hkg/transfer-else-spec.k ${proof_dir}/hkg/transfer-then-spec.k \
 			${proof_dir}/hkg/transferFrom-else-spec.k ${proof_dir}/hkg/transferFrom-then-spec.k \
-			${proof_dir}/bad/hkg-token-buggy-spec.k
+			${proof_dir}/bad/hkg-token-buggy-spec.k \
+			${proof_dir}/viper/allowance-spec.k \
+			${proof_dir}/viper/approve-spec.k \
+			${proof_dir}/viper/balanceOf-spec.k \
+			${proof_dir}/viper/transfer-else-spec.k ${proof_dir}/viper/transfer-then-spec.k \
+			${proof_dir}/viper/transferFrom-else-spec.k ${proof_dir}/viper/transferFrom-then-spec.k
 
 proofs: $(proof_files)
 
@@ -54,6 +59,11 @@ tests/proofs/bad/hkg-token-buggy-spec.k: proofs/token-buggy-spec.md
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
 	pandoc-tangle --from markdown --to code-k --code k $< > $@
+
+tests/proofs/viper/%-spec.k: proofs/viper-erc20.md
+	@echo "==  tangle: $@"
+	mkdir -p $(dir $@)
+	pandoc-tangle --from markdown --to code-k --code $* $< > $@
 
 # Tests
 # -----

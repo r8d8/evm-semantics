@@ -790,8 +790,8 @@ module EVM
 
     syntax UnStackOp ::= "MLOAD"
  // ----------------------------
-    rule <k> MLOAD INDEX => #asWord(#range(LM[INDEX <- X], INDEX, 32)) ~> #push ... </k>
-         <localMem> INDEX |-> X:Int LM </localMem>
+    rule <k> MLOAD INDEX => #asWord(#range(LM, INDEX, 32)) ~> #push ... </k>
+         <localMem> LM </localMem>
 
     syntax BinStackOp ::= "MSTORE" | "MSTORE8"
  // ------------------------------------------

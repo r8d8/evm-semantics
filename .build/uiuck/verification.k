@@ -51,8 +51,6 @@ module VERIFICATION
     rule WM[ N := (#uint(X) ++ WS) ] => WM[N <- #argdata(X, 32)][N +Int 32 := WS]
 
 
-    rule <k> MLOAD INDEX => X ~> #push ... </k>
-         <localMem> INDEX |-> #argdata(X:Int, 32) LM:Map </localMem>
 
 
     rule 0 +Int X => X
