@@ -7,7 +7,7 @@ usable for testing contracts, analyzing gas usage, verifying contracts correct, 
 `technical report on KEVM <https://www.ideals.illinois.edu/handle/2142/97207>`_.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    evm
    ethereum
