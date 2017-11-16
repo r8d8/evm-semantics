@@ -1,11 +1,11 @@
-// The Hacker Gold (HKG) Token Smart Contract
-// ==========================================
+// Viper ERC20
+// ===========
 
 // Approve Function
 // ----------------
 
 // Here we provide a specification file containing a reachability rule for the
-// verifying the correctness of the HKG Token's APPROVE Function.
+// verifying the correctness of the APPROVE Function.
 
 
 module APPROVE-SPEC

@@ -1,5 +1,5 @@
-// The Hacker Gold (HKG) Token Smart Contract
-// ==========================================
+// Viper ERC20
+// ===========
 
 // Transfer Function
 // -----------------
@@ -16,33 +16,33 @@ module TRANSFER-SPEC
          <mode>     NORMAL  </mode>
          <schedule> DEFAULT </schedule>
 
-         <output>        .WordStack </output>
-         <memoryUsed>    0 => _     </memoryUsed>
-         <callDepth>     0          </callDepth>
-         <callStack>     .List => _ </callStack>
-         <interimStates> .List      </interimStates>
-         <callLog>       .Set       </callLog>
+         <output>        .WordStack  </output>
+         <memoryUsed>    0 => _      </memoryUsed>
+         <callDepth>     0           </callDepth>
+         <callStack>     .List => _  </callStack>
+         <interimStates> .List       </interimStates>
+         <callLog>       .Set        </callLog>
          <wordStack> .WordStack => _ </wordStack>
 
-         <program>   %HKG_Program </program>
-         <id>        %ACCT_ID     </id>
-         <caller>    %ORIGIN_ID   </caller>
-         <callData>  #abiCallData("transfer",#address(%CALLER_ID),#uint256(TRANSFER)) </callData>
-         <callValue> 0            </callValue>
+         <program>   %ERC20_Program </program>
+         <id>        %%ACCT_ID      </id>
+         <caller>    %%ORIGIN_ID    </caller>
+         <callData>  #abiCallData("transfer",#address(%%CALLER_ID),#uint256(TRANSFER)) </callData>
+         <callValue> 0              </callValue>
 
-         <gasPrice>     _               </gasPrice>
-         <origin>       %ORIGIN_ID      </origin>
-         <gasLimit>     _               </gasLimit>
-         <coinbase>     %COINBASE_VALUE </coinbase>
-         <timestamp>    1               </timestamp>
-         <number>       0               </number>
-         <previousHash> 0               </previousHash>
-         <difficulty>   256             </difficulty>
+         <gasPrice>     _                </gasPrice>
+         <origin>       %%ORIGIN_ID      </origin>
+         <gasLimit>     _                </gasLimit>
+         <coinbase>     %%COINBASE_VALUE </coinbase>
+         <timestamp>    1                </timestamp>
+         <number>       0                </number>
+         <previousHash> 0                </previousHash>
+         <difficulty>   256              </difficulty>
 
-         <selfDestruct>   .Set                 </selfDestruct>
-         <log>            .Set => _            </log>
-         <activeAccounts> SetItem ( %ACCT_ID ) </activeAccounts>
-         <messages>       .Bag                 </messages>
+         <selfDestruct>   .Set                  </selfDestruct>
+         <log>            .Set => _             </log>
+         <activeAccounts> SetItem ( %%ACCT_ID ) </activeAccounts>
+         <messages>       .Bag                  </messages>
 
 
 // These parts of the proof change, but we would like to avoid specifying exactly
@@ -61,15 +61,15 @@ module TRANSFER-SPEC
 
          <accounts>
            <account>
-             <acctID>   %ACCT_ID     </acctID>
-             <balance>  BAL          </balance>
-             <code>     %HKG_Program </code>
-             <acctMap> "nonce" |-> 0 </acctMap>
+             <acctID>   %%ACCT_ID      </acctID>
+             <balance>  BAL            </balance>
+             <code>     %ERC20_Program </code>
+             <acctMap> "nonce" |-> 0   </acctMap>
              <storage> ...
-                       (%ACCT_1_BALANCE |-> (B1 => B1 -Int TRANSFER))
-                       (%ACCT_1_ALLOWED |-> A1)
-                       (%ACCT_2_BALANCE |-> (B2 => B2 +Int TRANSFER))
-                       (%ACCT_2_ALLOWED |-> _)
+                       (%%ACCT_1_BALANCE |-> (B1 => B1 -Int TRANSFER))
+                       (%%ACCT_1_ALLOWED |-> A1)
+                       (%%ACCT_2_BALANCE |-> (B2 => B2 +Int TRANSFER))
+                       (%%ACCT_2_ALLOWED |-> _)
                        ...
              </storage>
            </account>
@@ -80,7 +80,6 @@ module TRANSFER-SPEC
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool B2 +Int TRANSFER <Int pow256
        andBool B1 -Int TRANSFER >=Int 0
-       andBool #sizeWordStack(WS) <Int 1017
 endmodule
 
 

@@ -1,11 +1,11 @@
-// The Hacker Gold (HKG) Token Smart Contract
-// ==========================================
+// Viper ERC20
+// ===========
 
 // BalanceOf Function
 // ------------------
 
 // Here we provide a specification file containing a reachability rule for the
-// verifying the correctness of the HKG Token's BalanceOf Function.
+// verifying the correctness of the BalanceOf Function.
 
 
 module BALANCE-OF-SPEC
