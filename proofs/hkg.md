@@ -397,7 +397,7 @@ module BALANCE-OF-SPEC
          <wordStack>    .WordStack    => _    </wordStack>
          <localMem>     .Map    => _            </localMem>
          <pc>           0       => _            </pc>
-         <gas>          1000    => _            </gas>
+         <gas>          G       => G -Int 403   </gas>
          <previousGas>  _       => _            </previousGas>
 
          <selfDestruct> .Set </selfDestruct>
@@ -428,6 +428,7 @@ module BALANCE-OF-SPEC
            </account>
          </accounts>
 
-      requires #sizeWordStack(WS) <Int 1018
+        requires G >Int 403
+
 endmodule
 ```
