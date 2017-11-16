@@ -16,6 +16,8 @@ and to keep various constraints down to reasonable sizes.
 
 ```{.k .uiuck}
     rule #sizeWordStack ( _ ) >=Int 0 => true [smt-lemma]
+    rule #sizeWordStack ( A ++ B ) =>
+         #sizeWordStack ( A ) +Int #sizeWordStack ( B ) [smt-lemma]
 
     rule (X -Int A) -Int B => X -Int (A +Int B) [smt-lemma]
     rule ((X -Int A) >=Int B) => (X >=Int (A +Int B)) [smt-lemma]
