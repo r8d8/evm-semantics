@@ -17,31 +17,31 @@ and to keep various constraints down to reasonable sizes.
 ```{.k .uiuck}
     rule #sizeWordStack ( _ ) >=Int 0 => true [smt-lemma]
 
-    rule (X -Int A) -Int B => X -Int (A +Int B) [smt-lemma]
-    rule ((X -Int A) >=Int B) => (X >=Int (A +Int B)) [smt-lemma]
+    rule (X -Int A) -Int B => X -Int (A +Int B) [lemma]
+    rule ((X -Int A) >=Int B) => (X >=Int (A +Int B)) [lemma]
 
     rule (X >=Int A ==K true) andBool ((X >=Int B ==K true) andBool P)
-      => (X >=Int A ==K true) andBool P requires A >=Int B [smt-lemma]
+      => (X >=Int A ==K true) andBool P requires A >=Int B [lemma]
     rule (X >=Int A ==K true) andBool ((X >=Int B ==K true) andBool P)
-      => (X >=Int B ==K true) andBool P requires B >=Int A [smt-lemma]
+      => (X >=Int B ==K true) andBool P requires B >=Int A [lemma]
 
     rule (N +Int X <Int M) => X <Int (M -Int N) [smt-lemma]
-    rule 1 +Int (N +Int #sizeWordStack(S)) => (N +Int 1) +Int #sizeWordStack(S) [smt-lemma]
+    rule 1 +Int (N +Int #sizeWordStack(S)) => (N +Int 1) +Int #sizeWordStack(S) [lemma]
        // from recursing over bytes
-    rule (N +Int #sizeWordStack(S)) +Int 1 => (N +Int 1) +Int #sizeWordStack(S) [smt-lemma]
+    rule (N +Int #sizeWordStack(S)) +Int 1 => (N +Int 1) +Int #sizeWordStack(S) [lemma]
     rule (N +Int #sizeWordStack(S)) +Int 0 =>  N +Int #sizeWordStack(S) [smt-lemma]
-    rule (N +Int #sizeWordStack(S)) +Int -1 => (N +Int -1) +Int #sizeWordStack(S) [smt-lemma]
-    rule (N +Int #sizeWordStack(S)) +Int -2 => (N +Int -2) +Int #sizeWordStack(S) [smt-lemma]
+    rule (N +Int #sizeWordStack(S)) +Int -1 => (N +Int -1) +Int #sizeWordStack(S) [lemma]
+    rule (N +Int #sizeWordStack(S)) +Int -2 => (N +Int -2) +Int #sizeWordStack(S) [lemma]
        // from callstack, maybe?
 
-    rule #take(N,#uint(X)++W) => #take(N, #uint(X)) requires N <Int 32 [smt-lemma]
-    rule #take(N,#uint(X)) => #uint(X) ++ #take(N -Int 32, .WordStack) requires N >=Int 32 [smt-lemma]
-    rule #take(N,#uint(X)++W) => #uint(X) ++ #take(N -Int 32, W) requires N >=Int 32 [smt-lemma]
-    rule #drop(N,#uint(X)++W) => #drop(N -Int 32, W) requires N >=Int 32 [smt-lemma]
-    rule #asWordAux(N,(#uint(X)++W)) => #asWordAux(((N *Int pow256) +Int #getIntBytes(X,0,32,0)), W) [smt-lemma]
-    rule #asWordAux(N,#uint(X)) => #asWordAux(((N *Int pow256) +Int #getIntBytes(X,0,32,0)), .WordStack) [smt-lemma]
+    rule #take(N,#uint(X)++W) => #take(N, #uint(X)) requires N <Int 32 [lemma]
+    rule #take(N,#uint(X)) => #uint(X) ++ #take(N -Int 32, .WordStack) requires N >=Int 32 [lemma]
+    rule #take(N,#uint(X)++W) => #uint(X) ++ #take(N -Int 32, W) requires N >=Int 32 [lemma]
+    rule #drop(N,#uint(X)++W) => #drop(N -Int 32, W) requires N >=Int 32 [lemma]
+    rule #asWordAux(N,(#uint(X)++W)) => #asWordAux(((N *Int pow256) +Int #getIntBytes(X,0,32,0)), W) [lemma]
+    rule #asWordAux(N,#uint(X)) => #asWordAux(((N *Int pow256) +Int #getIntBytes(X,0,32,0)), .WordStack) [lemma]
     rule #asWordAux(N,#take(K,#uint(X))) =>
-         (N *Int (2 ^Int (K *Int 8)) +Int #getIntBytes(X,32 -Int K,32,0)) %Int pow256
+         (N *Int (2 ^Int (K *Int 8)) +Int #getIntBytes(X,32 -Int K,32,0)) %Int pow256 [lemma]
 
     syntax WordStack ::= #uint(Int) [function, smtlib(uint256)]
 
@@ -53,37 +53,37 @@ and to keep various constraints down to reasonable sizes.
 
 
 
-    rule 0 +Int X => X
+    rule 0 +Int X => X [lemma]
 
-    rule Y *Int (X +Int #getIntBytes(T,A,B,S)) => (X +Int #getIntBytes(T,A,B,S)) *Int Y
+    rule Y *Int (X +Int #getIntBytes(T,A,B,S)) => (X +Int #getIntBytes(T,A,B,S)) *Int Y  [lemma]
     rule (X +Int #getIntBytes(T,A,B,S)) *Int Y
-      => X *Int Y +Int #getIntBytes(T,A,B,S) *Int Y
+      => X *Int Y +Int #getIntBytes(T,A,B,S) *Int Y  [lemma]
 
     rule (X +Int #getIntBytes(T,A,B,S)) %Int Y
       => X %Int Y +Int #getIntBytes(T,A,B,S) %Int Y
-      requires X &Int ((2 ^Int B) -Int (2^Int A)) ==Int 0
+      requires X &Int ((2 ^Int B) -Int (2^Int A)) ==Int 0  [lemma]
 
     rule (X +Int #getIntBytes(T,A,B,S)) /Int Y
       => X /Int Y +Int #getIntBytes(T,A,B,S) /Int Y
-      requires X &Int ((2 ^Int B) -Int (2^Int A)) ==Int 0
+      requires X &Int ((2 ^Int B) -Int (2^Int A)) ==Int 0  [lemma]
 
     rule Y +Int (X +Int #getIntBytes(T,A,B,S))
-      => (Y +Int Y) +Int #getIntBytes(T,A,B,S)
+      => (Y +Int Y) +Int #getIntBytes(T,A,B,S) [lemma]
     rule (X +Int #getIntBytes(T,A,B,S)) +Int Y
-      => (X +Int Y) +Int #getIntBytes(T,A,B,S)
+      => (X +Int Y) +Int #getIntBytes(T,A,B,S) [lemma]
 
     rule #getIntBytes(T,A,B,S) *Int 256
-      => #getIntBytes(T,A,minInt(B,31 -Int S),S +Int 1)
+      => #getIntBytes(T,A,minInt(B,31 -Int S),S +Int 1)  [lemma]
     rule #getIntBytes(T,A,B,S) %Int 115792089237316195423570985008687907853269984665640564039457584007913129639936
-      => #getIntBytes(T,A,minInt(B,32 -Int S),S)
+      => #getIntBytes(T,A,minInt(B,32 -Int S),S)  [lemma]
     rule #getIntBytes(T,A,B,S) /Int D
       => #getIntBytes(T,A,B,S -Int 1) /Int (D /Int 256)
-      requires S >Int 0 andBool D %Int 256 ==Int 0
+      requires S >Int 0 andBool D %Int 256 ==Int 0  [lemma]
     rule #getIntBytes(T,A,B,0) /Int D
       => #getIntBytes(T,A +Int 1,B,0) /Int (D /Int 256)
-      requires A <Int B andBool D %Int 256 ==Int 0
-    rule #getIntBytes(T,A,A,S) => 0
-    rule #getIntBytes(T,A,B,S) +Int 0 => #getIntBytes(T,A,B,S)
+      requires A <Int B andBool D %Int 256 ==Int 0   [lemma]
+    rule #getIntBytes(T,A,A,S) => 0 [lemma]
+    rule #getIntBytes(T,A,B,S) +Int 0 => #getIntBytes(T,A,B,S) [lemma]
 
     rule #getIntBytes(T,0,B,0): (R:WordStack) => T %Int (2 ^Int (8 *Int B)): R [anywhere, lemma]
 
