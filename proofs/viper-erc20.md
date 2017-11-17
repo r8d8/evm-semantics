@@ -281,7 +281,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
 ```{.k .transfer-else}
          <k> #execute => (#exception ~> _) </k>
 
-         <gas> 100000   => _   </gas>
+         <gas> G   => G -Int 456   </gas>
 
          <accounts>
            <account>
@@ -303,6 +303,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
        andBool B1 >=Int 0      andBool B1 <Int pow256
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool B1 <Int TRANSFER
+       andBool G >Int 456
 ```
 
 TransferFrom Function
