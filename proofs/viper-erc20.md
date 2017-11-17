@@ -266,7 +266,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
            </account>
          </accounts>
 
-      requires TRANSFER >Int 0 andBool TRANSFER <Int pow256
+      requires TRANSFER >=Int 0 andBool TRANSFER <Int pow256
        andBool B1 >=Int 0      andBool B1 <Int pow256
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool B2 +Int TRANSFER <Int pow256
@@ -377,7 +377,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
            </account>
          </accounts>
 
-      requires TRANSFER >Int 0   andBool TRANSFER <Int pow256
+      requires TRANSFER >=Int 0   andBool TRANSFER <Int pow256
        andBool B1 >=Int TRANSFER andBool B1 <Int pow256
        andBool A1 >=Int TRANSFER andBool A1 <Int pow256
        andBool B2 >=Int 0        andBool B2 +Int TRANSFER <Int pow256

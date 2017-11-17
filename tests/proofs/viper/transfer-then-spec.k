@@ -79,9 +79,9 @@ module TRANSFER-SPEC
            </account>
          </accounts>
 
-      requires TRANSFER >Int 0 andBool TRANSFER <Int pow256
-       andBool B1 >=Int 0      andBool B1 <Int pow256
-       andBool B2 >=Int 0      andBool B2 <Int pow256
+      requires TRANSFER >=Int 0 andBool TRANSFER <Int pow256
+       andBool B1 >=Int 0       andBool B1 <Int pow256
+       andBool B2 >=Int 0       andBool B2 <Int pow256
        andBool B2 +Int TRANSFER <Int pow256
        andBool B1 -Int TRANSFER >=Int 0
 
