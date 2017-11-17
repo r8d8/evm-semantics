@@ -1,8 +1,9 @@
 // KEVM Verification
 // =================
 
-// Using K's reachability logic theorem prover, we're able to verify many properties about EVM programs as reachability claims.
-// This module defines some helpers which make writing specifications simpler.
+// Using K's reachability logic theorem prover, we're able to verify many
+// properties about EVM programs as reachability claims. This module defines some
+// helpers which make writing specifications simpler.
 
 
 requires "evm.k"
@@ -11,37 +12,37 @@ module VERIFICATION
     imports EVM
 
 
-// These `smt-lemma` helps Z3 reason about stack over/under flow,
-// and to keep various constraints down to reasonable sizes.
+// These `smt-lemma` helps Z3 reason about stack over/under flow, and to keep
+// various constraints down to reasonable sizes.
 
 
     rule #sizeWordStack ( _ ) >=Int 0 => true [smt-lemma]
 
-    rule (X -Int A) -Int B => X -Int (A +Int B) [smt-lemma]
-    rule ((X -Int A) >=Int B) => (X >=Int (A +Int B)) [smt-lemma]
+    rule (X -Int A) -Int B => X -Int (A +Int B) [lemma]
+    rule ((X -Int A) >=Int B) => (X >=Int (A +Int B)) [lemma]
 
     rule (X >=Int A ==K true) andBool ((X >=Int B ==K true) andBool P)
-      => (X >=Int A ==K true) andBool P requires A >=Int B [smt-lemma]
+      => (X >=Int A ==K true) andBool P requires A >=Int B [lemma]
     rule (X >=Int A ==K true) andBool ((X >=Int B ==K true) andBool P)
-      => (X >=Int B ==K true) andBool P requires B >=Int A [smt-lemma]
+      => (X >=Int B ==K true) andBool P requires B >=Int A [lemma]
 
     rule (N +Int X <Int M) => X <Int (M -Int N) [smt-lemma]
-    rule 1 +Int (N +Int #sizeWordStack(S)) => (N +Int 1) +Int #sizeWordStack(S) [smt-lemma]
+    rule 1 +Int (N +Int #sizeWordStack(S)) => (N +Int 1) +Int #sizeWordStack(S) [lemma]
        // from recursing over bytes
-    rule (N +Int #sizeWordStack(S)) +Int 1 => (N +Int 1) +Int #sizeWordStack(S) [smt-lemma]
+    rule (N +Int #sizeWordStack(S)) +Int 1 => (N +Int 1) +Int #sizeWordStack(S) [lemma]
     rule (N +Int #sizeWordStack(S)) +Int 0 =>  N +Int #sizeWordStack(S) [smt-lemma]
-    rule (N +Int #sizeWordStack(S)) +Int -1 => (N +Int -1) +Int #sizeWordStack(S) [smt-lemma]
-    rule (N +Int #sizeWordStack(S)) +Int -2 => (N +Int -2) +Int #sizeWordStack(S) [smt-lemma]
+    rule (N +Int #sizeWordStack(S)) +Int -1 => (N +Int -1) +Int #sizeWordStack(S) [lemma]
+    rule (N +Int #sizeWordStack(S)) +Int -2 => (N +Int -2) +Int #sizeWordStack(S) [lemma]
        // from callstack, maybe?
 
-    rule #take(N,#uint(X)++W) => #take(N, #uint(X)) requires N <Int 32 [smt-lemma]
-    rule #take(N,#uint(X)) => #uint(X) ++ #take(N -Int 32, .WordStack) requires N >=Int 32 [smt-lemma]
-    rule #take(N,#uint(X)++W) => #uint(X) ++ #take(N -Int 32, W) requires N >=Int 32 [smt-lemma]
-    rule #drop(N,#uint(X)++W) => #drop(N -Int 32, W) requires N >=Int 32 [smt-lemma]
-    rule #asWordAux(N,(#uint(X)++W)) => #asWordAux(((N *Int pow256) +Int #getIntBytes(X,0,32,0)), W) [smt-lemma]
-    rule #asWordAux(N,#uint(X)) => #asWordAux(((N *Int pow256) +Int #getIntBytes(X,0,32,0)), .WordStack) [smt-lemma]
+    rule #take(N,#uint(X)++W) => #take(N, #uint(X)) requires N <Int 32 [lemma]
+    rule #take(N,#uint(X)) => #uint(X) ++ #take(N -Int 32, .WordStack) requires N >=Int 32 [lemma]
+    rule #take(N,#uint(X)++W) => #uint(X) ++ #take(N -Int 32, W) requires N >=Int 32 [lemma]
+    rule #drop(N,#uint(X)++W) => #drop(N -Int 32, W) requires N >=Int 32 [lemma]
+    rule #asWordAux(N,(#uint(X)++W)) => #asWordAux(((N *Int pow256) +Int #getIntBytes(X,0,32,0)), W) [lemma]
+    rule #asWordAux(N,#uint(X)) => #asWordAux(((N *Int pow256) +Int #getIntBytes(X,0,32,0)), .WordStack) [lemma]
     rule #asWordAux(N,#take(K,#uint(X))) =>
-         (N *Int (2 ^Int (K *Int 8)) +Int #getIntBytes(X,32 -Int K,32,0)) %Int pow256
+         (N *Int (2 ^Int (K *Int 8)) +Int #getIntBytes(X,32 -Int K,32,0)) %Int pow256 [lemma]
 
     syntax WordStack ::= #uint(Int) [function, smtlib(uint256)]
 
@@ -53,37 +54,37 @@ module VERIFICATION
 
 
 
-    rule 0 +Int X => X
+    rule 0 +Int X => X [lemma]
 
-    rule Y *Int (X +Int #getIntBytes(T,A,B,S)) => (X +Int #getIntBytes(T,A,B,S)) *Int Y
+    rule Y *Int (X +Int #getIntBytes(T,A,B,S)) => (X +Int #getIntBytes(T,A,B,S)) *Int Y  [lemma]
     rule (X +Int #getIntBytes(T,A,B,S)) *Int Y
-      => X *Int Y +Int #getIntBytes(T,A,B,S) *Int Y
+      => X *Int Y +Int #getIntBytes(T,A,B,S) *Int Y  [lemma]
 
     rule (X +Int #getIntBytes(T,A,B,S)) %Int Y
       => X %Int Y +Int #getIntBytes(T,A,B,S) %Int Y
-      requires X &Int ((2 ^Int B) -Int (2^Int A)) ==Int 0
+      requires X &Int ((2 ^Int B) -Int (2^Int A)) ==Int 0  [lemma]
 
     rule (X +Int #getIntBytes(T,A,B,S)) /Int Y
       => X /Int Y +Int #getIntBytes(T,A,B,S) /Int Y
-      requires X &Int ((2 ^Int B) -Int (2^Int A)) ==Int 0
+      requires X &Int ((2 ^Int B) -Int (2^Int A)) ==Int 0  [lemma]
 
     rule Y +Int (X +Int #getIntBytes(T,A,B,S))
-      => (Y +Int Y) +Int #getIntBytes(T,A,B,S)
+      => (Y +Int Y) +Int #getIntBytes(T,A,B,S) [lemma]
     rule (X +Int #getIntBytes(T,A,B,S)) +Int Y
-      => (X +Int Y) +Int #getIntBytes(T,A,B,S)
+      => (X +Int Y) +Int #getIntBytes(T,A,B,S) [lemma]
 
     rule #getIntBytes(T,A,B,S) *Int 256
-      => #getIntBytes(T,A,minInt(B,31 -Int S),S +Int 1)
+      => #getIntBytes(T,A,minInt(B,31 -Int S),S +Int 1)  [lemma]
     rule #getIntBytes(T,A,B,S) %Int 115792089237316195423570985008687907853269984665640564039457584007913129639936
-      => #getIntBytes(T,A,minInt(B,32 -Int S),S)
+      => #getIntBytes(T,A,minInt(B,32 -Int S),S)  [lemma]
     rule #getIntBytes(T,A,B,S) /Int D
       => #getIntBytes(T,A,B,S -Int 1) /Int (D /Int 256)
-      requires S >Int 0 andBool D %Int 256 ==Int 0
+      requires S >Int 0 andBool D %Int 256 ==Int 0  [lemma]
     rule #getIntBytes(T,A,B,0) /Int D
       => #getIntBytes(T,A +Int 1,B,0) /Int (D /Int 256)
-      requires A <Int B andBool D %Int 256 ==Int 0
-    rule #getIntBytes(T,A,A,S) => 0
-    rule #getIntBytes(T,A,B,S) +Int 0 => #getIntBytes(T,A,B,S)
+      requires A <Int B andBool D %Int 256 ==Int 0   [lemma]
+    rule #getIntBytes(T,A,A,S) => 0 [lemma]
+    rule #getIntBytes(T,A,B,S) +Int 0 => #getIntBytes(T,A,B,S) [lemma]
 
     rule #getIntBytes(T,0,B,0): (R:WordStack) => T %Int (2 ^Int (8 *Int B)): R [anywhere, lemma]
 
@@ -98,8 +99,10 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 // Sum to N
 // --------
 
-// As a demonstration of simple reachability claims involing a circularity, we prove the EVM [Sum to N](proofs/sum-to-n.md) program correct.
-// This program sums the numbers from 1 to N (for sufficiently small N), including pre-conditions dis-allowing integer under/overflow and stack overflow.
+// As a demonstration of simple reachability claims involing a circularity, we
+// prove the EVM [Sum to N](proofs/sum-to-n.md) program correct. This program sums
+// the numbers from 1 to N (for sufficiently small N), including pre-conditions
+// dis-allowing integer under/overflow and stack overflow.
 
 
     syntax Map ::= "sumTo" "(" Int ")" [function]
@@ -119,17 +122,17 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 // Hacker Gold (HKG) Token Smart Contract
 // --------------------------------------
 
-// Several proofs about the [HKG Token functions](proofs/hkg.md) have been performed.
-// These helper constants make writing the proof claims simpler/cleaner.
+// Several proofs about the [HKG Token functions](proofs/hkg.md) have been
+// performed. These helper constants make writing the proof claims simpler/cleaner.
 
 
     syntax Int ::= "%ACCT_1_BALANCE" [function]
                  | "%ACCT_2_BALANCE" [function]
-                 | "%ACCT_1_ALLOWED" [function]
-                 | "%ACCT_2_ALLOWED" [function]
+                 | "%ACCT_1_ALLOWED" [function] // ALLOWED_FROM_1_BY_2
+                 | "%ACCT_2_ALLOWED" [function] // ALLOWED_FROM_2_BY_1
                  | "%ACCT_ID"        [function]
-                 | "%CALLER_ID"      [function]
-                 | "%ORIGIN_ID"      [function]
+                 | "%CALLER_ID"      [function] // ACCT2
+                 | "%ORIGIN_ID"      [function] // ACCT1
                  | "%COINBASE_VALUE" [function]
 
 
@@ -180,15 +183,16 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 // ---------
 
 // The ABI Call mechanism provides syntatic sugar to make writing proofs easier.
-// Instead of manually populating the `<callData>` cell and `<pc>` cell with the right values,
-// we the sugar allows following conveniences -
+// Instead of manually populating the `<callData>` cell and `<pc>` cell with the
+// right values, we the sugar allows following conveniences -
 
-// `#abiCallData(*FUNCTION_NAME*, TypedArgs)`, where the typed args to have be of the
-// `#uint160(*DATA*)` where the types are from the ABI specification, and enclose
-// the data.
+// `#abiCallData(*FUNCTION_NAME*, TypedArgs)`, where the typed args to have be of
+// the `#uint160(*DATA*)` where the types are from the ABI specification, and
+// enclose the data.
 
-// The above constructs place the correct values (in accordance with the ABI) in the `<callData>`
-// cell, allowing proofs of ABI-compliant EVM program to begin at `<pc> 0 </pc>`.
+// The above constructs place the correct values (in accordance with the ABI) in
+// the `<callData>` cell, allowing proofs of ABI-compliant EVM program to begin at
+// `<pc> 0 </pc>`.
 
 
     syntax TypedArg ::= "#uint160"      "(" Int ")"

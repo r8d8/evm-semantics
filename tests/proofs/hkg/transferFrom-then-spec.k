@@ -26,7 +26,7 @@ module TRANSFER-FROM-SPEC
 
          <program>   %HKG_Program </program>
          <id>        %ACCT_ID     </id>
-         <caller>    %ORIGIN_ID   </caller>
+         <caller>    %CALLER_ID   </caller>
          <callData>  #abiCallData("transferFrom",#address(%ORIGIN_ID),#address(%CALLER_ID),#uint256(TRANSFER)) </callData>
          <callValue> 0            </callValue>
 
@@ -67,7 +67,7 @@ module TRANSFER-FROM-SPEC
              <acctMap> "nonce" |-> 0 </acctMap>
              <storage> ...
                        (%ACCT_1_BALANCE |-> (B1 => B1 -Int TRANSFER))
-                       (%ACCT_1_ALLOWED |-> A1)
+                       (%ACCT_1_ALLOWED |-> (A1 => A1 -Int TRANSFER))
                        (%ACCT_2_BALANCE |-> (B2 => B2 +Int TRANSFER))
                        (%ACCT_2_ALLOWED |-> _)
                        ...
@@ -80,6 +80,7 @@ module TRANSFER-FROM-SPEC
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool B2 +Int TRANSFER <Int pow256
        andBool B1 -Int TRANSFER >=Int 0
+       andBool A1 >=Int TRANSFER andBool A1 <Int pow256
        andBool #sizeWordStack(WS) <Int 1017
 endmodule
 

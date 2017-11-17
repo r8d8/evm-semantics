@@ -169,11 +169,11 @@ These helper constants make writing the proof claims simpler/cleaner.
 ```{.k .uiuck}
     syntax Int ::= "%ACCT_1_BALANCE" [function]
                  | "%ACCT_2_BALANCE" [function]
-                 | "%ACCT_1_ALLOWED" [function]
-                 | "%ACCT_2_ALLOWED" [function]
+                 | "%ACCT_1_ALLOWED" [function] // ALLOWED_FROM_1_BY_2
+                 | "%ACCT_2_ALLOWED" [function] // ALLOWED_FROM_2_BY_1
                  | "%ACCT_ID"        [function]
-                 | "%CALLER_ID"      [function]
-                 | "%ORIGIN_ID"      [function]
+                 | "%CALLER_ID"      [function] // ACCT2
+                 | "%ORIGIN_ID"      [function] // ACCT1
                  | "%COINBASE_VALUE" [function]
 
 
