@@ -67,7 +67,7 @@ def approve(_spender : address, _value : num256) -> bool:
     _sender = msg.sender
     self.allowances[_sender][_spender] = _value
     # Fire approval event
-    # log.Approval(_sender, _spender, _value)
+    log.Approval(_sender, _spender, _value)
     return true
 
 @constant
