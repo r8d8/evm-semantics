@@ -63,7 +63,7 @@ module TRANSFER-FROM-SPEC
 
          <k> #execute => (#exception ~> _) </k>
 
-         <gas> 10000   => _   </gas>
+         <gas> G   => G -Int 526   </gas>
 
          <accounts>
            <account>
@@ -84,7 +84,7 @@ module TRANSFER-FROM-SPEC
       requires TRANSFER >=Int 0 andBool TRANSFER <Int pow256
        andBool B1 >=Int 0      andBool B1 <Int pow256
        andBool B2 >=Int 0      andBool B2 <Int pow256
-       andBool B1 <Int TRANSFER
+       andBool B1 <Int TRANSFER andBool G >Int 526
 
 
 // Lemmas

@@ -393,7 +393,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
 ```{.k .transferFrom-else}
          <k> #execute => (#exception ~> _) </k>
 
-         <gas> 10000   => _   </gas>
+         <gas> G   => G -Int 526   </gas>
 
          <accounts>
            <account>
@@ -414,7 +414,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
       requires TRANSFER >=Int 0 andBool TRANSFER <Int pow256
        andBool B1 >=Int 0      andBool B1 <Int pow256
        andBool B2 >=Int 0      andBool B2 <Int pow256
-       andBool B1 <Int TRANSFER
+       andBool B1 <Int TRANSFER andBool G >Int 526
 ```
 
 Lemmas
