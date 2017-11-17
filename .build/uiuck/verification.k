@@ -197,7 +197,7 @@ syntax Int ::= #getIntBytes(Int,Int,Int,Int) [function, smtlib(get_int_bytes)]
 
     syntax TypedArgs ::= List{TypedArg, ","}
 
-    syntax WordStack ::= "#encodeArgs" "(" TypedArgs ")"  [function]
+    syntax WordStack ::= "#encodeArgs" "(" TypedArgs ")"                [function]
                        | "#getData" "(" TypedArg ")"                    [function]
 
 

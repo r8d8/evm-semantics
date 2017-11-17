@@ -11,8 +11,8 @@ module TRANSFER-FROM-SPEC
     imports ETHEREUM-SIMULATION
 
     rule <k> #execute => (RETURN _ _ ~> _) </k>
-         <pc> 0 => _       </pc>
-         <exit-code> 1     </exit-code>
+         <pc> 0 => _        </pc>
+         <exit-code> 1      </exit-code>
          <mode>     NORMAL  </mode>
          <schedule> DEFAULT </schedule>
 
@@ -75,10 +75,11 @@ module TRANSFER-FROM-SPEC
            </account>
          </accounts>
 
-      requires TRANSFER >Int 0
+      requires TRANSFER >Int 0   andBool TRANSFER <Int pow256
        andBool B1 >=Int TRANSFER andBool B1 <Int pow256
        andBool A1 >=Int TRANSFER andBool A1 <Int pow256
        andBool B2 >=Int 0        andBool B2 +Int TRANSFER <Int pow256
+
 endmodule
 
 
