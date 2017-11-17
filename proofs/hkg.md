@@ -11,7 +11,7 @@ In testing, this error was missed, as the first balance updated would always wor
 Even with full decision or branch coverage in testing, multiple transfers on the same account can be entirely omitted in a way that is difficult to notice through human review.
 
 In order to thoroughly analyze the HKG contract, we first had to compile the Solidity source of the contract to EVM.
-A more detailed description of the process, with snippets of Solidity code, can be found in Sec 6.1.1 of our [technical report](https://www.ideals.illinois.edu/handle/2142/97207).
+A more detailed description of the process, with snippets of Solidity code, can be found in Sec 6.1.1 of our [technical report](ANONYMIZED).
 
 Compiling Solidity Source To EVM
 --------------------------------
