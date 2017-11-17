@@ -59,7 +59,7 @@ module TRANSFER-SPEC
 // ### Else Branch
 
 
-         <gas> 100000   => _   </gas>
+         <gas> G => G1   </gas>
 
          <accounts>
            <account>
@@ -81,6 +81,7 @@ module TRANSFER-SPEC
        andBool B1 >=Int 0      andBool B1 <Int pow256
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool (B1 <Int TRANSFER orBool TRANSFER ==Int 0)
-       andBool #sizeWordStack(WS) <Int 1017
+       andBool (G >=Int 533)
+      ensures (G1 ==Int G -Int 533) orBool (G1 ==Int G -Int 522)
 endmodule
 

@@ -56,7 +56,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
 ### Then Branch
 
 ```{.k .transfer-then}
-         <gas>  100000 => _ </gas>
+         <gas>  G => G -Int 12705 </gas>
 
          <accounts>
            <account>
@@ -79,14 +79,14 @@ These parts of the proof change, but we would like to avoid specifying exactly h
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool B2 +Int TRANSFER <Int pow256
        andBool B1 -Int TRANSFER >=Int 0
-       andBool #sizeWordStack(WS) <Int 1017
+       andBool G >=Int 12705
 endmodule
 ```
 
 ### Else Branch
 
 ```{.k .transfer-else}
-         <gas> 100000   => _   </gas>
+         <gas> G => G1   </gas>
 
          <accounts>
            <account>
@@ -108,7 +108,8 @@ endmodule
        andBool B1 >=Int 0      andBool B1 <Int pow256
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool (B1 <Int TRANSFER orBool TRANSFER ==Int 0)
-       andBool #sizeWordStack(WS) <Int 1017
+       andBool (G >=Int 533)
+      ensures (G1 ==Int G -Int 533) orBool (G1 ==Int G -Int 522)
 endmodule
 ```
 
@@ -167,7 +168,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
 ### Then Branch
 
 ```{.k .transferFrom-then}
-         <gas>  100000 => _ </gas>
+         <gas>  G => G -Int 18221 </gas>
 
          <accounts>
            <account>
@@ -191,14 +192,14 @@ These parts of the proof change, but we would like to avoid specifying exactly h
        andBool B2 +Int TRANSFER <Int pow256
        andBool B1 -Int TRANSFER >=Int 0
        andBool A1 >=Int TRANSFER andBool A1 <Int pow256
-       andBool #sizeWordStack(WS) <Int 1017
+       andBool G >=Int 18221
 endmodule
 ```
 
 ### Else Branch
 
 ```{.k .transferFrom-else}
-         <gas> 100000   => _   </gas>
+         <gas> G => G1   </gas>
 
          <accounts>
            <account>
@@ -221,7 +222,10 @@ endmodule
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool (B1 <Int TRANSFER orBool TRANSFER ==Int 0
                  orBool TRANSFER >Int A1)
-       andBool #sizeWordStack(WS) <Int 1017
+       andBool G >=Int 785
+      ensures (G1 ==Int G -Int 531)
+         orBool (G1 ==Int G -Int 774)
+         orBool (G1 ==Int G -Int 785)
 endmodule
 ```
 
@@ -325,7 +329,7 @@ module APPROVE-SPEC
          <wordStack>   .WordStack           => _            </wordStack>
          <localMem>    .Map                 => _            </localMem>
          <pc>          0                    => _            </pc>
-         <gas>         100000               => _            </gas>
+         <gas>         G => G -Int 7278           </gas>
          <previousGas> _                    => _            </previousGas>
 
          <selfDestruct> .Set      </selfDestruct>
@@ -360,6 +364,7 @@ module APPROVE-SPEC
            </account>
          </accounts>
          requires (A2 <Int pow256) andBool (A2 >=Int 0)
+                  andBool G >=Int 7278
 
 endmodule
 ```

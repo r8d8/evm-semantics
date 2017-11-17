@@ -35,7 +35,7 @@ module APPROVE-SPEC
          <wordStack>   .WordStack           => _            </wordStack>
          <localMem>    .Map                 => _            </localMem>
          <pc>          0                    => _            </pc>
-         <gas>         100000               => _            </gas>
+         <gas>         G => G -Int 7278           </gas>
          <previousGas> _                    => _            </previousGas>
 
          <selfDestruct> .Set      </selfDestruct>
@@ -70,6 +70,7 @@ module APPROVE-SPEC
            </account>
          </accounts>
          requires (A2 <Int pow256) andBool (A2 >=Int 0)
+                  andBool G >=Int 7278
 
 endmodule
 

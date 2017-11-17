@@ -57,7 +57,7 @@ module TRANSFER-FROM-SPEC
 // ### Then Branch {#then-branch-1}
 
 
-         <gas>  100000 => _ </gas>
+         <gas>  G => G -Int 18221 </gas>
 
          <accounts>
            <account>
@@ -81,7 +81,7 @@ module TRANSFER-FROM-SPEC
        andBool B2 +Int TRANSFER <Int pow256
        andBool B1 -Int TRANSFER >=Int 0
        andBool A1 >=Int TRANSFER andBool A1 <Int pow256
-       andBool #sizeWordStack(WS) <Int 1017
+       andBool G >=Int 18221
 endmodule
 
 
