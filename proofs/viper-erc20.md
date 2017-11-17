@@ -32,7 +32,7 @@ module BALANCE-OF-SPEC
          <wordStack>    .WordStack    => _    </wordStack>
          <localMem>     .Map    => _            </localMem>
          <pc>           0       => _            </pc>
-         <gas>          1000    => _            </gas>
+         <gas>          G    => G -Int 405      </gas>
          <previousGas>  _       => _            </previousGas>
 
          <selfDestruct> .Set </selfDestruct>
@@ -62,6 +62,7 @@ module BALANCE-OF-SPEC
              </storage>
            </account>
          </accounts>
+         requires G >Int 405
 ```
 
 Allowance Function
@@ -92,7 +93,7 @@ imports ETHEREUM-SIMULATION
          <wordStack>   .WordStack   => _     </wordStack>
          <localMem>    .Map  => _             </localMem>
          <pc>          0     => _             </pc>
-         <gas>         1000  => _             </gas>
+         <gas>         G  => G -Int 619       </gas>
          <previousGas> _     => _             </previousGas>
 
          <selfDestruct> .Set   </selfDestruct>
@@ -123,6 +124,7 @@ imports ETHEREUM-SIMULATION
              </storage>
            </account>
          </accounts>
+         requires G >Int 619
 ```
 
 Approve Function
@@ -156,7 +158,7 @@ module APPROVE-SPEC
          <wordStack>   .WordStack           => _            </wordStack>
          <localMem>    .Map                 => _            </localMem>
          <pc>          0                    => _            </pc>
-         <gas>         100000               => _            </gas>
+         <gas>         G               => G -Int 7317       </gas>
          <previousGas> _                    => _            </previousGas>
 
          <selfDestruct> .Set      </selfDestruct>
@@ -188,7 +190,7 @@ module APPROVE-SPEC
            </storage>
            </account>
          </accounts>
-         requires (A2 <Int pow256) andBool (A2 >=Int 0)
+         requires (A2 <Int pow256) andBool (A2 >=Int 0) andBool (G >Int 7317)
 ```
 
 Transfer Function
@@ -248,7 +250,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
 ```{.k .transfer-then}
          <k> #execute => (RETURN _ _ ~> _) </k>
 
-         <gas>  100000 => _ </gas>
+         <gas>  G => G -Int 12890 </gas>
 
          <accounts>
            <account>
@@ -271,6 +273,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool B2 +Int TRANSFER <Int pow256
        andBool B1 -Int TRANSFER >=Int 0
+       andBool G >Int 12890
 ```
 
 ### Else Branch
@@ -359,7 +362,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
 ```{.k .transferFrom-then}
          <k> #execute => (RETURN _ _ ~> _) </k>
 
-         <gas> 100000   => _ </gas>
+         <gas> G   => G -Int 18447 </gas>
 
          <accounts>
            <account>
@@ -381,6 +384,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
        andBool B1 >=Int TRANSFER andBool B1 <Int pow256
        andBool A1 >=Int TRANSFER andBool A1 <Int pow256
        andBool B2 >=Int 0        andBool B2 +Int TRANSFER <Int pow256
+       andBool G >Int 18447
 ```
 
 ### Else Branch

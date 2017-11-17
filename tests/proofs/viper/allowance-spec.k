@@ -32,7 +32,7 @@ imports ETHEREUM-SIMULATION
          <wordStack>   .WordStack   => _     </wordStack>
          <localMem>    .Map  => _             </localMem>
          <pc>          0     => _             </pc>
-         <gas>         1000  => _             </gas>
+         <gas>         G  => G -Int 619       </gas>
          <previousGas> _     => _             </previousGas>
 
          <selfDestruct> .Set   </selfDestruct>
@@ -63,6 +63,7 @@ imports ETHEREUM-SIMULATION
              </storage>
            </account>
          </accounts>
+         requires G >Int 619
 
 
 // Lemmas

@@ -32,7 +32,7 @@ module BALANCE-OF-SPEC
          <wordStack>    .WordStack    => _    </wordStack>
          <localMem>     .Map    => _            </localMem>
          <pc>           0       => _            </pc>
-         <gas>          1000    => _            </gas>
+         <gas>          G    => G -Int 405      </gas>
          <previousGas>  _       => _            </previousGas>
 
          <selfDestruct> .Set </selfDestruct>
@@ -62,6 +62,7 @@ module BALANCE-OF-SPEC
              </storage>
            </account>
          </accounts>
+         requires G >Int 405
 
 
 // Lemmas

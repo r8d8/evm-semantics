@@ -61,7 +61,7 @@ module TRANSFER-FROM-SPEC
 
          <k> #execute => (RETURN _ _ ~> _) </k>
 
-         <gas> 100000   => _ </gas>
+         <gas> G   => G -Int 18447 </gas>
 
          <accounts>
            <account>
@@ -80,9 +80,10 @@ module TRANSFER-FROM-SPEC
          </accounts>
 
       requires TRANSFER >=Int 0   andBool TRANSFER <Int pow256
-       andBool B1 >=Int TRANSFER  andBool B1 <Int pow256
-       andBool A1 >=Int TRANSFER  andBool A1 <Int pow256
-       andBool B2 >=Int 0         andBool B2 +Int TRANSFER <Int pow256
+       andBool B1 >=Int TRANSFER andBool B1 <Int pow256
+       andBool A1 >=Int TRANSFER andBool A1 <Int pow256
+       andBool B2 >=Int 0        andBool B2 +Int TRANSFER <Int pow256
+       andBool G >Int 18447
 
 
 // ### Else Branch {#else-branch-1}
