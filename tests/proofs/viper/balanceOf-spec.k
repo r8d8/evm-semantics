@@ -1,11 +1,11 @@
-// Viper ERC20
-// ===========
+// Viper ERC20 Token Smart Contract
+// ================================
+
+// The source code can be found:
+// https://github.com/ethereum/viper/blob/master/examples/tokens/ERC20\_solidity\_compatible/ERC20.v.py
 
 // BalanceOf Function
 // ------------------
-
-// Here we provide a specification file containing a reachability rule for the
-// verifying the correctness of the BalanceOf Function.
 
 
 module BALANCE-OF-SPEC
@@ -63,5 +63,14 @@ module BALANCE-OF-SPEC
            </account>
          </accounts>
 
+
+// Lemmas
+// ------
+
+
+
+    rule <k> MLOAD INDEX => X ~> #push ... </k>
+         <localMem> INDEX |-> #argdata(X:Int, 32) LM:Map </localMem>
+    [trusted]
 endmodule
 

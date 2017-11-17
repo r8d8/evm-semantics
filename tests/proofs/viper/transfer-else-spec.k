@@ -1,5 +1,8 @@
-// Viper ERC20
-// ===========
+// Viper ERC20 Token Smart Contract
+// ================================
+
+// The source code can be found:
+// https://github.com/ethereum/viper/blob/master/examples/tokens/ERC20\_solidity\_compatible/ERC20.v.py
 
 // Transfer Function
 // -----------------
@@ -10,7 +13,7 @@
 module TRANSFER-SPEC
     imports ETHEREUM-SIMULATION
 
-    rule <k> #execute => (#exception ~> _) </k>
+    rule
          <pc> 0 => _ </pc>
          <exit-code> 1 </exit-code>
          <mode>     NORMAL  </mode>
@@ -39,14 +42,13 @@ module TRANSFER-SPEC
          <previousHash> 0                </previousHash>
          <difficulty>   256              </difficulty>
 
-         <selfDestruct>   .Set                 </selfDestruct>
-         <log>            .Set => _            </log>
+         <selfDestruct>   .Set                  </selfDestruct>
+         <log>            .Set => _             </log>
          <activeAccounts> SetItem ( %%ACCT_ID ) </activeAccounts>
-         <messages>       .Bag                 </messages>
+         <messages>       .Bag                  </messages>
 
 
-// These parts of the proof change, but we would like to avoid specifying exactly
-// how (abstract over their state change).
+// These parts of the proof change, but we would like to avoid specifying exactly how (abstract over their state change).
 
 
          <localMem>    .Map => _ </localMem>
@@ -58,6 +60,8 @@ module TRANSFER-SPEC
 
 // ### Else Branch
 
+
+         <k> #execute => (#exception ~> _) </k>
 
          <gas> 100000   => _   </gas>
 
@@ -81,5 +85,15 @@ module TRANSFER-SPEC
        andBool B1 >=Int 0      andBool B1 <Int pow256
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool B1 <Int TRANSFER
+
+
+// Lemmas
+// ------
+
+
+
+    rule <k> MLOAD INDEX => X ~> #push ... </k>
+         <localMem> INDEX |-> #argdata(X:Int, 32) LM:Map </localMem>
+    [trusted]
 endmodule
 

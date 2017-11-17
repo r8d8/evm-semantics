@@ -309,9 +309,9 @@ These parts of the state are constant throughout the proof.
 module TRANSFER-FROM-SPEC
     imports ETHEREUM-SIMULATION
 
-    rule <k> #execute => (RETURN _ _ ~> _) </k>
-         <pc> 0 => _       </pc>
-         <exit-code> 1     </exit-code>
+    rule
+         <pc> 0 => _        </pc>
+         <exit-code> 1      </exit-code>
          <mode>     NORMAL  </mode>
          <schedule> DEFAULT </schedule>
 
@@ -355,6 +355,8 @@ These parts of the proof change, but we would like to avoid specifying exactly h
 ### Then Branch
 
 ```{.k .transferFrom-then}
+         <k> #execute => (RETURN _ _ ~> _) </k>
+
          <gas> 100000   => _ </gas>
 
          <accounts>
@@ -373,7 +375,7 @@ These parts of the proof change, but we would like to avoid specifying exactly h
            </account>
          </accounts>
 
-      requires TRANSFER >Int 0
+      requires TRANSFER >Int 0   andBool TRANSFER <Int pow256
        andBool B1 >=Int TRANSFER andBool B1 <Int pow256
        andBool A1 >=Int TRANSFER andBool A1 <Int pow256
        andBool B2 >=Int 0        andBool B2 +Int TRANSFER <Int pow256
@@ -382,32 +384,30 @@ These parts of the proof change, but we would like to avoid specifying exactly h
 ### Else Branch
 
 ```{.k .transferFrom-else}
-         <pc>  818 => 1451 </pc>
-         <gas> G   => G1   </gas>
+         <k> #execute => (#exception ~> _) </k>
 
-         <wordStack>     TRANSFER : %CALLER_ID : %ORIGIN_ID : WS
-                  => 0 : TRANSFER : %CALLER_ID : %ORIGIN_ID : WS
-         </wordStack>
+         <gas> 10000   => _   </gas>
+
          <accounts>
            <account>
-             <acctID>   %ACCT_ID     </acctID>
+             <acctID>   %%ACCT_ID     </acctID>
              <balance>  BAL          </balance>
-             <code>     %HKG_Program </code>
+             <code>     %ERC20_Program </code>
              <acctMap> "nonce" |-> 0 </acctMap>
              <storage> ...
-                       (%ACCT_1_BALANCE |-> B1:Int)
-                       (%ACCT_1_ALLOWED |-> A1:Int)
-                       (%ACCT_2_BALANCE |-> B2:Int)
-                       (%ACCT_2_ALLOWED |-> _)
+                       (%%ACCT_1_BALANCE |-> B1:Int)
+                       (%%ACCT_1_ALLOWED |-> A1:Int)
+                       (%%ACCT_2_BALANCE |-> B2:Int)
+                       (%%ACCT_2_ALLOWED |-> _)
                        ...
              </storage>
            </account>
          </accounts>
 
-      requires (TRANSFER <=Int 0 orBool B1 <Int TRANSFER orBool A1 <Int TRANSFER)
-       andBool #sizeWordStack(WS) <Int 1016
-       andBool G >=Int 485
-       ensures G -Int G1 <=Int 485
+      requires TRANSFER >=Int 0 andBool TRANSFER <Int pow256
+       andBool B1 >=Int 0      andBool B1 <Int pow256
+       andBool B2 >=Int 0      andBool B2 <Int pow256
+       andBool B1 <Int TRANSFER
 ```
 
 Lemmas

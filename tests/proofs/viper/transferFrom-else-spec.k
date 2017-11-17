@@ -1,5 +1,8 @@
-// Viper ERC20
-// ===========
+// Viper ERC20 Token Smart Contract
+// ================================
+
+// The source code can be found:
+// https://github.com/ethereum/viper/blob/master/examples/tokens/ERC20\_solidity\_compatible/ERC20.v.py
 
 // TransferFrom Function
 // ---------------------
@@ -10,7 +13,7 @@
 module TRANSFER-FROM-SPEC
     imports ETHEREUM-SIMULATION
 
-    rule <k> #execute => (#exception ~> _) </k>
+    rule
          <pc> 0 => _        </pc>
          <exit-code> 1      </exit-code>
          <mode>     NORMAL  </mode>
@@ -27,26 +30,25 @@ module TRANSFER-FROM-SPEC
          <program>   %ERC20_Program </program>
          <id>        %%ACCT_ID      </id>
          <caller>    %%CALLER_ID    </caller>
-         <callData>  #abiCallData("transferFrom", #address(%%ORIGIN_ID), #address(%%CALLER_ID), #uint256(TRANSFER))  </callData>
-         <callValue> 0            </callValue>
+         <callData>  #abiCallData("transferFrom", #address(%%ORIGIN_ID), #address(%%CALLER_ID), #uint256(TRANSFER)) </callData>
+         <callValue> 0              </callValue>
 
-         <gasPrice>     _               </gasPrice>
+         <gasPrice>     _                </gasPrice>
          <origin>       %%ORIGIN_ID      </origin>
-         <gasLimit>     _               </gasLimit>
+         <gasLimit>     _                </gasLimit>
          <coinbase>     %%COINBASE_VALUE </coinbase>
-         <timestamp>    1               </timestamp>
-         <number>       0               </number>
-         <previousHash> 0               </previousHash>
-         <difficulty>   256             </difficulty>
+         <timestamp>    1                </timestamp>
+         <number>       0                </number>
+         <previousHash> 0                </previousHash>
+         <difficulty>   256              </difficulty>
 
-         <selfDestruct>   .Set                 </selfDestruct>
-         <log>            .Set => _            </log>
+         <selfDestruct>   .Set                  </selfDestruct>
+         <log>            .Set => _             </log>
          <activeAccounts> SetItem ( %%ACCT_ID ) </activeAccounts>
-         <messages>       .Bag                 </messages>
+         <messages>       .Bag                  </messages>
 
 
-// These parts of the proof change, but we would like to avoid specifying exactly
-// how (abstract over their state change).
+// These parts of the proof change, but we would like to avoid specifying exactly how (abstract over their state change).
 
 
          <localMem>    .Map => _ </localMem>
@@ -57,6 +59,9 @@ module TRANSFER-FROM-SPEC
 // ### Then Branch {#then-branch-1}
 
 // ### Else Branch {#else-branch-1}
+
+
+         <k> #execute => (#exception ~> _) </k>
 
          <gas> 10000   => _   </gas>
 
@@ -81,5 +86,14 @@ module TRANSFER-FROM-SPEC
        andBool B2 >=Int 0      andBool B2 <Int pow256
        andBool B1 <Int TRANSFER
 
+
+// Lemmas
+// ------
+
+
+
+    rule <k> MLOAD INDEX => X ~> #push ... </k>
+         <localMem> INDEX |-> #argdata(X:Int, 32) LM:Map </localMem>
+    [trusted]
 endmodule
 
