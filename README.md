@@ -7,7 +7,7 @@ In this repository we provide a model of the EVM in K.
 
 ### Technical Report
 
-See [our technical report on KEVM 1.0](http://hdl.handle.net/2142/97207) for more expository explanation of KEVM.
+See [our technical report on KEVM 1.0](ANONYMIZED) for more expository explanation of KEVM.
 The paper is a good starting point for people wishing to dive into reading the semantics/other tools here (especially sections 3 and 5).
 
 ### Structure
