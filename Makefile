@@ -64,6 +64,13 @@ presentation: .build/presentation/presentation.pdf
 		&& pandoc --from markdown --to markdown --template presentation presentation.md \
 		 | pandoc --from markdown --to beamer --output presentation.pdf
 
+.build/presentation/presentation.tex: .build/presentation/presentation.md .build/presentation/presentation.markdown
+	@echo "== pandoc: $@"
+	mkdir -p $(dir $@)
+	cd .build/presentation \
+		&& pandoc --from markdown --to markdown --template presentation presentation.md \
+		 | pandoc --standalone --from markdown --to beamer --output presentation.tex
+
 presentation_files=data.md evm.md proofs/sum-to-n.md Makefile
 presentation_sects='Modulo Arithmetic|Word Arithmetic|As a cons-list|WordStack Append|Single Step|Expressions|Local Memory|Account Storage Operations|Call Operations|SSTORE Gas|Csstore|Others|Schedule Constants|Default Schedule|EIP150 Schedule|Sum To N Program and Claim|Main Claim|Circularity (Loop Invariant)'
 
