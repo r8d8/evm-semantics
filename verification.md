@@ -73,27 +73,6 @@ EVM Memory Abstraction
 
   rule chop(bool2int(B)) => bool2int(B)
 
-//rule B ==K 0 orBool chop(A +Int B) >Int A => A +Int B <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-//  requires 0 <=Int A andBool A <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-//   andBool 0 <=Int B andBool B <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-
-//// for viper-specific addition overflow check
-//rule bool2int(B ==K 0) |Int bool2int(chop(A +Int B) >Int A) => 1
-//  requires A +Int B <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-//   andBool 0 <=Int A andBool A <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-//   andBool 0 <=Int B andBool B <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-////
-//rule chop(A +Int B) >Int A => false
-//  requires A +Int B >=Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-//   andBool 0 <=Int A andBool A <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-//   andBool 0 <=Int B andBool B <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-
-//// TODO: remove by resolving chop?
-//rule chop(A -Int B) +Int B => A
-//  requires A >=Int B
-//   andBool 0 <=Int A andBool A <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-//   andBool 0 <=Int B andBool B <Int /* pow256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936
-
   // for gas calculation
   rule A -Int (#ifInt C #then B1 #else B2 #fi) => #ifInt C #then (A -Int B1) #else (A -Int B2) #fi
   rule (#ifInt C #then B1 #else B2 #fi) -Int A => #ifInt C #then (B1 -Int A) #else (B2 -Int A) #fi
@@ -209,11 +188,6 @@ EVM Memory Abstraction
              : nthbyteof(V, 31, 32)
              : .WordStack ) => hash(V)
     requires 0 <=Int V andBool V <Int (2 ^Int 256)
-
-
-    rule #getData(#uint160( DATA ))             => int2wordstack( DATA , 32 )
-    rule #getData(#address( DATA ))             => int2wordstack( DATA , 32 )
-    rule #getData(#uint256( DATA ))             => int2wordstack( DATA , 32 )
 ```
 
 ABI Calls
@@ -260,6 +234,9 @@ cell, allowing proofs of ABI-compliant EVM program to begin at `<pc> 0 </pc>`.
     rule #encodeArgs(.TypedArgs)   => .WordStack
 
     syntax WordStack ::= "#getData" "(" TypedArg ")" [function]
+    rule #getData(#uint160( DATA )) => int2wordstack( DATA , 32 )
+    rule #getData(#address( DATA )) => int2wordstack( DATA , 32 )
+    rule #getData(#uint256( DATA )) => int2wordstack( DATA , 32 )
 ```
 
 ```{.k .uiuck}
