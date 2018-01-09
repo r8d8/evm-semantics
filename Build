@@ -74,7 +74,7 @@ run_krun() {
     local run_file=$1; shift
     local backend=$1; shift
     local krun_opts=()
-    export K_OPTS=-Xss500m
+    export K_OPTS="-Xss500m -Xmx5G"
     export cSCHEDULE=${cSCHEDULE:-DEFAULT}
     case "$run_file" in
        *gas-analysis/*   ) krun_opts=( -cMODE=GASANALYZE "$run_file" ) ;;
