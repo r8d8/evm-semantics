@@ -137,12 +137,12 @@ EVM Memory Abstraction
               : .WordStack ) => V
     requires 0 <=Int V andBool V <Int (2 ^Int 256)
 
-  rule #asByteStack(V) => int2wordstack(V, 32)
+  rule #padToWidth(32, #asByteStack(V)) => #asByteStackInWidth(V, 32)
     requires 0 <=Int V andBool V <Int (2 ^Int 256)
 
   // for extracting first four bytes of function signature
-  rule #asByteStack(#asWord(WS)) => WS
-    requires noOverflow(WS)
+  rule #padToWidth(N, #asByteStack(#asWord(WS))) => WS
+    requires noOverflow(WS) andBool N ==Int #sizeWordStack(WS)
 
   syntax Bool ::= noOverflow(WordStack)    [function]
                 | noOverflowAux(WordStack) [function]
