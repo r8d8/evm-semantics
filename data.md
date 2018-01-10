@@ -396,8 +396,8 @@ This stack also serves as a cons-list, so we provide some standard cons-list man
 ```{.k .uiuck .rvk}
     syntax WordStack ::= #padToWidth ( Int , WordStack ) [function]
  // ---------------------------------------------------------------
-    rule #padToWidth(N, WS) => WS                     requires notBool #sizeWordStack(WS) <Int N
-    rule #padToWidth(N, WS) => #padToWidth(N, 0 : WS) requires #sizeWordStack(WS) <Int N
+    rule #padToWidth(N, WS) => WS                     requires notBool #sizeWordStack(WS) <Int N [concrete]
+    rule #padToWidth(N, WS) => #padToWidth(N, 0 : WS) requires #sizeWordStack(WS) <Int N         [concrete]
 ```
 
 Byte Arrays
