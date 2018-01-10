@@ -46,10 +46,14 @@ EVM Memory Abstraction
   rule 0 +Int N => N
   rule N +Int 0 => N
 
+  rule N -Int 0 => N
+
   rule 1 *Int N => N
   rule N *Int 1 => N
   rule 0 *Int _ => 0
   rule _ *Int 0 => 0
+
+  rule N /Int 1 => N
 
   rule 0 |Int N => N
   rule N |Int 0 => N
