@@ -96,11 +96,11 @@ EVM Memory Abstraction
   rule         chop(V) <Int /* 2 ^Int 256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936 => true
 
   // syntactic sugar
-  syntax WordStack ::= int2wordstack(Int, Int) [function]
-                     | int2wordstackaux(Int, Int, Int, WordStack) [function]
-  rule int2wordstack(X, N) => int2wordstackaux(X, N -Int 1, N, .WordStack)
-  rule int2wordstackaux(X, I, N, WS) => int2wordstackaux(X, I -Int 1, N, nthbyteof(X, I, N) : WS) when I >Int 0
-  rule int2wordstackaux(X, 0, N, WS) => nthbyteof(X, 0, N) : WS
+  syntax WordStack ::= #asByteStackInWidth(Int, Int) [function]
+                     | #asByteStackInWidthaux(Int, Int, Int, WordStack) [function]
+  rule #asByteStackInWidth(X, N) => #asByteStackInWidthaux(X, N -Int 1, N, .WordStack)
+  rule #asByteStackInWidthaux(X, I, N, WS) => #asByteStackInWidthaux(X, I -Int 1, N, nthbyteof(X, I, N) : WS) when I >Int 0
+  rule #asByteStackInWidthaux(X, 0, N, WS) => nthbyteof(X, 0, N) : WS
 
   rule #asWord( nthbyteof(V,  0, 32)
               : nthbyteof(V,  1, 32)
@@ -238,9 +238,9 @@ cell, allowing proofs of ABI-compliant EVM program to begin at `<pc> 0 </pc>`.
     rule #encodeArgs(.TypedArgs)   => .WordStack
 
     syntax WordStack ::= "#getData" "(" TypedArg ")" [function]
-    rule #getData(#uint160( DATA )) => int2wordstack( DATA , 32 )
-    rule #getData(#address( DATA )) => int2wordstack( DATA , 32 )
-    rule #getData(#uint256( DATA )) => int2wordstack( DATA , 32 )
+    rule #getData(#uint160( DATA )) => #asByteStackInWidth( DATA , 32 )
+    rule #getData(#address( DATA )) => #asByteStackInWidth( DATA , 32 )
+    rule #getData(#uint256( DATA )) => #asByteStackInWidth( DATA , 32 )
 ```
 
 ```{.k .uiuck}
