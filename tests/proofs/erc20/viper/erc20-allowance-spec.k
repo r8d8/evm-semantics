@@ -41,7 +41,7 @@ module ERC20-ALLOWANCE-SPEC
             .Map
 =>
 (
-.Map[ RET_ADDR := int2wordstack(ALLOWANCE, 32) ]
+.Map[ RET_ADDR := #asByteStackInWidth(ALLOWANCE, 32) ]
 _:Map
 )
           </localMem>

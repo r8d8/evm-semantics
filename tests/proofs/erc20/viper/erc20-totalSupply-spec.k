@@ -41,7 +41,7 @@ module ERC20-TOTALSUPPLY-SPEC
             .Map
 =>
 (
-.Map[ RET_ADDR := int2wordstack(TOTAL, 32) ]
+.Map[ RET_ADDR := #asByteStackInWidth(TOTAL, 32) ]
 _:Map
 )
           </localMem>

@@ -41,7 +41,7 @@ module ERC20-TRANSFER-SUCCESS-SPEC
             .Map
 =>
 (
-.Map[ RET_ADDR := int2wordstack(RET_VAL, 32) ]
+.Map[ RET_ADDR := #asByteStackInWidth(RET_VAL, 32) ]
 _:Map
 )
           </localMem>
@@ -62,7 +62,7 @@ ListItem({ ACCT_ID
 : CALLER_ID
 : TO_ID
 : .WordStack
-| int2wordstack(VALUE, 32)
+| #asByteStackInWidth(VALUE, 32)
 })
 )
           </log>

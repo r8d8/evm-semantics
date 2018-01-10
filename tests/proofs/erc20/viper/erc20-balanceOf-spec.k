@@ -41,7 +41,7 @@ module ERC20-BALANCEOF-SPEC
             .Map
 =>
 (
-.Map[ RET_ADDR := int2wordstack(BAL, 32) ]
+.Map[ RET_ADDR := #asByteStackInWidth(BAL, 32) ]
 _:Map
 )
           </localMem>
