@@ -157,6 +157,7 @@ EVM Memory Abstraction
 
   syntax Int ::= sha3(Int) [function]
   rule sha3(V) => keccak(#padToWidth(32, #asByteStack(V)))
+    requires 0 <=Int V andBool V <Int (2 ^Int 256)
 
   rule keccak( nthbyteof(V,  0, 32)
              : nthbyteof(V,  1, 32)
