@@ -42,9 +42,9 @@ proof_targets=${proof_dir}/sum-to-n-spec.k \
 			${proof_dir}/hkg/transfer5a-spec.k  ${proof_dir}/hkg/transfer5b-spec.k \
 			${proof_dir}/hkg/transferFrom1-spec.k ${proof_dir}/hkg/transferFrom2-spec.k \
 			${proof_dir}/hkg/transferFrom3a-spec.k ${proof_dir}/hkg/transferFrom3b-spec.k \
+			${proof_dir}/hkg/transferFrom4a-spec.k \
 			${proof_dir}/bad/hkg-token-buggy-spec.k \
 			$(shell find proofs/erc20/ -name '*.ini' | sed -e 's/^/tests\//' -e 's/\.ini$$/.timestamp/g' )
-			${proof_dir}/bad/hkg-token-buggy-spec.k
 
 proofs: ${proof_targets}
 
