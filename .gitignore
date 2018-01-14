@@ -23,3 +23,5 @@
 /semantics.a
 /semantics.cmxa
 
+# Todo: The generate claims should be moved under tests
+/proofs/erc20/*.k
