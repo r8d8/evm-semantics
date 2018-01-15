@@ -19,7 +19,9 @@ build: defn .build/ocaml/ethereum-kompiled/interpreter .build/java/ethereum-komp
 # Get and Build Dependencies
 # --------------------------
 
-deps: .build/secp256k1/make.timestamp tests/ci/rv-k/make.timestamp ocaml-deps
+K_SUBMODULE=.build/k
+
+deps: .build/secp256k1/make.timestamp $(K_SUBMODULE)/make.timestamp ocaml-deps
 
 # install secp256k1 from bitcoin-core
 .build/secp256k1/make.timestamp:
@@ -31,20 +33,20 @@ deps: .build/secp256k1/make.timestamp tests/ci/rv-k/make.timestamp ocaml-deps
 		&& sudo make install
 	touch .build/secp256k1/make.timestamp
 
-tests/ci/rv-k/make.timestamp:
-	git submodule update --init -- tests/ci/rv-k
-	cd tests/ci/rv-k \
+$(K_SUBMODULE)/make.timestamp:
+	git submodule update --init -- $(K_SUBMODULE)
+	cd $(K_SUBMODULE) \
 		&& mvn package -q -DskipTests
-	touch tests/ci/rv-k/make.timestamp
+	touch $(K_SUBMODULE)/make.timestamp
 
 ocaml-deps:
 	opam init
-	opam repository add k "tests/ci/rv-k/k-distribution/target/release/k/lib/opam" || opam repository set-url k "tests/ci/rv-k/k-distribution/target/release/k/lib/opam"
+	opam repository add k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam" || opam repository set-url k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam"
 	opam update
 	opam switch 4.03.0+k
 	opam install mlgmp zarith uuidm cryptokit secp256k1 bn128
 
-K_BIN=tests/ci/rv-k/k-distribution/target/release/k/bin
+K_BIN=$(K_SUBMODULE)/k-distribution/target/release/k/bin
 
 # Tangle definition from *.md files
 # ---------------------------------
