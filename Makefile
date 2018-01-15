@@ -1,7 +1,7 @@
 # Common to all versions of K
 # ===========================
 
-.PHONY: all clean deps build defn vm-tests split-tests split-bchain-tests split-proof-tests test sphinx
+.PHONY: all clean deps ocaml-deps build defn vm-tests split-tests split-bchain-tests split-proof-tests test sphinx
 
 all: build split-tests
 
@@ -15,6 +15,36 @@ K_VERSION_set:
 	@:$(call check_K_VERSION)
 
 build: defn .build/ocaml/ethereum-kompiled/interpreter .build/java/ethereum-kompiled/timestamp
+
+# Get and Build Dependencies
+# --------------------------
+
+deps: .build/secp256k1/make.timestamp tests/ci/rv-k/make.timestamp ocaml-deps
+
+# install secp256k1 from bitcoin-core
+.build/secp256k1/make.timestamp:
+	git submodule update --init -- .build/secp256k1/
+	cd .build/secp256k1/ \
+		&& ./autogen.sh \
+		&& ./configure --enable-module-recovery \
+		&& make -s -j4 \
+		&& sudo make install
+	touch .build/secp256k1/make.timestamp
+
+tests/ci/rv-k/make.timestamp:
+	git submodule update --init -- tests/ci/rv-k
+	cd tests/ci/rv-k \
+		&& mvn package -q -DskipTests
+	touch tests/ci/rv-k/make.timestamp
+
+ocaml-deps:
+	opam init
+	opam repository add k "tests/ci/rv-k/k-distribution/target/release/k/lib/opam" || opam repository set-url k "tests/ci/rv-k/k-distribution/target/release/k/lib/opam"
+	opam update
+	opam switch 4.03.0+k
+	opam install mlgmp zarith uuidm cryptokit secp256k1 bn128
+
+K_BIN=tests/ci/rv-k/k-distribution/target/release/k/bin
 
 # Tangle definition from *.md files
 # ---------------------------------
@@ -109,17 +139,6 @@ tests/proofs/hkg/%-spec.k: proofs/hkg.md
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
 	pandoc --from markdown --to tangle.lua --metadata=code:$* $< > $@
-
-deps:
-	cd tests/ci/rv-k && mvn package
-	opam init
-	opam repository add k "tests/ci/rv-k/k-distribution/target/release/k/lib/opam" || opam repository set-url k "tests/ci/rv-k/k-distribution/target/release/k/lib/opam"
-	opam update
-	opam switch 4.03.0+k
-	opam install mlgmp zarith uuidm cryptokit secp256k1 bn128
-
-
-K_BIN=tests/ci/rv-k/k-distribution/target/release/k/bin
 
 # Java Backend Specific
 # ---------------------
