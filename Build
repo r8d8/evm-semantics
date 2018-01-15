@@ -230,6 +230,7 @@ case "$run_command" in
        Useful <target>:
        -   defn:   Build the K definition files from the markdown files (requires pandoc)
        -   build:  Kompile the definition (calls defn target first)
+       -   deps:   Download and build dependencies
        -   sphinx: Build Sphinx HTML documentation from semantics
 
        # Running
