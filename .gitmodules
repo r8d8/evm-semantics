@@ -3,7 +3,7 @@
 	url = https://github.com/ethereum/tests.git
 	branch = develop
 [submodule "tests/ci/rv-k"]
-	path = tests/ci/rv-k
+	path = .build/k
 	url = https://github.com/runtimeverification/k
 	# ignore make.timestamp file
 	ignore = untracked
