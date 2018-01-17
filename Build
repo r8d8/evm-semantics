@@ -23,18 +23,7 @@ pretty_diff() {
     fi
 }
 
-run_make() {
-    local make_opts=
-    type pandoc >/dev/null 2>&1 || {
-        make_opts="--assume-old driver.md     --assume-old evm.md \
-                   --assume-old data.md       --assume-old krypto.md \
-                   --assume-old analysis.md   --assume-old verification.md \
-                   --assume-old proofs/hkg.md --assume-old proofs/sum-to-n.md"
-        warning "pandoc not installed."  \
-                "Ignoring changes in markdown files\n"
-    }
-    make K_VERSION=${K_VERSION} -s $make_opts $@
-}
+run_make() { make -s "$@" ; }
 
 lint_krun_uiuck() {
     # Format, &gt; entity > and make each K task start on a new line
