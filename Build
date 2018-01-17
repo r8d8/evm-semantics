@@ -69,7 +69,7 @@ filter_tests() {
     esac
 }
 
-list_bchain() { run_make split-bchain-tests >&2 ; find "tests/BlockchainTests" -name '*.json'   ; }
+list_bchain() { run_make split-bchain-tests >&2 ; find "tests/BlockchainTests" -name '*.json'   | grep -v -e "Constantinople" -e "Byzantium" ; }
 list_proof()  { run_make split-proof-tests  >&2 ; find "tests/proofs"          -name '*-spec.k' ; }
 test_lists="bchain proof"
 
@@ -78,11 +78,9 @@ list_short()        { run_make vm-tests split-bchain-tests >&2 ; cat tests/short
 list_gas_analysis() { find "tests/gas-analysis" -name '*.evm' ; }
 test_lists="$test_lists vm short gas_analysis"
 
-list_rvk()   { list_vm ; }
-list_uiuck() { list_short ; list_gas_analysis ; list_proof ; }
-list_all()   { list_$K_VERSION ; }
+list_all()   { list_vm ; list_bchain ; list_gas_analysis ; list_proofs ; }
 list_quick() { list_all | sort -R | head -n 20 ; }
-test_lists="$test_lists rvk uiuck all quick"
+test_lists="$test_lists all quick"
 
 list_tests() {
     local test_list="$1"
