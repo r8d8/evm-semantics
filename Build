@@ -205,18 +205,18 @@ run_command="$1" ; shift
 case "$run_command" in
 
     # Building
-    make) ensure_k ; run_make $@ ;;
+    make) run_make $@ ;;
 
     # Running
-    run)   ensure_k ; run_krun   "$1" ;;
-    test)  ensure_k ; run_test   "$1" ;;
-    debug) ensure_k ; run_kdebug "$1" ;;
-    prove) ensure_k ; run_proof  "$1" ;;
+    run)    run_krun   "$1" ;;
+    test)   run_test   "$1" ;;
+    debug)  run_kdebug "$1" ;;
+    prove)  run_proof  "$1" ;;
 
     # Testing
     list)                list_tests $1 | filter_tests "${@:2}" ;;
-    tests)    ensure_k ; list_tests $1 | filter_tests "${@:2}" | run_tests    ;;
-    partests) ensure_k ; list_tests $1 | filter_tests "${@:2}" | run_partests ;;
+    tests)     list_tests $1 | filter_tests "${@:2}" | run_tests    ;;
+    partests)  list_tests $1 | filter_tests "${@:2}" | run_partests ;;
 
     *)             echo "
     usage:
