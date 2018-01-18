@@ -14,7 +14,7 @@ check_K_VERSION = $(if $(value K_VERSION),, $(error K_VERSION undefined, must be
 K_VERSION_set:
 	@:$(call check_K_VERSION)
 
-build: defn .build/ocaml/ethereum-kompiled/interpreter .build/java/ethereum-kompiled/timestamp
+build: defn .build/ocaml/driver-kompiled/interpreter .build/java/driver-kompiled/timestamp
 
 # Get and Build Dependencies
 # --------------------------
