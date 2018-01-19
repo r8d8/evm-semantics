@@ -113,21 +113,23 @@ In the comments next to each cell, we've marked which component of the YellowPap
                       // ---------------
 
                       <activeAccounts> .Map </activeAccounts>
-                      <accounts>
 ```
 
 -   UIUC-K and RV-K have slight differences of opinion here.
 
 ```{.k .uiuck}
-                        <account multiplicity="*" type="Bag">
+                      <accounts map="">
+                        <account multiplicity="*">
+                          <acctID key=""> 0    </acctID>
 ```
 
 ```{.k .rvk}
+                      <accounts>
                         <account multiplicity="*" type="Map">
+                          <acctID>  0          </acctID>
 ```
 
 ```{.k .uiuck .rvk}
-                          <acctID>  0          </acctID>
                           <balance> 0          </balance>
                           <code>    .WordStack </code>
                           <storage> .Map       </storage>
