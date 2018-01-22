@@ -258,6 +258,18 @@ Simple lemmas for the modulo reduction.
   rule         chop(V) <Int /* 2 ^Int 256 */ 115792089237316195423570985008687907853269984665640564039457584007913129639936 => true
 ```
 
+### Wordstack
+
+These lemma abstracts some properties about `#sizeWordStack`:
+
+```{.k .java}
+rule #sizeWordStack ( _ , _ ) >=Int 0 => true [smt-lemma]
+rule #sizeWordStack ( WS , N:Int )
+  => #sizeWordStack ( WS , 0 ) +Int N
+  requires N =/=K 0
+  [lemma]
+```
+
 ABI Calls
 ---------
 
