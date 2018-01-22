@@ -6,7 +6,7 @@ set -u      # Using undefined variables is an error. Exit immediately
 # Utilities
 # ---------
 
-echoerr()  { echo >&2; }
+echoerr()  { echo >&2 "$@" ; }
 progress() { echoerr "== $@" ; }
 warning()  { echoerr -e "WARNING:" "$@" ; }
 die()      { echoerr -e "FATAL:" "$@" ; exit 1 ; }
