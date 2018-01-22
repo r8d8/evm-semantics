@@ -177,7 +177,6 @@ run_test() {
 run_tests() {
     local test_count=0
     local test_failed=0
-    ( kserver & ) && sleep 2
     run_make
     while read test_file ; do
         progress "running: $test_file"
@@ -192,16 +191,13 @@ run_tests() {
         fi
         progress "failed: $test_failed / $test_count"
     done
-    stop-kserver || true
     return $test_failed
 }
 
 run_partests() {
-    ( kserver & ) && sleep 2
     run_make
     exit_status=0
     parallel --joblog - ./Build test || exit_status="$?"
-    stop-kserver || true
     return "$exit_status"
 }
 
