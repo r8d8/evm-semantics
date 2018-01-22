@@ -83,32 +83,40 @@ list_tests() {
 # Runners
 # -------
 
-run_uiuck() {
-    local run_file=$1 ; shift
-    local krun_opts=()
-    export K_OPTS=-Xss500m
-    export cSCHEDULE=${cSCHEDULE:-DEFAULT}
+run_mode() {
+    local run_file=$1
+    local mode=""
     case "$run_file" in
-       *gas-analysis/*   ) krun_opts=( -cMODE=GASANALYZE "$run_file" )             ;;
-       *VMTests/*        ) krun_opts=( -cMODE=VMTESTS    "$run_file" )             ;;
-       *BlockchainTests/*) krun_opts=( -cMODE=NORMAL     "$run_file" )             ;;
-       *                 ) die "Don't know how to set 'krun_opts' for '$run_file'" ;;
+       *gas-analysis/*   ) mode="GASANALYZE" ;;
+       *VMTests/*        ) mode="VMTESTS"    ;;
+       *BlockchainTests/*) mode="NORMAL"     ;;
+       *                 ) die "Don't know how to set 'MODE' for '$run_file'" ;;
     esac
-    krun --directory .build/$K_VERSION/ -cSCHEDULE=$cSCHEDULE "${krun_opts[@]}" "$@"
+    echo "$mode"
 }
 
-run_rvk() {
+run_krun() {
+    local run_file=$1 ; shift
+    local backend=$1  ; shift
+    local cSCHEDULE=${cSCHEDULE:-DEFAULT}
+    local cMODE="$(run_mode "$run_file")"
+    export K_OPTS=-Xss500m
+    krun --debug --directory .build/$backend/ -cSCHEDULE="$cSCHEDULE" -cMODE="$cMODE" "$run_file" "$@"
+}
+
+run_interpreter() {
     test_file="$1"
+    local cMODE="$(run_mode "$test_file")"
     (   set +e
-        interpreter="$(dirname "$0")/.build/rvk/driver-kompiled/interpreter"
+        interpreter="$(dirname "$0")/.build/ocaml/driver-kompiled/interpreter"
         kast="$(mktemp)"
         output="$(mktemp)"
         kast_output="$(mktemp)"
         trap "rm -rf $kast $output $kast_output" INT TERM EXIT
         "$(dirname "$0")/kast-json.py" "$test_file" > "$kast"
         set +e
-        $interpreter "$(dirname "$0")/.build/rvk/driver-kompiled/realdef.cma" -c PGM "$kast" textfile \
-                     -c SCHEDULE '`DEFAULT_EVM`(.KList)' text -c MODE '`VMTESTS_EVM`(.KList)' text \
+        $interpreter "$(dirname "$0")/.build/ocaml/driver-kompiled/realdef.cma" -c PGM "$kast" textfile \
+                     -c SCHEDULE '`DEFAULT_EVM`(.KList)' text -c MODE "\`${cMODE}_EVM\`(.KList)" text \
                      --output-file "$output"
         exit_status="$?"
         k-bin-to-text "$output" "$kast_output"
