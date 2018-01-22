@@ -245,6 +245,18 @@ Below are simple lemmas for the modulo reduction.
                                                         requires 0 <=Int X andBool X <Int (2 ^Int 256) andBool 0 <=Int Y andBool Y <Int (2 ^Int 256)
 ```
 
+### Wordstack
+
+These lemma abstracts some properties about `#sizeWordStack`:
+
+```{.k .java}
+rule #sizeWordStack ( _ , _ ) >=Int 0 => true [smt-lemma]
+rule #sizeWordStack ( WS , N:Int )
+  => #sizeWordStack ( WS , 0 ) +Int N
+  requires N =/=K 0
+  [lemma]
+```
+
 ABI Calls
 ---------
 
