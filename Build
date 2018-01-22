@@ -25,23 +25,9 @@ pretty_diff() {
 
 run_make() { make -s "$@" ; }
 
-lint_krun_uiuck() {
+lint_krun() {
     # Format, &gt; entity > and make each K task start on a new line
     xmllint -format - | sed -e 's/&gt;/>/g'  -e 's/~>/\n   ~>/g'
-}
-
-lint_krun_rvk() { cat - ; }
-
-ensure_k() {
-    k_path="k-distribution/target/release/k/bin"
-    case "${K_VERSION:-}" in
-        uiuck)  k_path="uiuc-k/$k_path" ;;
-        rvk)    k_path="rv-k/$k_path"   ;;
-        *)      die "Bad K_VERSION: '${K_VERSION:-}'. Should be one of 'uiuck' or 'rvk'." ;;
-    esac
-    export PATH="$(pwd)/tests/ci/$k_path:$PATH"
-    type kompile >/dev/null || die "No K install found on PATH=$PATH."
-    progress "Using $K_VERSION"
 }
 
 # Test Filters and Lists
@@ -127,14 +113,13 @@ run_interpreter() {
 }
 
 run_proof() {
-    [[ "$K_VERSION" == 'uiuck' ]] || die "Proofs must be run with 'K_VERSION=uiuck'."
     run_make
     export K_OPTS=-Xmx2G
     local proof_file="$1" ; shift
     [[ -f "$proof_file" ]] || die "$proof_file does not exist"
     local cSCHEDULE=${cSCHEDULE:-DEFAULT}
     local cMODE=${cMODE:-NORMAL}
-    ( krun --directory .build/$K_VERSION/ -cSCHEDULE=$cSCHEDULE -cMODE=$cMODE \
+    ( krun --directory .build/java/ -cSCHEDULE=${cSCHEDULE} -cMODE=${cMODE} \
          --z3-executable tests/templates/dummy-proof-input.json --prove "$proof_file" \
          </dev/null # grumble grumble `krun --prove` consumes stdin
     )
@@ -144,14 +129,13 @@ run_krun() {
     run_make
     progress "running: $1"
     [[ -f "$1" ]] || die "$1 does not exist"
-    ( run_"$K_VERSION" "$1" | lint_krun_"$K_VERSION" )
+    ( run_interpreter "$1" )
 }
 
 run_kdebug() {
-    [[ "$K_VERSION" == 'uiuck' ]] || die "Debugger must be run with 'K_VERSION=uiuck'. Currently '$K_VERSION'."
     run_make
     progress "debugging: $1"
-    ( run_"$K_VERSION" "$1" --debug --debugger )
+    ( run_krun "$1" java --debug --debugger )
 }
 
 # Testers
@@ -161,16 +145,21 @@ run_test() {
     run_make
     test_file="$1"; shift
     case "$test_file" in
-        *proofs/*) ( pretty_diff --label expected <(echo "true") \
-                                 --label actual   <(run_proof "$test_file")
-                   )
-                   ;;
-        *        ) output_expected_file=tests/templates/output-success.txt
-                   [[ -f "$test_file.out" ]] && output_expected_file="$test_file.out"
-                   ( pretty_diff --label expected <(cat "$output_expected_file") \
-                                 --label actual   <(run_"$K_VERSION" "$test_file" | lint_krun_"$K_VERSION")
-                   )
-                   ;;
+        *proofs/*      ) ( pretty_diff --label expected <(echo "true") \
+                                       --label actual   <(run_proof "$test_file")
+                         )
+                         ;;
+        *gas-analysis/*) [[ -f "$test_file.out" ]] && output_expected_file="$test_file.out"
+                         ( pretty_diff --label expected <(cat "$output_expected_file") \
+                                       --label actual   <(run_krun "$test_file" ocaml | lint_krun )
+                         )
+                         ;;
+        *              ) output_expected_file=tests/templates/output-success.txt
+                         [[ -f "$test_file.out" ]] && output_expected_file="$test_file.out"
+                         ( pretty_diff --label expected <(cat "$output_expected_file") \
+                                       --label actual   <(run_interpreter "$test_file" )
+                         )
+                         ;;
     esac
 }
 
@@ -217,27 +206,26 @@ run_command="$1" ; shift
 case "$run_command" in
 
     # Building
-    make) ensure_k ; run_make $@ ;;
+    make) run_make $@ ;;
 
     # Running
-    run)   ensure_k ; run_krun   "$1" ;;
-    test)  ensure_k ; run_test   "$1" ;;
-    debug) ensure_k ; run_kdebug "$1" ;;
-    prove) ensure_k ; run_proof  "$1" ;;
+    run)   run_krun   "$1" ;;
+    test)  run_test   "$1" ;;
+    debug) run_kdebug "$1" ;;
+    prove) run_proof  "$1" ;;
 
     # Testing
-    list)                list_tests $1 | filter_tests "${@:2}" ;;
-    tests)    ensure_k ; list_tests $1 | filter_tests "${@:2}" | run_tests    ;;
-    partests) ensure_k ; list_tests $1 | filter_tests "${@:2}" | run_partests ;;
+    list)     list_tests $1 | filter_tests "${@:2}" ;;
+    tests)    list_tests $1 | filter_tests "${@:2}" | run_tests    ;;
+    partests) list_tests $1 | filter_tests "${@:2}" | run_partests ;;
 
     *)             echo "
-    K_VERSION: $K_VERSION
     usage:
        $0       Defaults to '$0 make build'
 
        # Building
        # --------
-       $0 make <target>     Run 'make <target>' with 'K_VERSION' set
+       $0 make <target>     Run 'make <target>'
 
        Useful <target>:
        -   defn:   Build the K definition files from the markdown files (requires pandoc)
@@ -249,7 +237,7 @@ case "$run_command" in
        $0 run   <pgm>   Run a single EVM program
        $0 test  <pgm>   Run a single EVM program like it's a test
        $0 debug <pgm>   Run a single EVM program in the debugger
-       $0 prove <spec>  Attempt to prove the specification using UIUC-K's RL prover
+       $0 prove <spec>  Attempt to prove the specification using K's RL prover
 
        Note: <pgm> and <spec> here are paths to files, *not* test lists.
        These files should be Ethereum programs (or specifications).
