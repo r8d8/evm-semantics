@@ -125,13 +125,6 @@ run_proof() {
     )
 }
 
-run_krun() {
-    run_make
-    progress "running: $1"
-    [[ -f "$1" ]] || die "$1 does not exist"
-    ( run_interpreter "$1" )
-}
-
 run_kdebug() {
     run_make
     progress "debugging: $1"
