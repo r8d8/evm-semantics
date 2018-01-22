@@ -10,12 +10,13 @@ Installing KEVM
 -   libmpfr
 -   autotools/autoconf
 -   libtool
+-   Z3
 
 On Ubuntu:
 
 ```sh
 sudo apt-get update
-sudo apt-get install make gcc maven openjdk-8-jdk flex opam pkg-config libmpfr-dev autoconf libtool pandoc zlib1g-dev
+sudo apt-get install make gcc maven openjdk-8-jdk flex opam pkg-config libmpfr-dev autoconf libtool pandoc zlib1g-dev z3
 ```
 
 ### Installation

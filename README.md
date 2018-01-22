@@ -40,8 +40,11 @@ Using the Definition
 
 -   `./Build` requires `xmllint` to pretty-print configurations when running programs/tests.
 -   When developing, the `*.k` files are generated from the `*.md` files using [Pandoc](https://pandoc.org).
+-   To run proofs, `k` needs the [Z3] prover. On Ubuntu, you can use `sudo apt install z3`
 -   For generating the Jello Paper, the [Sphinx Documentation Generation] tool is used.
     Additionally, you'll need to install the Python `pygments` for K available in the [K Editor Support] repository.
+
+[z3]: https://github.com/Z3Prover/z3
 
 ### K Backends
 
