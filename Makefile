@@ -19,19 +19,20 @@ build: .build/ocaml/driver-kompiled/interpreter .build/java/driver-kompiled/time
 # Get and Build Dependencies
 # --------------------------
 
-K_SUBMODULE=.build/k
+K_SUBMODULE=$(CURDIR)/.build/k
+BUILD_LOCAL=$(CURDIR)/.build/local
+PKG_CONFIG_LOCAL=$(BUILD_LOCAL)/lib/pkgconfig
 
-deps: .build/secp256k1/make.timestamp $(K_SUBMODULE)/make.timestamp ocaml-deps
+deps: .build/local/lib/pkgconfig/libsecp256k1.pc $(K_SUBMODULE)/make.timestamp ocaml-deps
 
 # install secp256k1 from bitcoin-core
-.build/secp256k1/make.timestamp:
+.build/local/lib/pkgconfig/libsecp256k1.pc:
 	git submodule update --init -- .build/secp256k1/
 	cd .build/secp256k1/ \
 		&& ./autogen.sh \
-		&& ./configure --enable-module-recovery \
+		&& ./configure --enable-module-recovery --prefix="$(BUILD_LOCAL)" \
 		&& make -s -j4 \
-		&& sudo make install
-	touch .build/secp256k1/make.timestamp
+		&& make install
 
 $(K_SUBMODULE)/make.timestamp:
 	git submodule update --init -- $(K_SUBMODULE)
@@ -155,6 +156,7 @@ tests/proofs/hkg/%-spec.k: proofs/hkg.md
 
 .build/ocaml/driver-kompiled/interpreter: $(ocaml_files) KRYPTO.ml
 	@echo "== kompile: $@"
+	export PKG_CONFIG_PATH=$(PKG_CONFIG_LOCAL)
 	${K_BIN}/kompile --debug --main-module ETHEREUM-SIMULATION \
 					--syntax-module ETHEREUM-SIMULATION $< --directory .build/ocaml \
 					--hook-namespaces KRYPTO --gen-ml-only -O3 --non-strict
