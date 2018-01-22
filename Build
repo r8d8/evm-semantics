@@ -140,7 +140,6 @@ run_kdebug() {
 # -------
 
 run_test() {
-    run_make
     test_file="$1"; shift
     case "$test_file" in
         *proofs/*      ) ( pretty_diff --label expected <(echo "true") \
