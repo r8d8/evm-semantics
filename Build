@@ -86,6 +86,10 @@ run_krun() {
     local backend=$1  ; shift
     local cSCHEDULE=${cSCHEDULE:-DEFAULT}
     local cMODE="$(run_mode "$run_file")"
+    case "$backend" in
+        ocaml) run_make .build/ocaml/driver-kompiled/interpreter ;;
+        java)  run_make .build/java/driver-kompiled/timestamp    ;;
+    esac
     export K_OPTS=-Xss500m
     krun --debug --directory .build/$backend/ -cSCHEDULE="$cSCHEDULE" -cMODE="$cMODE" "$run_file" "$@"
 }
@@ -93,6 +97,7 @@ run_krun() {
 run_interpreter() {
     test_file="$1"
     local cMODE="$(run_mode "$test_file")"
+    run_make .build/ocaml/driver-kompiled/interpreter
     (   set +e
         interpreter="$(dirname "$0")/.build/ocaml/driver-kompiled/interpreter"
         kast="$(mktemp)"
@@ -113,12 +118,12 @@ run_interpreter() {
 }
 
 run_proof() {
-    run_make
-    export K_OPTS=-Xmx2G
     local proof_file="$1" ; shift
     [[ -f "$proof_file" ]] || die "$proof_file does not exist"
     local cSCHEDULE=${cSCHEDULE:-DEFAULT}
     local cMODE=${cMODE:-NORMAL}
+    run_make .build/java/driver-kompiled/timestamp
+    export K_OPTS=-Xmx2G
     ( krun --directory .build/java/ -cSCHEDULE=${cSCHEDULE} -cMODE=${cMODE} \
          --z3-executable tests/templates/dummy-proof-input.json --prove "$proof_file" \
          </dev/null # grumble grumble `krun --prove` consumes stdin
