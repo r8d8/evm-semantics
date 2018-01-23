@@ -141,12 +141,8 @@ mkdir -p "$test_logs"
 now_passing="$test_logs/passing.lastrun"
 
 # main functionality
-[[ "$#" == '0' ]] && set make build
 run_command="$1" ; shift
 case "$run_command" in
-
-    # Building
-    make) run_make $@ ;;
 
     # Running
     run)   run_krun   "$1" ;;
@@ -156,17 +152,6 @@ case "$run_command" in
 
     *) echo "
     usage:
-       $0       Defaults to '$0 make build'
-
-       # Building
-       # --------
-       $0 make <target>     Run 'make <target>'
-
-       Useful <target>:
-       -   defn:   Build the K definition files from the markdown files (requires pandoc)
-       -   build:  Kompile the definition (calls defn target first)
-       -   deps:   Download and build dependencies
-       -   sphinx: Build Sphinx HTML documentation from semantics
 
        # Running
        # -------
