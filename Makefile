@@ -33,10 +33,11 @@ $(K_SUBMODULE)/make.timestamp:
 
 ocaml-deps: .build/local/lib/pkgconfig/libsecp256k1.pc
 	opam init --no-setup
-	opam repository add k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam" || opam repository set-url k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam"
+	opam repository add k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam" \
+		|| opam repository set-url k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam"
 	opam update
 	opam switch 4.03.0+k
-	opam install mlgmp zarith uuidm cryptokit secp256k1 bn128
+	opam install --yes mlgmp zarith uuidm cryptokit secp256k1 bn128
 
 # install secp256k1 from bitcoin-core
 .build/local/lib/pkgconfig/libsecp256k1.pc:
