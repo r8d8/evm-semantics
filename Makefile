@@ -14,7 +14,7 @@ check_K_VERSION = $(if $(value K_VERSION),, $(error K_VERSION undefined, must be
 K_VERSION_set:
 	@:$(call check_K_VERSION)
 
-build: .build/ocaml/driver-kompiled/interpreter .build/java/driver-kompiled/timestamp
+build: deps .build/ocaml/driver-kompiled/interpreter .build/java/driver-kompiled/timestamp
 
 # Get and Build Dependencies
 # --------------------------
@@ -129,7 +129,7 @@ passing_targets=$(passing_tests:=.test)
 passing_vm_targets=$(passing_vm_tests:=.test)
 passing_blockchain_targets=$(passing_blockchain_tests:=.test)
 
-test: $(passing_targets)
+test: build $(passing_targets)
 vm-test: $(passing_vm_targets)
 blockchain-test: $(passing_blockchain_targets)
 
