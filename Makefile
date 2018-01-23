@@ -99,6 +99,8 @@ defn: $(defn_files)
 # Tests
 # -----
 
+TEST=./kevm test
+
 split-tests: vm-tests split-bchain-tests split-proof-tests
 
 tests/ethereum-tests/make.timestamp:
@@ -137,8 +139,8 @@ blockchain-test: $(passing_blockchain_targets)
 
 vm-tests: tests/ethereum-tests/make.timestamp
 
-tests/VMTests/%.test: tests/VMTests/% build
-	./vmtest $<
+tests/ethereum-tests/VMTests/%.test: vm-tests build
+	$(TEST) $<
 
 # ### BlockchainTests
 
@@ -146,7 +148,7 @@ split-bchain-tests: \
 				  $(patsubst tests/ethereum-tests/%.json,tests/%/make.timestamp, $(wildcard tests/ethereum-tests/BlockchainTests/GeneralStateTests/*/*.json))
 
 tests/BlockchainTests/%.test: tests/BlockchainTests/% build
-	./blockchaintest $<
+	$(TEST) $<
 
 # ### Proof Tests
 
