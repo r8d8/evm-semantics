@@ -118,7 +118,7 @@ tests/%/make.timestamp: tests/ethereum-tests/%.json
 	touch $@
 
 blockchain_tests=$(wildcard tests/BlockchainTests/*/*/*/*.json)
-vm_tests=$(wildcard tests/VMTests/*/*/*.json)
+vm_tests=$(wildcard tests/ethereum-tests/VMTests/*/*.json)
 all_tests=$(vm_tests) $(blockchain_tests)
 slow_tests=$(wildcard tests/VMTests/vmPerformance/*/*.json) \
    $(wildcard tests/BlockchainTests/GeneralStateTests/*/*/*_Constantinople.json) \
@@ -140,9 +140,9 @@ blockchain-test: $(passing_blockchain_targets)
 
 # ### VMTests
 
-vm-tests: tests/ethereum-tests/make.timestamp
+tests/ethereum-tests/VMTests/%: tests/ethereum-tests/make.timestamp
 
-tests/ethereum-tests/VMTests/%.test: vm-tests build
+tests/ethereum-tests/VMTests/%.test: tests/ethereum-tests/VMTests/% build
 	$(TEST) $<
 
 # ### BlockchainTests
