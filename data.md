@@ -341,7 +341,7 @@ A cons-list is used for the EVM wordstack.
 
 ```{.k .uiuck .rvk}
     syntax WordStack [flatPredicate]
-    syntax WordStack ::= ".WordStack" | Int ":" WordStack
+    syntax WordStack ::= ".WordStack" [smtlib(nilWordStack)] | Int ":" WordStack // [smtlib(consWordStack)]
  // -----------------------------------------------------
 ```
 
