@@ -2,7 +2,7 @@
 	path = tests/ethereum-tests
 	url = https://github.com/ethereum/tests.git
 	branch = develop
-[submodule "tests/ci/rv-k"]
+[submodule ".build/k"]
 	path = .build/k
 	url = https://github.com/runtimeverification/k
 	# ignore make.timestamp file
