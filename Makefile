@@ -154,7 +154,7 @@ tests/proofs/hkg/%-spec.k: proofs/hkg.md
 # OCAML Backend Specific
 # ----------------------
 
-.build/ocaml/driver-kompiled/interpreter: $(ocaml_files) KRYPTO.ml
+.build/ocaml/driver-kompiled/interpreter: $(ocaml_files) ocaml-deps KRYPTO.ml
 	@echo "== kompile: $@"
 	export PKG_CONFIG_PATH=$(PKG_CONFIG_LOCAL)
 	${K_BIN}/kompile --debug --main-module ETHEREUM-SIMULATION \
