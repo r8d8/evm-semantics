@@ -75,7 +75,7 @@ defn: $(defn_files)
 # Java Backend
 .build/java/driver-kompiled/timestamp: $(java_files)
 	@echo "== kompile: $@"
-	${K_BIN}/kompile --debug --main-module ETHEREUM-SIMULATION --backend java \
+	$(K_BIN)/kompile --debug --main-module ETHEREUM-SIMULATION --backend java \
 					--syntax-module ETHEREUM-SIMULATION $< --directory .build/java
 
 # OCAML Backend
@@ -83,7 +83,7 @@ defn: $(defn_files)
 	@echo "== kompile: $@"
 	export PKG_CONFIG_PATH=$(PKG_CONFIG_LOCAL)
 	eval $(shell opam config env) \
-	${K_BIN}/kompile --debug --main-module ETHEREUM-SIMULATION \
+	$(K_BIN)/kompile --debug --main-module ETHEREUM-SIMULATION \
 					--syntax-module ETHEREUM-SIMULATION $< --directory .build/ocaml \
 					--hook-namespaces KRYPTO --gen-ml-only -O3 --non-strict; \
 	ocamlfind opt -c .build/ocaml/driver-kompiled/constants.ml -package gmp -package zarith; \
@@ -91,7 +91,7 @@ defn: $(defn_files)
 	ocamlfind opt -a -o semantics.cmxa KRYPTO.cmx; \
 	ocamlfind remove ethereum-semantics-plugin; \
 	ocamlfind install ethereum-semantics-plugin META semantics.cmxa semantics.a KRYPTO.cmi KRYPTO.cmx; \
-	${K_BIN}/kompile --debug --main-module ETHEREUM-SIMULATION \
+	$(K_BIN)/kompile --debug --main-module ETHEREUM-SIMULATION \
 					--syntax-module ETHEREUM-SIMULATION $< --directory .build/ocaml \
 					--hook-namespaces KRYPTO --packages ethereum-semantics-plugin -O3 --non-strict; \
 	cd .build/ocaml/driver-kompiled && ocamlfind opt -o interpreter constants.cmx prelude.cmx plugin.cmx parser.cmx lexer.cmx run.cmx interpreter.ml -package gmp -package dynlink -package zarith -package str -package uuidm -package unix -package ethereum-semantics-plugin -linkpkg -inline 20 -nodynlink -O3 -linkall
