@@ -69,35 +69,42 @@ list_tests() {
 # Runners
 # -------
 
-run_mode() {
+run_env() {
     local run_file=$1
-    local mode=""
+    local cmode=""
+    local cschedule=${cSCHEDULE:-DEFAULT}
+    local release_dir="$(pwd)/.build/k/k-distribution/target/release/k"
+    local lib_dir="$(pwd)/.build/local/lib"
     case "$run_file" in
-       *gas-analysis/*   ) mode="GASANALYZE" ;;
-       *VMTests/*        ) mode="VMTESTS"    ;;
-       *BlockchainTests/*) mode="NORMAL"     ;;
+       *gas-analysis/*   ) cmode="GASANALYZE" ;;
+       *VMTests/*        ) cmode="VMTESTS"    ;;
+       *BlockchainTests/*) cmode="NORMAL"     ;;
        *                 ) die "Don't know how to set 'MODE' for '$run_file'" ;;
     esac
-    echo "$mode"
+    export cMODE="$cmode"
+    export cSCHEDULE="$cschedule"
+    export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
+    export LD_LIBRARY_PATH="$release_dir/lib/native/linux64:$lib_dir:${LD_LIBRARY_PATH:-}"
+    eval $(opam config env)
 }
 
 run_krun() {
     local run_file=$1 ; shift
     local backend=$1  ; shift
-    local cSCHEDULE=${cSCHEDULE:-DEFAULT}
-    local cMODE="$(run_mode "$run_file")"
     case "$backend" in
         ocaml) run_make .build/ocaml/driver-kompiled/interpreter ;;
         java)  run_make .build/java/driver-kompiled/timestamp    ;;
     esac
+    run_make .build/k/make.timestamp >&2
+    run_env "$run_file"
     export K_OPTS=-Xss500m
     krun --debug --directory .build/$backend/ -cSCHEDULE="$cSCHEDULE" -cMODE="$cMODE" "$run_file" "$@"
 }
 
 run_interpreter() {
     test_file="$1"
-    local cMODE="$(run_mode "$test_file")"
-    run_make .build/ocaml/driver-kompiled/interpreter
+    run_make .build/ocaml/driver-kompiled/interpreter >&2
+    run_env "$test_file"
     (   set +e
         interpreter="$(dirname "$0")/.build/ocaml/driver-kompiled/interpreter"
         kast="$(mktemp)"
@@ -120,9 +127,8 @@ run_interpreter() {
 run_proof() {
     local proof_file="$1" ; shift
     [[ -f "$proof_file" ]] || die "$proof_file does not exist"
-    local cSCHEDULE=${cSCHEDULE:-DEFAULT}
-    local cMODE=${cMODE:-NORMAL}
-    run_make .build/java/driver-kompiled/timestamp
+    run_make .build/java/driver-kompiled/timestamp >&2
+    run_env "$proof_file"
     export K_OPTS=-Xmx2G
     ( krun --directory .build/java/ -cSCHEDULE=${cSCHEDULE} -cMODE=${cMODE} \
          --z3-executable tests/templates/dummy-proof-input.json --prove "$proof_file" \
