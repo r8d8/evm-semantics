@@ -41,7 +41,7 @@ $(K_SUBMODULE)/make.timestamp:
 	touch $(K_SUBMODULE)/make.timestamp
 
 ocaml-deps:
-	opam init
+	opam init --no-setup
 	opam repository add k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam" || opam repository set-url k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam"
 	opam update
 	opam switch 4.03.0+k
