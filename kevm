@@ -23,8 +23,6 @@ pretty_diff() {
     fi
 }
 
-run_make() { make -s "$@" ; }
-
 lint_krun() {
     # Format, &gt; entity > and make each K task start on a new line
     xmllint -format - | sed -e 's/&gt;/>/g'  -e 's/~>/\n   ~>/g'
@@ -58,11 +56,6 @@ run_env() {
 run_krun() {
     local run_file=$1 ; shift
     local backend=$1  ; shift
-    case "$backend" in
-        ocaml) run_make .build/ocaml/driver-kompiled/interpreter ;;
-        java)  run_make .build/java/driver-kompiled/timestamp    ;;
-    esac
-    run_make .build/k/make.timestamp >&2
     run_env "$run_file"
     export K_OPTS=-Xss500m
     krun --debug --directory .build/$backend/ -cSCHEDULE="$cSCHEDULE" -cMODE="$cMODE" "$run_file" "$@"
@@ -70,7 +63,6 @@ run_krun() {
 
 run_interpreter() {
     test_file="$1"
-    run_make .build/ocaml/driver-kompiled/interpreter >&2
     run_env "$test_file"
     (   set +e
         interpreter="$(dirname "$0")/.build/ocaml/driver-kompiled/interpreter"
@@ -94,7 +86,6 @@ run_interpreter() {
 run_proof() {
     local proof_file="$1" ; shift
     [[ -f "$proof_file" ]] || die "$proof_file does not exist"
-    run_make .build/java/driver-kompiled/timestamp >&2
     run_env "$proof_file"
     export K_OPTS=-Xmx2G
     ( krun --directory .build/java/ -cSCHEDULE=${cSCHEDULE} -cMODE=${cMODE} \
@@ -104,7 +95,6 @@ run_proof() {
 }
 
 run_kdebug() {
-    run_make
     progress "debugging: $1"
     ( run_krun "$1" java --debug --debugger )
 }
