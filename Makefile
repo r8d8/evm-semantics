@@ -23,7 +23,20 @@ K_SUBMODULE=$(CURDIR)/.build/k
 BUILD_LOCAL=$(CURDIR)/.build/local
 PKG_CONFIG_LOCAL=$(BUILD_LOCAL)/lib/pkgconfig
 
-deps: .build/local/lib/pkgconfig/libsecp256k1.pc $(K_SUBMODULE)/make.timestamp ocaml-deps
+deps: $(K_SUBMODULE)/make.timestamp ocaml-deps
+
+$(K_SUBMODULE)/make.timestamp:
+	git submodule update --init -- $(K_SUBMODULE)
+	cd $(K_SUBMODULE) \
+		&& mvn package -q -DskipTests
+	touch $(K_SUBMODULE)/make.timestamp
+
+ocaml-deps: .build/local/lib/pkgconfig/libsecp256k1.pc
+	opam init --no-setup
+	opam repository add k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam" || opam repository set-url k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam"
+	opam update
+	opam switch 4.03.0+k
+	opam install mlgmp zarith uuidm cryptokit secp256k1 bn128
 
 # install secp256k1 from bitcoin-core
 .build/local/lib/pkgconfig/libsecp256k1.pc:
@@ -33,19 +46,6 @@ deps: .build/local/lib/pkgconfig/libsecp256k1.pc $(K_SUBMODULE)/make.timestamp o
 		&& ./configure --enable-module-recovery --prefix="$(BUILD_LOCAL)" \
 		&& make -s -j4 \
 		&& make install
-
-$(K_SUBMODULE)/make.timestamp:
-	git submodule update --init -- $(K_SUBMODULE)
-	cd $(K_SUBMODULE) \
-		&& mvn package -q -DskipTests
-	touch $(K_SUBMODULE)/make.timestamp
-
-ocaml-deps:
-	opam init --no-setup
-	opam repository add k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam" || opam repository set-url k "$(K_SUBMODULE)/k-distribution/target/release/k/lib/opam"
-	opam update
-	opam switch 4.03.0+k
-	opam install mlgmp zarith uuidm cryptokit secp256k1 bn128
 
 K_BIN=$(K_SUBMODULE)/k-distribution/target/release/k/bin
 
